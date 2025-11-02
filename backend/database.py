@@ -4,7 +4,7 @@ import os
 # Use the synchronous MongoClient
 from pymongo import MongoClient, ASCENDING
 from pymongo.database import Database # Import Database type hint
-from pymongo.errors import ConnectionFailure, OperationFailure
+from pymongo.errors import ConnectionFailure, OperationFailure, DuplicateKeyError
 from dotenv import load_dotenv
 import datetime # Need datetime for admin user creation
 from auth import get_password_hash # Import here to avoid circular dependency
@@ -38,6 +38,10 @@ def connect_to_mongo():
         db = client[DATABASE_NAME]
         print(f"✅ Successfully connected to MongoDB database '{DATABASE_NAME}'.")
 
+        # ============================================
+        # USER COLLECTION INDEXES
+        # ============================================
+        
         # Ensure unique email index remains
         db.users.create_index("email", unique=True)
         print("   - Ensured 'email' unique index.")
@@ -56,6 +60,43 @@ def connect_to_mongo():
             partialFilterExpression={"registrationNumber": {"$type": "string"}}
         )
         print("   - Ensured partial unique index for 'registrationNumber' (non-null).")
+
+        # ============================================
+        # PROJECT-RELATED COLLECTIONS AND INDEXES
+        # ============================================
+
+        # Projects collection indexes
+        db.projects.create_index("ownerId")
+        print("   - Ensured 'ownerId' index on projects collection.")
+
+        db.projects.create_index("teamMembers.userId")
+        print("   - Ensured 'teamMembers.userId' index on projects collection.")
+
+        db.projects.create_index("guideId")
+        print("   - Ensured 'guideId' index on projects collection.")
+
+        db.projects.create_index("department")
+        print("   - Ensured 'department' index on projects collection.")
+
+        db.projects.create_index("status")
+        print("   - Ensured 'status' index on projects collection.")
+
+        # Team invitations collection indexes
+        db.team_invitations.create_index([("inviteeId", ASCENDING), ("status", ASCENDING)])
+        print("   - Ensured 'inviteeId + status' compound index on team_invitations collection.")
+
+        db.team_invitations.create_index("projectId")
+        print("   - Ensured 'projectId' index on team_invitations collection.")
+
+        # Guide requests collection indexes
+        db.guide_requests.create_index([("ownerId", ASCENDING), ("status", ASCENDING)])
+        print("   - Ensured 'ownerId + status' compound index on guide_requests collection.")
+
+        db.guide_requests.create_index("teacherId")
+        print("   - Ensured 'teacherId' index on guide_requests collection.")
+
+        db.guide_requests.create_index("projectId")
+        print("   - Ensured 'projectId' index on guide_requests collection.")
 
         return db # Return db instance directly
     except ConnectionFailure as e:
@@ -158,4 +199,3 @@ if __name__ == "__main__":
         print(f"Error in main block: {e}")
     finally:
         close_mongo_connection()
-

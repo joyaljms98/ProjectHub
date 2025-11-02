@@ -1,4 +1,6 @@
-# Authentication Utilities
+# Authentication Utilities - PLAIN TEXT (DEV-ONLY)
+# WARNING: This file stores and checks passwords in plain text.
+# DO NOT use in a production environment.
 
 import os
 from datetime import datetime, timedelta, timezone
@@ -6,7 +8,6 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from pydantic import ValidationError
 
 from models import TokenData
@@ -15,38 +16,30 @@ load_dotenv()
 
 # --- Configuration ---
 # Generate a secret key using: openssl rand -hex 32
-SECRET_KEY = os.getenv("SECRET_KEY", "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7") # Default for dev, CHANGE THIS IN .env for production!
+SECRET_KEY = os.getenv("SECRET_KEY", "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7") # Default for dev
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 1 day expiration
 
-# --- Password Hashing ---
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# --- Password "Hashing" (Plain Text) ---
+# We are no longer hashing. We just compare strings.
 
-# A separate, faster context for security answers.
-# We will compare them in uppercase to make them case-insensitive.
-security_answer_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifies a plain password against a hashed password."""
-    # FIX: Encode plain_password to bytes
-    return pwd_context.verify(plain_password.encode('utf-8'), hashed_password)
+def verify_password(plain_password: str, stored_password: str) -> bool:
+    """Verifies a plain password against the stored plain password."""
+    return plain_password == stored_password
 
 def get_password_hash(password: str) -> str:
-    """Hashes a plain password."""
-    # FIX: Encode password to bytes
-    return pwd_context.hash(password.encode('utf-8'))
+    """Returns the plain password to be stored."""
+    return password
 
 def get_security_answer_hash(answer: str):
-    """Hashes the security answer in uppercase."""
+    """Returns the uppercase answer to be stored."""
     # We use .upper() to ensure the check is case-insensitive
-    # FIX: Encode answer to bytes
-    return security_answer_context.hash(answer.upper().encode('utf-8'))
+    return answer.upper()
 
-def verify_security_answer(plain_answer: str, hashed_answer: str):
-    """Verifies a plain answer against the hashed answer, case-insensitively."""
-    # We also use .upper() on the user's input to match the hash
-    # FIX: Encode plain_answer to bytes
-    return security_answer_context.verify(plain_answer.upper().encode('utf-8'), hashed_answer)
+def verify_security_answer(plain_answer: str, stored_answer: str):
+    """Verifies a plain answer against the stored answer, case-insensitively."""
+    # We also use .upper() on the user's input to match the stored answer
+    return plain_answer.upper() == stored_answer
 
 # --- JWT Token Handling ---
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -63,13 +56,20 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def verify_token(token: str) -> Optional[TokenData]:
     """Verifies a JWT token and returns the payload (TokenData)."""
     try:
+        # jwt.decode will automatically check expiration and raise JWTError if expired
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        # Validate payload against TokenData model
-        token_data = TokenData(**payload)
-        # Check expiration manually as jwt.decode might not raise error for expired token in all cases
-        if token_data.exp < datetime.now(timezone.utc):
-             print("Token expired.")
-             return None
+
+        # Extract email from 'sub' claim (standard JWT claim for subject)
+        email = payload.get("sub")
+        if not email:
+            print("Token missing 'sub' claim")
+            return None
+
+        # Extract role
+        role = payload.get("role")
+
+        # Create TokenData with extracted values
+        token_data = TokenData(email=email, role=role)
         return token_data
     except JWTError as e:
         print(f"JWT Error: {e}")

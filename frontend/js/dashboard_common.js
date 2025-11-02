@@ -1,4 +1,43 @@
-document.addEventListener('DOMContentLoaded', function() {
+// document.addEventListener('DOMContentLoaded', function() {
+
+    // Function to fetch and populate user info
+    async function populateUserInfo() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/me`, {
+                method: 'GET',
+                headers: getAuthHeaders() // Assumes getAuthHeaders() is available
+            });
+
+            if (!response.ok) {
+                // If token is bad, redirect to login
+                if (response.status === 401) {
+                    localStorage.removeItem('accessToken');
+                    window.location.href = 'home.html';
+                    return;
+                }
+                throw new Error('Could not fetch user info');
+            }
+            
+            const user = await response.json();
+
+            // Find and update all elements
+            const welcomeName = document.getElementById('user-welcome-name');
+            const fullName = document.getElementById('user-full-name');
+            const userRole = document.getElementById('user-role');
+
+            if (welcomeName) welcomeName.textContent = (user.fullName ? user.fullName.split(' ')[0] : 'User');
+            if (fullName) fullName.textContent = user.fullName || 'User';
+            if (userRole) userRole.textContent = user.role || '';
+
+        } catch (error) {
+            console.error("Failed to populate user info:", error);
+            // Leave the hardcoded names as a fallback
+        }
+    }
+    // call to populate user details on dashboard load
+    // populateUserInfo().catch(err => {
+    //     console.error('Failed to populate user info:', err);
+    // });
 
     // --- SMOOTH SCROLL CLASS ---
     class Smooth {
@@ -32,7 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 left: isCollapsed ? '0rem' : '16rem', 
                 right: 0,
                 height: '100%',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                transition: 'left 0.3s ease-in-out' // Added transition
             })
         }
 
@@ -45,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         resize() {
             this.setHeight()
             this.setStyles() 
-            this.scroll()
+            this.scroll() // Run scroll to update
         }
 
         preload() {
@@ -117,7 +157,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // --- SPA NAVIGATION LOGIC ---
-    const smoothScroller = new Smooth();
+    let smoothScroller = null;
+    try {
+        smoothScroller = new Smooth();
+    } catch(e) {
+        console.warn("Smooth scroll init failed. Using native scroll.", e);
+        const scrollEl = document.querySelector('[data-scroll]');
+        if(scrollEl) {
+            scrollEl.style.position = 'relative';
+            scrollEl.style.overflow = 'visible';
+        }
+         document.body.style.height = 'auto'; // Reset body height
+    }
+
     const transitionDuration = 300; 
     let currentPageId = 'dashboard-page'; 
     
@@ -142,14 +194,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (smoothScroller) {
                 setTimeout(() => {
                    smoothScroller.resize();
-                }, 0);
+                }, 0); // Use timeout to wait for layout shift
             }
         });
     }
     // --- END HAMBURGER LOGIC ---
 
-
-    function showPage(targetId) {
+    // This is the missing function
+    window.showPage = function(targetId) {
         if (!targetId || currentPageId === targetId) return;
 
         const targetPage = document.getElementById(targetId);
@@ -184,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             allNavLinks.forEach(link => {
-                if(link.closest('aside')) {
+                if(link.closest('aside')) { // Only affect sidebar links
                     link.classList.remove(...activeClasses);
                     link.classList.add(...inactiveClasses);
                 }
@@ -196,12 +248,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 activeLink.classList.add(...activeClasses);
             }
             
-
+            // Reset Scroll Position
             if (smoothScroller) {
                 smoothScroller.data.current = 0;
                 smoothScroller.data.last = 0;
                 smoothScroller.data.rounded = 0;
-                smoothScroller.resize(); 
+                window.scrollTo(0, 0); // Force scroll to top
+                smoothScroller.resize(); // Recalculate height and reset position
+            } else {
+                 window.scrollTo(0, 0); // Native scroll reset
             }
 
             currentPageId = targetId;
@@ -214,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault(); 
             const targetId = this.dataset.target;
             if(targetId) {
-                showPage(targetId);
+                window.showPage(targetId);
             }
         });
     });
@@ -232,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initialActiveLink.classList.add(...activeClasses);
     }
 
-    // --- NEW: STICKY NOTES LOGIC ---
+    // --- STICKY NOTES LOGIC ---
     function initializeStickyNote(textareaId, buttonId, storageKey) {
         const textarea = document.getElementById(textareaId);
         const saveButton = document.getElementById(buttonId);
@@ -256,9 +311,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initializeStickyNote('student-sticky-note', 'save-student-note', 'studentStickyNote');
     initializeStickyNote('teacher-sticky-note', 'save-teacher-note', 'teacherStickyNote');
-    initializeStickyNote('admin-sticky-note', 'save-admin-note', 'adminStickyNote');
+    // Note: admin-sticky-note does not exist in the provided admin HTML, but we leave the hook.
 
-    // --- NEW: CALENDAR WIDGET LOGIC ---
+    // --- CALENDAR WIDGET LOGIC ---
     function renderCalendar(containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -312,6 +367,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     renderCalendar('student-calendar-widget');
     renderCalendar('teacher-calendar-widget');
-    renderCalendar('admin-calendar-widget');
+    // Note: admin-calendar-widget does not exist in the provided admin HTML, but we leave the hook.
 
-});
+// });

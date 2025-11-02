@@ -106,8 +106,8 @@
             <div class="flex items-center gap-3">
                 <img alt="Dr. Evelyn Reed" class="w-10 h-10 rounded-full" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1888&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
                 <div>
-                    <p class="font-semibold text-text-light dark:text-text-dark">Dr. Evelyn Reed</p>
-                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Teacher/Guide</p>
+                    <p id="user-full-name" class="font-semibold text-text-light dark:text-text-dark">Dr. Evelyn Reed</p>
+                    <p id="user-role" class="text-sm text-subtext-light dark:text-subtext-dark">Teacher/Guide</p>
                     <a class="text-sm text-subtext-light dark:text-subtext-dark hover:underline" href="#">Logout</a>
                 </div>
             </div>
@@ -807,7 +807,41 @@
     </main> 
     
     <!-- Shared JavaScript -->
+    <script src="js/projects.js"></script>
     <script src="js/dashboard_common.js"></script>
+    
+    <script>
+        // Initialize project management system on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is authenticated
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                window.location.href = 'home.html'; // Redirect to home/login
+                return;
+            }
+
+            populateUserInfo(); // Fetches and displays user's name
+
+            // Initialize projects functionality
+            initializeProjects(); // This will call loadUserProjects() for the teacher
+
+            // Load teacher-specific data
+            loadUnassignedProjects();
+            loadGuideRequests('sent');
+
+            // Logout handler
+            const logoutLinks = document.querySelectorAll('a[href="#"]');
+            logoutLinks.forEach(link => {
+                if (link.textContent.trim() === 'Logout') {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        localStorage.removeItem('accessToken');
+                        window.location.href = 'home.html';
+                    });
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
