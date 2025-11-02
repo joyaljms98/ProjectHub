@@ -963,6 +963,46 @@
     </main> 
     
     <script src="js/dashboard_common.js"></script>
+    <script src="js/projects.js"></script>
+
+    <script>
+        // Initialize project management system on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is authenticated
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                window.location.href = 'index.html'; // Redirect to login
+                return;
+            }
+
+            // Initialize projects functionality
+            initializeProjects();
+
+            // Load team invitations
+            loadTeamInvitations();
+
+            // Load guide requests
+            loadGuideRequests('received');
+
+            // Set up "Add Project" form handler
+            const addProjectForm = document.querySelector('#add-project-page button[type="button"]:last-of-type');
+            if (addProjectForm) {
+                addProjectForm.addEventListener('click', handleStep1Submit);
+            }
+
+            // Logout handler
+            const logoutLinks = document.querySelectorAll('a[href="#"]');
+            logoutLinks.forEach(link => {
+                if (link.textContent.trim() === 'Logout') {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        localStorage.removeItem('accessToken');
+                        window.location.href = 'index.html';
+                    });
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
