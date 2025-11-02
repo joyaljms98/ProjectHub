@@ -60,6 +60,52 @@ def get_db() -> Database: # Change type hint
     # get_database now raises ConnectionFailure if not connected
     return db
 
+# --- Authentication Dependency ---
+def get_current_user(
+    authorization: Optional[str] = Header(None),
+    db: Database = Depends(get_db)
+) -> dict:
+    """Extract and verify JWT token, return current user from database"""
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authorization header missing",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Extract token from "Bearer <token>" format
+    parts = authorization.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header format. Expected: Bearer <token>",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    token = parts[1]
+
+    # Verify token and extract payload
+    token_data = auth.verify_token(token)
+    if not token_data or not token_data.email:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Fetch user from database
+    user = db.users.find_one({"email": token_data.email.lower()})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Convert ObjectId to string for easier handling
+    user["_id"] = str(user["_id"])
+    return user
+
 # --- API Endpoints ---
 
 @app.get("/")
