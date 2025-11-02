@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ProjectHub - Your Campus Project Collaboration Hub</title>
+    
+    <!-- Tailwind CSS and Fonts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
+        
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00BFFF",
+                        "background-light": "#FFFFFF",
+                        "background-dark": "#101c22",
+                        "text-light": "#0d171b",
+                        "text-dark": "#f6f7f8",
+                        "subtle-light": "#e7eff3",
+                        "subtle-dark": "#1a2a33",
+                        "accent-light": "#ADD8E6",
+                        "text-headings": "#1E293B",
+                        "text-body": "#475569",
+                    },
+                    fontFamily: {
+                        display: ["Manrope", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        lg: "1rem",
+                        xl: "1.5rem",
+                        full: "9999px",
+                    },
+                    boxShadow: {
+                        soft: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+                        subtle: '0 4px 12px 0 rgba(0, 0, 0, 0.07)',
+                    },
+                },
+            },
+        };
+    </script>
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="css/home.css">
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    
+    <button id="back-button" class="fixed top-4 left-4 sm:left-10 z-[51] p-2 rounded-full hidden transition-all duration-300 back-button-home">
+        <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-50 header-home transition-transform duration-300 ease-in-out">
+        <div class="w-full max-w-6xl mx-auto flex items-center justify-between whitespace-nowrap px-4 sm:px-10 py-4">
+            <div class="flex items-center gap-2 text-text-light dark:text-text-dark">
+                <a href="#" class="nav-link" data-target="home-page">
+                    <div class="flex items-center gap-4">
+                        <div class="size-8">
+                            <svg class="h-full w-full" fill="url(#gradient)" viewBox="0 0 48 48"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" x2="100%" y1="0%" y2="0%">
+                                        <stop offset="0%" stop-color="#3b82f6"></stop>
+                                        <stop offset="50%" stop-color="#8b5cf6"></stop>
+                                        <stop offset="100%" stop-color="#f97316"></stop>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold tracking-[-0.015em]">ProjectHub</h2>
+                    </div>
+                </a>
+            </div>
+            <div class="flex items-center gap-6">
+                <nav class="hidden md:flex items-center gap-6 text-base font-bold">
+                    <a id="nav-home" class="nav-link" href="#" data-target="home-page">Home</a>
+                    <a id="nav-about" class="nav-link" href="#" data-target="about-page">About</a>
+                    <a id="nav-contact" class="nav-link" href="#" data-target="contact-page">Contact</a>
+                </nav>
+                <div class="flex items-center gap-4">
+                    <button id="nav-signup"
+                        class="nav-link shimmer flex h-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg px-5 text-sm font-bold text-white shadow-soft transition-all"
+                        data-target="signup-page">
+                        <span class="truncate">Sign Up</span>
+                    </button>
+                    <button id="nav-login"
+                        class="nav-link shimmer flex h-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg px-5 text-sm font-bold text-white shadow-soft transition-all"
+                        data-target="login-page">
+                        <span class="truncate">Login</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div data-scroll>
+        <div data-scroll-content>
+
+            <!-- Home Page Content -->
+            <div id="home-page" class="page">
+                <div id="main-background"
+                    class="relative flex h-auto min-h-screen w-full flex-col font-display group/design-root overflow-x-hidden dark:bg-background-dark pt-[68px]"
+                    style="background-image: url('assets/bg.png'); background-size: 110%; background-position: center top;">
+                    <div class="layout-container flex h-full grow flex-col">
+                        <div class="flex flex-1 justify-center">
+                            <div class="layout-content-container flex w-full max-w-6xl flex-1 flex-col">
+                                <main class="flex flex-1 flex-col items-center px-4 py-10 sm:px-10 lg:px-20">
+                                    <div
+                                        class="flex flex-col items-center justify-center gap-6 text-center min-h-[calc(100vh-200px)]">
+                                        <h1
+                                            class="animate-gradient-text bg-clip-text text-6xl font-black leading-tight tracking-[-0.033em] text-transparent">
+                                            Welcome to ProjectHub</h1>
+                                        <h2
+                                            class="px-4 pb-3 pt-5 text-center text-2xl font-bold leading-tight tracking-[-0.015em] text-white dark:text-white"
+                                            style="text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
+                                            Your Campus Project Collaboration Hub</h2>
+                                    </div>
+                                    <div class="w-full pt-32 lg:pt-48">
+                                        <h2
+                                            class="px-4 pb-3 pt-5 text-center text-3xl font-bold leading-tight tracking-[-0.015em] text-white dark:text-white"
+                                            style="text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;">
+                                            About ProjectHub</h2>
+                                        <div class="flex flex-col gap-10 px-4 py-10">
+                                            <div class="grid grid-cols-1 gap-8 p-0 md:grid-cols-3">
+                                                <div
+                                                    class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-background-light p-6 text-center shadow-soft dark:border-gray-700 dark:bg-background-dark/30">
+                                                    <span
+                                                        class="material-symbols-outlined mx-auto text-5xl bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 bg-clip-text text-transparent">business_center</span>
+                                                    <div class="flex flex-col gap-2">
+                                                        <h3 class="text-xl font-bold leading-tight text-text-light dark:text-text-dark">
+                                                            Project Management</h3>
+                                                        <p
+                                                            class="text-base font-normal leading-normal text-text-light/70 dark:text-text-dark/70">
+                                                            Organize your projects with ease, from creating tasks to setting
+                                                            deadlines.</p>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-background-light p-6 text-center shadow-soft dark:border-gray-700 dark:bg-background-dark/30">
+                                                    <span
+                                                        class="material-symbols-outlined mx-auto text-5xl bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 bg-clip-text text-transparent">groups</span>
+                                                    <div class="flex flex-col gap-2">
+                                                        <h3 class="text-xl font-bold leading-tight text-text-light dark:text-text-dark">
+                                                            Collaboration Tools</h3>
+                                                        <p
+                                                            class="text-base font-normal leading-normal text-text-light/70 dark:text-text-dark/70">
+                                                            Work together seamlessly with your team, share files, and communicate
+                                                            effectively.</p>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-background-light p-6 text-center shadow-soft dark:border-gray-700 dark:bg-background-dark/30">
+                                                    <span
+                                                        class="material-symbols-outlined mx-auto text-5xl bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 bg-clip-text text-transparent">monitoring</span>
+                                                    <div class="flex flex-col gap-2">
+                                                        <h3 class="text-xl font-bold leading-tight text-text-light dark:text-text-dark">
+                                                            Progress Tracking</h3>
+                                                        <p
+                                                            class="text-base font-normal leading-normal text-text-light/70 dark:text-text-dark/70">
+                                                            Monitor your project's progress in real-time with our intuitive
+                                                            dashboard.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </main>
+                                <footer class="mt-24 lg:mt-32 flex flex-col gap-6 px-5 py-10 text-center">
+                                    <div class="flex flex-wrap items-center justify-center gap-6">
+                                        <a class="text-base font-bold leading-normal text-white transition-colors hover:text-primary"
+                                            href="#">For CUCEK Mini Project</a>
+                                        </div>
+                                    <p class="text-base font-bold leading-normal text-white">By Albert, Joyal, Noel and Yadu.
+                                    </p>
+                                </footer>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Login Page Content -->
+            <div id="login-page" class="hidden page pt-[68px]" style="opacity: 0;">
+                <main class="flex flex-1 items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                    <div class="w-full max-w-md space-y-8">
+                        <div class="flex flex-col items-center">
+                            <p class="text-4xl font-black tracking-[-0.033em]">
+                                Log In to ProjectHub
+                            </p>
+                        </div>
+                        <div class="bg-background-light dark:bg-subtle-dark/50 p-8 rounded-xl shadow-lg space-y-6">
+                            <div class="flex flex-col">
+                                <label class="flex flex-col min-w-40 flex-1">
+                                    <p class="text-base font-medium pb-2">
+                                        Email or Username
+                                    </p>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                        placeholder="Enter your email or username" value="" />
+                                </label>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="flex flex-col min-w-40 flex-1">
+                                    <p class="text-base font-medium pb-2">
+                                        Password
+                                    </p>
+                                    <div class="flex w-full flex-1 items-stretch">
+                                        <input
+                                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 focus:z-10 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                            placeholder="Enter your password" type="password" value="" />
+                                        <button aria-label="Toggle password visibility"
+                                            class="text-[#4c809a] dark:text-gray-500 flex border-none bg-subtle-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
+                                            <span class="material-symbols-outlined">
+                                                visibility_off
+                                            </span>
+                                        </button>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <a class="nav-link text-sm font-medium gradient-text hover:opacity-80 transition-opacity" href="#" data-target="reset-password-page">
+                                    Forgot password?
+                                </a>
+                            </div>
+                            <div>
+                                <button
+                                    class="w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 gradient-bg text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:opacity-90 transition-opacity">
+                                    <span class="truncate">
+                                        Log In
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                         <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+                            Don't have an account? <a href="#" class="nav-link font-medium gradient-text hover:opacity-80" data-target="signup-page">Sign up</a>
+                        </p>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Signup Page Content -->
+            <div id="signup-page" class="hidden page pt-[68px]" style="opacity: 0;">
+                 <main class="flex-grow flex flex-col items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                    <div class="text-center mb-12">
+                        <h1 class="text-[#0d171b] dark:text-white text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em]"><span class="gradient-text">Create Your ProjectHub Account</span></h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-lg font-normal leading-normal mt-3">Choose your role to get started.</p>
+                    </div>
+                    <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="flex flex-col gap-6 p-8 bg-white dark:bg-background-dark border border-slate-200 dark:border-slate-700 rounded-xl shadow-subtle hover:shadow-lg transition-shadow cursor-pointer">
+                            <div class="flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-orange-100 rounded-full size-16 mx-auto">
+                                <span class="material-symbols-outlined text-4xl gradient-text">school</span>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[#0d171b] dark:text-white text-2xl font-bold leading-normal">For Teachers</p>
+                                <p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal mt-2">Manage your projects, assign tasks, and collaborate with your students.</p>
+                            </div>
+                            <button class="nav-link w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-gradient-to-r from-blue-500 via-purple-500 to-orange-400 text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-gradient-to-br transition-all duration-300 mt-auto" data-target="registration-page" data-role="Teacher">
+                                <span class="truncate">Register as a Teacher</span>
+                            </button>
+                        </div>
+                        <div class="flex flex-col gap-6 p-8 bg-white dark:bg-background-dark border border-slate-200 dark:border-slate-700 rounded-xl shadow-subtle hover:shadow-lg transition-shadow cursor-pointer">
+                            <div class="flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-orange-100 rounded-full size-16 mx-auto">
+                                <span class="material-symbols-outlined text-4xl gradient-text">group</span>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-[#0d171b] dark:text-white text-2xl font-bold leading-normal">For Students</p>
+                                <p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal mt-2">Join projects, track your progress, and collaborate with your team.</p>
+                            </div>
+                            <button class="nav-link w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-gradient-to-r from-blue-500 via-purple-500 to-orange-400 text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-gradient-to-br transition-all duration-300 mt-auto" data-target="registration-page" data-role="Student">
+                                <span class="truncate">Register as a Student</span>
+                            </button>
+                        </div>
+                    </div>
+                     <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-8">
+                            Already have an account? <a href="#" class="nav-link font-medium gradient-text hover:opacity-80" data-target="login-page">Log in</a>
+                        </p>
+                </main>
+            </div>
+
+            <!-- Registration Page Content -->
+            <div id="registration-page" class="hidden page pt-[68px]" style="opacity: 0;">
+                <main class="flex-1 flex items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                    <div class="w-full max-w-2xl mx-auto">
+                        <div class="flex flex-col items-center mb-8">
+                            <h1 class="text-4xl font-black tracking-[-0.033em] text-center bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 text-transparent bg-clip-text">
+                                Welcome to ProjectHub!
+                            </h1>
+                            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400 text-center">
+                                Let's get your profile set up.
+                            </p>
+                        </div>
+                        <div class="bg-background-light dark:bg-subtle-dark/50 p-8 rounded-xl shadow-lg space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2" for="full-name">
+                                        Full Name
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                        id="full-name" placeholder="Enter your full name" type="text" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2" for="reg-number">
+                                        Registration Number
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                        id="reg-number" placeholder="e.g., 2023-CS-123" type="text" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2" for="reg-email">
+                                        Email
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                        id="reg-email" placeholder="Enter your email" type="email" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2" for="reg-password">
+                                        Password
+                                    </label>
+                                    <div class="flex w-full flex-1 items-stretch">
+                                        <input
+                                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 focus:z-10 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                            id="reg-password" placeholder="Create a password" type="password" />
+                                        <button aria-label="Toggle password visibility"
+                                            class="text-[#4c809a] dark:text-gray-500 flex border-none bg-subtle-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
+                                            <span class="material-symbols-outlined">
+                                                visibility_off
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2" for="department">
+                                        Department
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal pr-10"
+                                        id="department">
+                                        <option selected="">
+                                            Select your department
+                                        </option>
+                                        <option>
+                                            Computer Science
+                                        </option>
+                                        <option>
+                                            Electrical Engineering
+                                        </option>
+                                        <option>
+                                            Mechanical Engineering
+                                        </option>
+                                        <option>
+                                            Business Administration
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2" for="user-type">
+                                        User Role
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal pr-10"
+                                        id="user-type">
+                                        <option value="">
+                                            Select your role
+                                        </option>
+                                        <option value="Student">
+                                            Student
+                                        </option>
+                                        <option value="Teacher">
+                                            Teacher
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2" for="security-question">
+                                        Security Question
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal pr-10"
+                                        id="security-question">
+                                        <option value="">Select a question...</option>
+                                        <option value="pet">What was your first pet's name?</option>
+                                        <option value="street">What street did you grow up on?</option>
+                                        <option value="mother_maiden">What is your mother's maiden name?</option>
+                                        <option value="first_car">What was the model of your first car?</option>
+                                        <option value="elementary">What was the name of your elementary school?</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2" for="security-answer">
+                                        Security Answer
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                        id="security-answer" placeholder="Your answer (will be saved in caps)" type="text"
+                                        oninput="this.value = this.value.toUpperCase()" />
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button
+                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:opacity-90 transition-opacity">
+                                    <span class="truncate">
+                                        Complete Setup
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- About Page Content -->
+            <div id="about-page" class="hidden page pt-[68px]" style="opacity: 0;">
+                <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
+                    <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                        <div class="@container">
+                            <div class="flex flex-col gap-6 px-4 py-10 @[480px]:gap-8 @[864px]:flex-row items-center">
+                                <div class="w-full @[864px]:w-1/2">
+                                    <div class="flex flex-col gap-6 text-left">
+                                        <h1 class="text-4xl font-black leading-tight tracking-tight @[480px]:text-5xl">
+                                            <span class="gradient-text">Empowering Campus Collaboration</span>
+                                        </h1>
+                                        <h2 class="text-text-body dark:text-gray-300 text-lg font-normal leading-normal @[480px]:text-xl">
+                                            The all-in-one project management tool for students and teachers.
+                                        </h2>
+                                    </div>
+                                </div>
+                                <div class="w-full @[864px]:w-1/2 flex justify-center">
+                                    <img class="rounded-xl shadow-lg w-full max-w-md"
+                                        data-alt="Dynamic illustration of students and teachers collaborating"
+                                        src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                                </div>
+                            </div>
+                        </div>
+                        <h2 class="text-3xl font-bold leading-tight tracking-tight px-4 pb-3 pt-12"><span
+                                class="gradient-text">What is ProjectHub?</span></h2>
+                        <p class="text-text-body dark:text-gray-300 text-base font-normal leading-relaxed pb-3 pt-1 px-4">
+                            ProjectHub is a comprehensive project management platform designed to streamline collaboration and
+                            enhance productivity for both students and educators on campus. From initial brainstorming to final
+                            submission, ProjectHub provides the tools needed to organize tasks, share resources, and track
+                            progress, ensuring every project is a success.
+                        </p>
+                        <h2 class="text-3xl font-bold leading-tight tracking-tight px-4 pb-3 pt-12"><span
+                                class="gradient-text">Our Mission</span></h2>
+                        <p class="text-text-body dark:text-gray-300 text-base font-normal leading-relaxed pb-3 pt-1 px-4">
+                            Our mission is to foster a collaborative and efficient learning environment by providing an
+                            intuitive and powerful project management solution. We aim to empower students to build impressive
+                            portfolios and equip teachers with the tools to guide and assess projects effectively, ultimately
+                            enriching the educational experience.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 px-4 pt-16">
+                            <div>
+                                <h3 class="text-2xl font-bold mb-6"><span class="gradient-text">For Students</span></h3>
+                                <div class="space-y-6">
+                                    <div class="flex items-start gap-4">
+                                        <div class="bg-accent-light p-3 rounded-full">
+                                            <span class="material-symbols-outlined gradient-text">event_note</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-text-headings dark:text-white">Stay Organized</h4>
+                                            <p class="text-text-body dark:text-gray-300">Keep track of deadlines, tasks, and
+                                                project files in one place.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-4">
+                                        <div class="bg-accent-light p-3 rounded-full">
+                                            <span class="material-symbols-outlined gradient-text">groups</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-text-headings dark:text-white">Seamless Teamwork</h4>
+                                            <p class="text-text-body dark:text-gray-300">Collaborate with your peers, assign
+                                                tasks, and share feedback effortlessly.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-4">
+                                        <div class="bg-accent-light p-3 rounded-full">
+                                            <span class="material-symbols-outlined gradient-text">auto_awesome</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-text-headings dark:text-white">Build Your Portfolio</h4>
+                                            <p class="text-text-body dark:text-gray-300">Showcase your completed projects to
+                                                future employers.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold mb-6"><span class="gradient-text">For Teachers</span></h3>
+                                <div class="space-y-6">
+                                    <div class="flex items-start gap-4">
+                                        <div class="bg-accent-light p-3 rounded-full">
+                                            <span class="material-symbols-outlined gradient-text">checklist</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-text-headings dark:text-white">Track Progress</h4>
+                                            <p class="text-text-body dark:text-gray-300">Monitor student progress and project
+                                                milestones in real-time.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-4">
+                                        <div class="bg-accent-light p-3 rounded-full">
+                                            <span class="material-symbols-outlined gradient-text">rate_review</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-text-headings dark:text-white">Efficient Feedback</h4>
+                                            <p class="text-text-body dark:text-gray-300">Provide timely and constructive feedback
+                                                directly within the platform.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-4">
+                                        <div class="bg-accent-light p-3 rounded-full">
+                                            <span class="material-symbols-outlined gradient-text">folder_shared</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-text-headings dark:text-white">Share Resources</h4>
+                                            <p class="text-text-body dark:text-gray-300">Easily distribute project guidelines,
+                                                readings, and other materials.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 pt-32 pb-16">
+                            <h2 class="text-3xl font-bold leading-tight tracking-tight text-center mb-8"><span
+                                    class="gradient-text">Meet the Team</span></h2>
+                            <div class="flex flex-col md:flex-row items-center gap-12">
+                                <div class="md:w-2/3">
+                                    <p class="text-text-body dark:text-gray-300 text-base font-normal leading-relaxed">
+                                        ProjectHub was born from the shared experience of university students who saw a need for a
+                                        better way to manage academic projects. Frustrated by scattered files, missed deadlines,
+                                        and communication gaps, our founding team set out to create a solution that would bring
+                                        clarity and efficiency to campus collaboration. Today, we are a passionate team of
+                                        developers, designers, and educators dedicated to improving the academic journey for
+                                        everyone.
+                                    </p>
+                                </div>
+                                <div class="md:w-1/3 flex justify-center">
+                                    <img class="rounded-xl shadow-lg w-full max-w-xs"
+                                        data-alt="A professional photo of the ProjectHub founding team"
+                                        src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center py-10">
+                            <button
+                                class="nav-link flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-8 gradient-bg text-white text-base font-bold leading-normal tracking-wide shadow-lg hover:opacity-90 transition-opacity mx-auto" data-target="signup-page">
+                                <span class="truncate">Get Started with ProjectHub</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Page Content -->
+            <div id="contact-page" class="hidden page pt-[68px]" style="opacity: 0;">
+                <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-12">
+                    <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+                        <div class="text-center mb-12">
+                            <h1 class="text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em]">
+                                <span class="gradient-text">Contact Us</span>
+                            </h1>
+                            <p class="text-slate-500 dark:text-slate-400 text-lg font-normal leading-normal mt-3">
+                                Get in touch with the team behind ProjectHub.
+                            </p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="bg-white dark:bg-subtle-dark/50 p-6 rounded-xl shadow-lg flex flex-col gap-4">
+                                <h3 class="text-2xl font-bold text-text-headings dark:text-white">Albert</h3>
+                                <div class="text-text-body dark:text-gray-300 space-y-2">
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">mail</span> <span>albert@example.com</span></p>
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">call</span> <span>+91 12345 67890</span></p>
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">code</span> <a href="#" class="hover:gradient-text">github.com/albert</a></p>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-subtle-dark/50 p-6 rounded-xl shadow-lg flex flex-col gap-4">
+                                <h3 class="text-2xl font-bold text-text-headings dark:text-white">Joyal</h3>
+                                <div class="text-text-body dark:text-gray-300 space-y-2">
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">mail</span> <span>joyal@example.com</span></p>
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">call</span> <span>+91 12345 67891</span></p>
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">code</span> <a href="#" class="hover:gradient-text">github.com/joyal</a></p>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-subtle-dark/50 p-6 rounded-xl shadow-lg flex flex-col gap-4">
+                                <h3 class="text-2xl font-bold text-text-headings dark:text-white">Noel</h3>
+                                <div class="text-text-body dark:text-gray-300 space-y-2">
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">mail</span> <span>noel@example.com</span></p>
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">call</span> <span>+91 12345 67892</span></p>
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">code</span> <a href="#" class="hover:gradient-text">github.com/noel</a></p>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-subtle-dark/50 p-6 rounded-xl shadow-lg flex flex-col gap-4">
+                                <h3 class="text-2xl font-bold text-text-headings dark:text-white">Yadu</h3>
+                                <div class="text-text-body dark:text-gray-300 space-y-2">
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">mail</span> <span>yadu@example.com</span></p>
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">call</span> <span>+91 12345 67893</span></p>
+                                     <p class="flex items-center gap-2"><span class="material-symbols-outlined text-lg">code</span> <a href="#" class="hover:gradient-text">github.com/yadu</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reset Password Page Content -->
+            <div id="reset-password-page" class="hidden page pt-[68px]" style="opacity: 0;">
+                <main class="flex flex-1 items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                    <div class="w-full max-w-md space-y-8">
+                        <div class="flex flex-col items-center text-center">
+                            <p class="text-4xl font-black tracking-[-0.033em]">
+                                Reset Your Password
+                            </p>
+                            <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
+                                Answer your security question to reset your password.
+                            </p>
+                        </div>
+                        <div class="bg-background-light dark:bg-subtle-dark/50 p-8 rounded-xl shadow-lg space-y-6">
+                            <div class="flex flex-col">
+                                <label class="flex flex-col min-w-40 flex-1">
+                                    <p class="text-base font-medium pb-2">
+                                        Email or Username
+                                    </p>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                        placeholder="Enter your email or username" type="text" value="" />
+                                </label>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-base font-medium pb-2" for="reset-security-question">
+                                    Security Question
+                                </label>
+                                <select
+                                    class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal pr-10"
+                                    id="reset-security-question">
+                                    <option value="">Select your question...</option>
+                                    <option value="pet">What was your first pet's name?</option>
+                                    <option value="street">What street did you grow up on?</option>
+                                    <option value="mother_maiden">What is your mother's maiden name?</option>
+                                    <option value="first_car">What was the model of your first car?</option>
+                                    <option value="elementary">What was the name of your elementary school?</option>
+                                </select>
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-base font-medium pb-2" for="reset-security-answer">
+                                    Security Answer
+                                </label>
+                                <input
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                    id="reset-security-answer" placeholder="Your answer (in ALL CAPS)" type="text"
+                                    oninput="this.value = this.value.toUpperCase()" />
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-base font-medium pb-2" for="new-password">
+                                    New Password
+                                </label>
+                                <input
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                    id="new-password" placeholder="Enter new password" type="password" value="" />
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-base font-medium pb-2" for="confirm-new-password">
+                                    Confirm New Password
+                                </label>
+                                <input
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
+                                    id="confirm-new-password" placeholder="Confirm new password" type="password" value="" />
+                            </div>
+                            <div>
+                                <button
+                                    class="w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 gradient-bg text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:opacity-90 transition-opacity">
+                                    <span class="truncate">
+                                        Reset Password
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                         <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+                            Remembered your password? <a href="#" class="nav-link font-medium gradient-text hover:opacity-80" data-target="login-page">Back to Login</a>
+                        </p>
+                    </div>
+                </main>
+            </div>
+        </div> 
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="js/home.js"></script>
+</body>
+
+</html>

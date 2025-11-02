@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ProjectHub - Admin Dashboard</title>
+    
+    <!-- Tailwind CSS and Fonts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#111827",
+                        "accent-light": "#E0E7FF",
+                        "accent-dark": "#312E81",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "subtext-light": "#6B7280",
+                        "subtext-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Inter", "sans-serif"], 
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        lg: "1rem",
+                        xl: "1.5rem"
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                        'subtle-dark': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="css/dashboard_common.css">
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-sans">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-card-light dark:bg-card-dark p-6 flex flex-col justify-between border-r border-border-light dark:border-border-dark fixed top-0 left-0 h-screen z-20">
+        <div>
+            <div class="flex items-center gap-2 mb-10">
+                <div class="size-8">
+                    <svg class="h-full w-full" fill="url(#admin-gradient)" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="admin-gradient" x1="0%" x2="100%" y1="0%" y2="0%">
+                                <stop offset="0%" stop-color="#3b82f6"></stop>
+                                <stop offset="50%" stop-color="#8b5cf6"></stop>
+                                <stop offset="100%" stop-color="#f97316"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold text-text-light dark:text-text-dark">ProjectHub</h1>
+            </div>
+            
+            <nav class="space-y-2">
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="dashboard-page">
+                    <span class="material-icons">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="projects-page">
+                    <span class="material-icons">folder_open</span>
+                    <span>Projects</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="students-page">
+                    <span class="material-icons">school</span>
+                    <span>Students</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="teachers-page">
+                    <span class="material-icons">person</span>
+                    <span>Teachers</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="settings-page">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+        <div class="mt-auto">
+            <div class="flex items-center gap-3">
+                <img alt="Admin avatar" class="w-10 h-10 rounded-full" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                <div>
+                    <p class="font-semibold text-text-light dark:text-text-dark">Admin</p>
+                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Administrator</p>
+                    <a class="text-sm text-subtext-light dark:text-subtext-dark hover:underline" href="#">Logout</a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main data-scroll class="overflow-hidden bg-background-light dark:bg-background-dark z-10">
+        
+        <button id="hamburger-btn" class="absolute top-8 left-8 z-50 p-2 rounded-lg bg-card-light dark:bg-card-dark shadow-md text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out">
+            <span id="menu-icon" class="material-icons">menu</span>
+            <span id="close-icon" class="material-icons hidden">menu_open</span>
+        </button>
+
+        <div data-scroll-content>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page p-8 pt-24">
+                <header class="flex justify-between items-center mb-8">
+                    <h1 class="text-4xl font-bold text-text-light dark:text-text-dark">Admin Dashboard</h1>
+                    <div class="relative">
+                        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
+                        <input class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg pl-10 pr-4 py-2 w-80 focus:ring-primary focus:border-primary text-text-light dark:text-text-dark" placeholder="Search projects, users..." type="text" />
+                    </div>
+                </header>
+                
+                <div class="grid grid-cols-4 gap-6 mb-8">
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Projects</p>
+                        <p class="text-4xl font-bold text-text-light dark:text-text-dark">1,234</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Students</p>
+                        <p class="text-4xl font-bold text-text-light dark:text-text-dark">5,678</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Faculty Members</p>
+                        <p class="text-4xl font-bold text-text-light dark:text-text-dark">90</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <p class="text-subtext-light dark:text-subtext-dark">API Status (Ollama)</p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-2xl font-bold text-green-500">Online</p>
+                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-8 mt-12">
+                
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-4">Project Oversight</h2>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Total Projects</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,234</p>
+                            </div>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Completed Project</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,050</p>
+                            </div>
+                            <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">In-Progress</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">150</p>
+                            </div>
+                            <div class="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Overdue</p>
+                                <p class="text-2xl font-bold text-red-500">9</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button class="nav-link bg-primary text-white hover:bg-primary/90 font-bold py-2 px-4 rounded-lg text-sm transition-colors duration-200" data-target="projects-page">Edit Projects</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-4">Teachers Oversight</h2>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Total Teachers</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">90</p>
+                            </div>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Active Teachers</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">85</p>
+                            </div>
+                            <div class="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Guides</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">78</p>
+                            </div>
+                            <div class="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Inactive Teachers</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">5</p>
+                            </div>
+                            
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button class="nav-link bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-text-light dark:text-text-dark font-bold py-2 px-4 rounded-lg text-sm" data-target="add-teacher-page">Add Teachers</button>
+                            <button class="nav-link bg-primary text-white hover:bg-primary/90 font-bold py-2 px-4 rounded-lg text-sm transition-colors duration-200" data-target="teachers-page">Edit Teachers</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-4">Students Oversight</h2>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Total Students</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">5,678</p>
+                            </div>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Active Students</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">5,500</p>
+                            </div>
+                            <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Solo Projects</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,200</p>
+                            </div>
+                            <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Team Projects</p>
+                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,100</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button class="nav-link bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-text-light dark:text-text-dark font-bold py-2 px-4 rounded-lg text-sm" data-target="add-student-page">Add Students</button>
+                            <button class="nav-link bg-primary text-white hover:bg-primary/90 font-bold py-2 px-4 rounded-lg text-sm transition-colors duration-200" data-target="students-page">Edit Students</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Page -->
+            <div id="projects-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage Projects</h1>
+                    <div class="flex gap-3">
+                        
+                        <button class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-icons text-base">edit</span>
+                            Edit projects
+                        </button>
+                        <button class="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
+                            <span class="material-icons text-base">delete</span>
+                            Delete projects
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-6">
+                    <div class="relative w-full max-w-md">
+                        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
+                        <input class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search projects..." type="text" />
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">
+                            <span class="material-icons" style="font-size: 20px;">filter_list</span>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Projects</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,234</p>
+                    </div>
+                    <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Completed Project</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,050</p>
+                    </div>
+                    <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">In-Progress</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">150</p>
+                    </div>
+                    <div class="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Overdue</p>
+                        <p class="text-2xl font-bold text-red-500">9</p>
+                    </div>
+                </div>
+
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
+                            <tr>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Project ID</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Project Name</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Teacher/Guide</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Status</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Due Date</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9001</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Quantum Computing Simulation</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Dr. Alan Turing</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">In-Progress</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2024-12-15</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9002</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Sustainable Urban Farming</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Prof. Rosa Parks</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Completed</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2024-05-20</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9003</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Historical Data Visualization</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Dr. Ada Lovelace</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2025-02-01</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9004</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">AI Ethics Framework</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Prof. Immanuel Kant</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">Under Verification</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2024-06-10</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9005</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Advanced Robotics Arm</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Dr. Smith</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Overdue</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2024-05-30</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex items-center justify-between p-4">
+                        <span class="text-sm text-subtext-light dark:text-subtext-dark">Showing 1 to 5 of 25 projects</span>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50" disabled="">Previous</button>
+                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Students Page -->
+            <div id="students-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage Students</h1>
+                    <div class="flex gap-3">
+                        <button class="nav-link bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary/90 transition-colors" data-target="add-student-page">
+                            <span class="material-icons" style="font-size: 20px;">add</span>
+                            Add Student
+                        </button>
+                        <button class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-icons text-base">edit</span>
+                            Edit Students
+                        </button>
+                        <button class="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
+                            <span class="material-icons text-base">delete</span>
+                            Delete Students
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-6">
+                    <div class="relative w-full max-w-md">
+                        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
+                        <input class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search students..." type="text" />
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">
+                            <span class="material-icons" style="font-size: 20px;">filter_list</span>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Students</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">5,678</p>
+                    </div>
+                    <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Active Students</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">5,500</p>
+                    </div>
+                    <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Solo Projects</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,200</p>
+                    </div>
+                    <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Team Projects</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,100</p>
+                    </div>
+                </div>
+
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
+                            <tr>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Student ID</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Student Name</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Email</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Password</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Major</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Status</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Join Date</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">S-112233</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Jane Doe</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">jane.doe@university.edu</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Computer Science</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2023-08-15</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">S-112234</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">John Appleseed</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">john.a@university.edu</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Electrical Engineering</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2023-09-01</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">S-112235</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Peter Jones</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">peter@university.edu</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Mechanical Engineering</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Suspended</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2022-01-20</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex items-center justify-between p-4">
+                        <span class="text-sm text-subtext-light dark:text-subtext-dark">Showing 1 to 3 of 5,678 students</span>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50" disabled="">Previous</button>
+                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teachers Page -->
+            <div id="teachers-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage Teachers</h1>
+                    <div class="flex gap-3">
+                        <button class="nav-link bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary/90 transition-colors" data-target="add-teacher-page">
+                            <span class="material-icons" style="font-size: 20px;">add</span>
+                            Add Teacher
+                        </button>
+                        <button class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                            <span class="material-icons text-base">edit</span>
+                            Edit Teachers
+                        </button>
+                        <button class="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
+                            <span class="material-icons text-base">delete</span>
+                            Delete Teachers
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-6">
+                    <div class="relative w-full max-w-md">
+                        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
+                        <input class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search teachers..." type="text" />
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">
+                            <span class="material-icons" style="font-size: 20px;">filter_list</span>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Teachers</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">90</p>
+                    </div>
+                    <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Active Teachers</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">85</p>
+                    </div>
+                    <div class="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Inactive Teachers</p>
+                        <p classs="text-2xl font-bold text-text-light dark:text-text-dark">5</p>
+                    </div>
+                    <div class="bg-teal-100 dark:bg-teal-900/3s0 p-4 rounded-lg shadow-sm">
+                        <p class="text-subtext-light dark:text-subtext-dark">Guides</p>
+                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">78</p>
+                    </div>
+                </div>
+
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
+                            <tr>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Teacher ID</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Teacher Name</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Email</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Password</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Department</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Status</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Join Date</th>
+                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">T-F987</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Dr. Alan Turing</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">alan.t@university.edu</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Computer Science</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2020-09-01</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">T-F988</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Dr. Rosa Parks</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">rosa.p@university.edu</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Social Sciences</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">On Leave</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2018-01-15</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="border-b border-border-light dark:border-border-dark">
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">T-F989</td>
+                                <td class="p-4 text-text-light dark:text-text-dark">Dr. Ada Lovelace</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">ada.l@university.edu</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Mathematics</td>
+                                <td class="p-4">
+                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>
+                                </td>
+                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2021-03-10</td>
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
+                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="flex items-center justify-between p-4">
+                        <span class="text-sm text-subtext-light dark:text-subtext-dark">Showing 1 to 3 of 90 teachers</span>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50" disabled="">Previous</button>
+                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Page -->
+            <div id="settings-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <h1 class="text-3xl font-bold text-text-light dark:text-text-dark mb-8">Settings</h1>
+                
+                <div class="max-w-4xl mx-auto space-y-8 pb-24">
+                    <div class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200/80 p-8">
+                        <h2 class="text-xl font-semibold mb-6 text-gray-700 dark:text-gray-300">General Settings</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="platform_name">Platform Name</label>
+                                <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="platform_name" type="text" value="ProjectHub" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="platform_title">Platform Title</label>
+                                <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="platform_title" type="text" value="Admin Dashboard" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="campus_name">Campus Name</label>
+                                <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="campus_name" type="text" value="CUCEK" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="contact_info">Contact Info</label>
+                                <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="contact_info" type="email" value="admin@projecthub.com" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200/80 p-8">
+                        <h2 class="text-xl font-semibold mb-6 text-gray-700 dark:text-gray-300">Chatbot, AI & RAG Management</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+
+                            <div class="space-y-10">
+                                <div class="space-y-4">
+                                    <h3 class="text-lg font-semibold text-text-light dark:text-text-dark border-b border-border-light dark:border-border-dark pb-2">General AI Settings</h3>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="greetingMessage">Greeting Message</label>
+                                        <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="greetingMessage" type="text" value="Welcome to ProjectHub! How can I help?" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="responseBehavior">Response Behavior</label>
+                                        <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-xl" id="responseBehavior">
+                                            <option selected="">Friendly</option>
+                                            <option>Professional</option>
+                                            <option>Concise</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="system_prompt">System Prompt</label>
+                                        <textarea class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="system_prompt" rows="3" placeholder="Enter the base instructions for the AI..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="ollama_endpoint_general">API Endpoint (for Ollama)</label>
+                                        <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="ollama_endpoint_general" placeholder="e.g., http://localhost:11434" type="text" value="http://localhost:11434" />
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between pb-2 border-b border-border-light dark:border-border-dark">
+                                        <h3 class="text-lg font-semibold text-text-light dark:text-text-dark">Enable Gemini</h3>
+                                        <label class="switch">
+                                            <input id="enableGeminiToggle" type="checkbox" onchange="toggleGeminiSettings(this.checked)" />
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div id="geminiSettings" class="hidden space-y-4 pl-4 border-l-2 border-accent-light dark:border-accent-dark ml-2">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="gemini_api_provider">API Provider</label>
+                                            <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-xl" id="gemini_api_provider">
+                                                <option selected="">Google Gemini</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="gemini_model">External LLM Model</label>
+                                            <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-xl" id="gemini_model">
+                                                <option selected="">gemini-1.5-pro-latest</option>
+                                                <option>gemini-1.5-flash-latest</option>
+                                                <option>gemini-1.0-pro</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="gemini_api_key">API Key</label>
+                                            <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="gemini_api_key" placeholder="Enter your Gemini API Key" type="password" value="" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-10">
+                                <div class="space-y-4">
+                                    <h3 class="text-lg font-semibold text-text-light dark:text-text-dark border-b border-border-light dark:border-border-dark pb-2">RAG System Settings</h3>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="embedding_model">Embedding Models</label>
+                                        <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-xl" id="embedding_model">
+                                            <option selected="">all-MiniLM-L6-v2 (Default)</option>
+                                            <option>text-embedding-ada-002</option>
+                                            <option>e5-large-v2</option>
+                                            <option>nomic-embed-text</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="rag_files_folders">RAG Files and Folders Source</label>
+                                        <div class="mt-1 flex rounded-xl shadow-sm">
+                                            <input class="block w-full min-w-0 flex-1 rounded-none rounded-l-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark px-3 py-2 focus:border-primary focus:ring-primary sm:text-sm" id="rag_files_folders" name="rag_files_folders" placeholder="/path/to/project/docs" type="text" />
+                                            <button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-xl border border-gray-300 dark:border-border-dark bg-gray-50 dark:bg-card-dark px-4 py-2 text-sm font-medium text-gray-700 dark:text-text-dark hover:bg-gray-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" type="button">
+                                                <span>Select Folder</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="vector_database_folder">Vector Database folder Source</label>
+                                        <div class="mt-1 flex rounded-xl shadow-sm">
+                                            <input class="block w-full min-w-0 flex-1 rounded-none rounded-l-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark px-3 py-2 focus:border-primary focus:ring-primary sm:text-sm" id="vector_database_folder" name="vector_database_folder" placeholder="e.g., ./chroma_db" type="text" value="./chroma_db"/>
+                                            <button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-xl border border-primary bg-accent-light dark:bg-accent-dark px-4 py-2 text-sm font-medium text-primary dark:text-white hover:bg-blue-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" type="button">
+                                                <span>Rebuild Index</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between pb-2 border-b border-border-light dark:border-border-dark">
+                                        <h3 class="text-lg font-semibold text-text-light dark:text-text-dark">Enable Ollama (Local)</h3>
+                                        <label class="switch">
+                                            <input id="enableOllamaToggle" type="checkbox" checked onchange="toggleOllamaSettings(this.checked)" />
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                    <div id="ollamaSettings" class="space-y-4 pl-4 border-l-2 border-accent-light dark:border-accent-dark ml-2">
+                                        <div>
+                                            <h4 class="text-md font-medium text-gray-600 dark:text-subtext-dark mb-2">Available Internal Models</h4>
+                                            <div class="space-y-3">
+                                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
+                                                    <span class="font-medium text-gray-800 dark:text-text-dark">llama3:latest</span>
+                                                    <label class="switch">
+                                                        <input type="checkbox" checked />
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
+                                                    <span class="font-medium text-gray-800 dark:text-text-dark">mistral:latest</span>
+                                                    <label class="switch">
+                                                        <input type="checkbox" checked />
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
+                                                    <span class="font-medium text-gray-800 dark:text-text-dark">codegemma:latest</span>
+                                                    <label class="switch">
+                                                        <input type="checkbox" />
+                                                        <span class="slider round"></span>
+                                                    </label>
+                                                </div>
+                                                </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> 
+                        
+                    </div>
+                </div>
+            </div> 
+
+            <!-- Add Student Page -->
+            <div id="add-student-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <main class="flex-1 flex items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                    <div class="w-full max-w-2xl mx-auto">
+                        <div class="flex flex-col items-center mb-8">
+                            <h1 class="text-4xl font-black tracking-[-0.033em] text-center text-text-light dark:text-text-dark">
+                                Add New Student
+                            </h1>
+                            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400 text-center">
+                                Enter the student's details below.
+                            </p>
+                        </div>
+                        <div class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-lg space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="full-name-add-student">
+                                        Full Name
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                        id="full-name-add-student" placeholder="Enter full name" type="text" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-number-add-student">
+                                        Registration Number
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                        id="reg-number-add-student" placeholder="e.g., 2023-CS-123" type="text" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-email-add-student">
+                                        Email
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                        id="reg-email-add-student" placeholder="Enter email" type="email" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-password-add-student">
+                                        Password
+                                    </label>
+                                    <div class="flex w-full flex-1 items-stretch">
+                                        <input
+                                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:z-10 border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                            id="reg-password-add-student" placeholder="Create a password" type="password" />
+                                        <button aria-label="Toggle password visibility"
+                                            class="text-subtext-light dark:text-subtext-dark flex border border-l-0 border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
+                                            <span class="material-icons">
+                                                visibility_off
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="department-add-student">
+                                        Department
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
+                                        id="department-add-student">
+                                        <option selected="">
+                                            Select department
+                                        </option>
+                                        <option>
+                                            Computer Science
+                                        </option>
+                                        <option>
+                                            Electrical Engineering
+                                        </option>
+                                        <option>
+                                            Mechanical Engineering
+                                        </option>
+                                        <option>
+                                            Business Administration
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="user-type-add-student">
+                                        User Role
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
+                                        id="user-type-add-student">
+                                        <option value="">
+                                            Select role
+                                        </option>
+                                        <option value="Student" selected>
+                                            Student
+                                        </option>
+                                        <option value="Teacher">
+                                            Teacher
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-question-add-student">
+                                        Security Question
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
+                                        id="security-question-add-student">
+                                        <option value="">Select a question...</option>
+                                        <option value="pet">What was your first pet's name?</option>
+                                        <option value="street">What street did you grow up on?</option>
+                                        <option value="mother_maiden">What is your mother's maiden name?</option>
+                                        <option value="first_car">What was the model of your first car?</option>
+                                        <option value="elementary">What was the name of your elementary school?</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-answer-add-student">
+                                        Security Answer
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                        id="security-answer-add-student" placeholder="Your answer (will be saved in caps)" type="text"
+                                        oninput="this.value = this.value.toUpperCase()" />
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button
+                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:bg-primary/90 transition-opacity">
+                                    <span class="truncate">
+                                        Add Student
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Add Teacher Page -->
+            <div id="add-teacher-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <main class="flex-1 flex items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                    <div class="w-full max-w-2xl mx-auto">
+                        <div class="flex flex-col items-center mb-8">
+                            <h1 class="text-4xl font-black tracking-[-0.033em] text-center text-text-light dark:text-text-dark">
+                                Add New Teacher
+                            </h1>
+                            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400 text-center">
+                                Enter the teacher's details below.
+                            </p>
+                        </div>
+                        <div class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-lg space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="full-name-add-teacher">
+                                        Full Name
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                        id="full-name-add-teacher" placeholder="Enter full name" type="text" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-number-add-teacher">
+                                        Registration Number
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                        id="reg-number-add-teacher" placeholder="e.g., T-F990" type="text" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-email-add-teacher">
+                                        Email
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                        id="reg-email-add-teacher" placeholder="Enter email" type="email" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-password-add-teacher">
+                                        Password
+                                    </label>
+                                    <div class="flex w-full flex-1 items-stretch">
+                                        <input
+                                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:z-10 border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                            id="reg-password-add-teacher" placeholder="Create a password" type="password" />
+                                        <button aria-label="Toggle password visibility"
+                                            class="text-subtext-light dark:text-subtext-dark flex border border-l-0 border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
+                                            <span class="material-icons">
+                                                visibility_off
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="department-add-teacher">
+                                        Department
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
+                                        id="department-add-teacher">
+                                        <option selected="">
+                                            Select department
+                                        </option>
+                                        <option>
+                                            Computer Science
+                                        </option>
+                                        <option>
+                                            Electrical Engineering
+                                        </option>
+                                        <option>
+                                            Mechanical Engineering
+                                        </option>
+                                        <option>
+                                            Business Administration
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="user-type-add-teacher">
+                                        User Role
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
+                                        id="user-type-add-teacher">
+                                        <option value="">
+                                            Select role
+                                        </option>
+                                        <option value="Student">
+                                            Student
+                                        </option>
+                                        <option value="Teacher" selected>
+                                            Teacher
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-question-add-teacher">
+                                        Security Question
+                                    </label>
+                                    <select
+                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
+                                        id="security-question-add-teacher">
+                                        <option value="">Select a question...</option>
+                                        <option value="pet">What was your first pet's name?</option>
+                                        <option value="street">What street did you grow up on?</option>
+                                        <option value="mother_maiden">What is your mother's maiden name?</option>
+                                        <option value="first_car">What was the model of your first car?</option>
+                                        <option value="elementary">What was the name of your elementary school?</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-answer-add-teacher">
+                                        Security Answer
+                                    </label>
+                                    <input
+                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
+                                        id="security-answer-add-teacher" placeholder="Your answer (will be saved in caps)" type="text"
+                                        oninput="this.value = this.value.toUpperCase()" />
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button
+                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:bg-primary/90 transition-opacity">
+                                    <span class="truncate">
+                                        Add Teacher
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+        </div>    
+
+        <!-- Settings Save Bar -->
+        <div id="settings-save-bar" class="hidden absolute bottom-0 left-0 right-0 p-4 bg-card-light/80 dark:bg-card-dark/80 backdrop-blur-sm border-t border-border-light dark:border-border-dark z-20 transition-all duration-300 ease-in-out">
+            <div class="max-w-4xl mx-auto flex justify-end">
+                <button class="bg-card-light dark:bg-card-dark py-2 px-6 border border-gray-300 dark:border-border-dark rounded-xl shadow-sm text-sm font-medium text-gray-700 dark:text-text-dark hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="button">Cancel</button>
+                <button class="ml-3 inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="submit">Save Changes</button>
+            </div>
+        </div>
+
+    </main> 
+    
+    <!-- Shared & Specific JavaScript -->
+    <script src="js/dashboard_common.js"></script>
+    <script src="js/admin_specific.js"></script>
+    
+</body>
+</html>
+

@@ -1,0 +1,5 @@
+Start ollama,
+
+start cmd and type python "Rag 18.py"
+
+then take the url : http://127.0.0.1:8000/ai_chat.html

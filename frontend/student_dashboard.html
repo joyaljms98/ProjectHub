@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ProjectHub - Student Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#111827",
+                        "accent-light": "#E0E7FF",
+                        "accent-dark": "#312E81",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "subtext-light": "#6B7280",
+                        "subtext-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        lg: "1rem",
+                        xl: "1.5rem"
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                        'subtle-dark': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <link rel="stylesheet" href="css/dashboard_common.css">
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-sans">
+
+    <aside class="w-64 bg-card-light dark:bg-card-dark p-6 flex flex-col justify-between border-r border-border-light dark:border-border-dark fixed top-0 left-0 h-screen z-20">
+        <div>
+            <div class="flex items-center gap-2 mb-10">
+                <div class="size-8">
+                    <svg class="h-full w-full" fill="url(#student-gradient)" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="student-gradient" x1="0%" x2="100%" y1="0%" y2="0%">
+                                <stop offset="0%" stop-color="#3b82f6"></stop>
+                                <stop offset="50%" stop-color="#8b5cf6"></stop>
+                                <stop offset="100%" stop-color="#f97316"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold text-text-light dark:text-text-dark">ProjectHub</h1>
+            </div>
+            
+            <nav class="space-y-2">
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="dashboard-page">
+                    <span class="material-icons">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="projects-page">
+                    <span class="material-icons">folder_open</span>
+                    <span>Projects</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="teams-page">
+                    <span class="material-icons">groups</span>
+                    <span>Teams</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="resources-page">
+                    <span class="material-icons">auto_stories</span>
+                    <span>Resources</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="settings-page">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+        <div class="mt-auto">
+            <div class="flex items-center gap-3">
+                <img alt="Alex Turner" class="w-10 h-10 rounded-full" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                <div>
+                    <p class="font-semibold text-text-light dark:text-text-dark">Alex Turner</p>
+                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Student</p>
+                    <a class="text-sm text-subtext-light dark:text-subtext-dark hover:underline" href="#">Logout</a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main data-scroll class="overflow-hidden bg-background-light dark:bg-background-dark z-10">
+        
+        <button id="hamburger-btn" class="absolute top-8 left-8 z-50 p-2 rounded-lg bg-card-light dark:bg-card-dark shadow-md text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out">
+            <span id="menu-icon" class="material-icons">menu</span>
+            <span id="close-icon" class="material-icons hidden">menu_open</span>
+        </button>
+
+        <button id="notification-btn" class="absolute top-8 right-8 z-50 p-2 rounded-lg bg-card-light dark:bg-card-dark shadow-md text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out">
+            <span class="material-icons-outlined">notifications</span>
+        </button>
+
+
+        <div data-scroll-content>
+
+            <div id="dashboard-page" class="page p-8 pt-24">
+                
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+                    <div class="flex min-w-72 flex-col gap-1">
+                        <p class="text-4xl font-black leading-tight tracking-[-0.033em] bg-gradient-to-r from-blue-500 via-purple-500 to-orange-400 text-transparent bg-clip-text">Welcome, Alex!</p>
+                        <p class="text-subtext-light dark:text-subtext-dark text-base font-normal leading-normal">Here's an overview of your campus activity.</p>
+                    </div>
+                    <button class="nav-link flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90" data-target="add-project-page">
+                        <span class="material-icons-outlined">add</span>
+                        <span class="truncate">Add New Project</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Current Projects</h2>
+                            <div class="space-y-3 mb-4">
+                                <div class="flex justify-between items-center p-4 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
+                                    <div>
+                                        <span class="text-xs font-medium bg-primary/20 text-primary py-1 px-2 rounded-full">Active</span>
+                                        <p class="font-semibold text-text-light dark:text-text-dark mt-1">Mobile App Development</p>
+                                    </div>
+                                    <div class="flex -space-x-2">
+                                        <img alt="Jane Doe" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                        <img alt="Mark Smith" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center p-4 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
+                                    <div>
+                                        <span class="text-xs font-medium bg-primary/20 text-primary py-1 px-2 rounded-full">Active</span>
+                                        <p class="font-semibold text-text-light dark:text-text-dark mt-1">Research Paper on AI</p>
+                                    </div>
+                                    <div class="flex -space-x-2">
+                                        <img alt="Anna Stone" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="nav-link flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-11 px-5 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90" data-target="projects-page">
+                                <span class="truncate">Manage All Projects</span>
+                            </button>
+                        </div>
+
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Upcoming Deadlines</h2>
+                            <div class="flex items-center gap-4">
+                                <span class="material-icons-outlined text-red-500 text-3xl">event_busy</span>
+                                <div>
+                                    <p class="font-medium text-text-light dark:text-text-dark">Abstract Submission</p>
+                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Project: Mobile App Development</p>
+                                    <p class="text-sm font-semibold text-red-500">Due: Oct 25, 2025 (4 days)</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                                <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Invitations</h2>
+                                <div class="flex items-center gap-3">
+                                    <span class="material-icons-outlined text-primary text-2xl">person_add</span>
+                                    <div>
+                                        <p class="text-sm font-medium text-text-light dark:text-text-dark">Invite from "Frontend Wizards"</p>
+                                        <p class="text-xs text-subtext-light dark:text-subtext-dark">Project: "E-commerce Redesign"</p>
+                                    </div>
+                                </div>
+                                <button class="nav-link text-sm font-medium text-primary hover:underline mt-3" data-target="teams-page">View Invitation</button>
+                             </div>
+                             <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                                <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Teacher Comments</h2>
+                                <div class="flex items-center gap-3">
+                                    <span class="material-icons-outlined text-green-500 text-2xl">chat_bubble</span>
+                                    <div>
+                                        <p class="text-sm font-medium text-text-light dark:text-text-dark">Dr. Reed: "Good start on the..."</p>
+                                        <p class="text-xs text-subtext-light dark:text-subtext-dark">Project: "Mobile App Development"</p>
+                                    </div>
+                                </div>
+                                <button class="nav-link text-sm font-medium text-primary hover:underline mt-3" data-target="chat-page">View Comment</button>
+                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:col-span-1 space-y-6">
+                        
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Calendar</h2>
+                            <div id="student-calendar-widget" class="aspect-square bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark p-4">
+                                </div>
+                        </div>
+
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Sticky Notes</h2>
+                            <textarea id="student-sticky-note" class="form-textarea w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" rows="8" placeholder="Jot down a quick note..."></textarea>
+                            <button id="save-student-note" class="mt-3 w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-all duration-150">
+                                <span class="truncate">Save Note</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="projects-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+                        <div class="flex flex-col gap-1">
+                            <h1 class="text-4xl font-black text-text-light dark:text-text-dark tracking-[-0.033em]">My Projects</h1>
+                            <p class="text-base text-subtext-light dark:text-subtext-dark">View and manage all your projects in one place.</p>
+                        </div>
+                        <button class="nav-link flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90" data-target="add-project-page">
+                            <span class="material-icons-outlined">add</span>
+                            <span class="truncate">Add New Project</span>
+                        </button>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4 mb-8">
+                        <div class="flex-1">
+                            <label class="flex flex-col min-w-40 h-12 w-full">
+                                <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+                                    <div class="text-subtext-light dark:text-subtext-dark flex border-none bg-card-light dark:bg-card-dark items-center justify-center pl-4 rounded-l-xl border border-border-light dark:border-border-dark border-r-0">
+                                        <span class="material-icons-outlined">search</span>
+                                    </div>
+                                    <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-0 border-none bg-card-light dark:bg-card-dark h-full placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 text-base font-normal border border-border-light dark:border-border-dark border-l-0" placeholder="Search projects..." value=""/>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex h-12 items-center justify-center rounded-xl bg-card-light dark:bg-card-dark p-1 md:w-auto w-full border border-border-light dark:border-border-dark">
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">All</span>
+                                <input checked="" class="invisible w-0" name="project-filter" type="radio" value="All"/>
+                            </label>
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">Active</span>
+                                <input class="invisible w-0" name="project-filter" type="radio" value="Active"/>
+                            </label>
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">Past</span>
+                                <input class="invisible w-0" name="project-filter" type="radio" value="Past"/>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="p-6 flex flex-col gap-4 h-full">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Mobile App Development</h3>
+                                    <span class="text-xs font-medium bg-primary/20 text-primary py-1 px-2 rounded-full">Active</span>
+                                </div>
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">COMP 401</p>
+                                <div class="mt-auto">
+                                    <div class="mb-2">
+                                        <div class="flex justify-between text-sm text-subtext-light dark:text-subtext-dark mb-1">
+                                            <span>Progress</span>
+                                            <span>75%</span>
+                                        </div>
+                                        <div class="w-full bg-background-light dark:bg-background-dark rounded-full h-2 border border-border-light dark:border-border-dark">
+                                            <div class="bg-primary h-full rounded-full" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between mt-4">
+                                        <div class="flex -space-x-2">
+                                            <img alt="Jane Doe" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" data-alt="avatar of Jane Doe" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                            <img alt="Mark Smith" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" data-alt="avatar of Mark Smith" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                        </div>
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">Due: 2023-12-15</p>
+                                    </div>
+                                    <button class="nav-link mt-4 w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90" data-target="project-detail-page">
+                                        <span class="truncate">View Details</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="p-6 flex flex-col gap-4 h-full">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">Research Paper on AI</h3>
+                                    <span class="text-xs font-medium bg-primary/20 text-primary py-1 px-2 rounded-full">Active</span>
+                                </div>
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">PHIL 330</p>
+                                <div class="mt-auto">
+                                    <div class="mb-2">
+                                        <div class="flex justify-between text-sm text-subtext-light dark:text-subtext-dark mb-1">
+                                            <span>Progress</span>
+                                            <span>40%</span>
+                                        </div>
+                                        <div class="w-full bg-background-light dark:bg-background-dark rounded-full h-2 border border-border-light dark:border-border-dark">
+                                            <div class="bg-primary h-full rounded-full" style="width: 40%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between mt-4">
+                                        <div class="flex -space-x-2">
+                                            <img alt="Anna Stone" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" data-alt="avatar of Anna Stone" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                        </div>
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">Due: 2024-01-20</p>
+                                    </div>
+                                    <button class="nav-link mt-4 w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90" data-target="project-detail-page">
+                                        <span class="truncate">View Details</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="p-6 flex flex-col gap-4 h-full">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="text-lg font-bold text-text-light dark:text-text-dark">History of Ancient Rome</h3>
+                                    <span class="text-xs font-medium bg-gray-200 dark:bg-gray-700 text-subtext-light dark:text-subtext-dark py-1 px-2 rounded-full">Past</span>
+                                </div>
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">HIST 201</p>
+                                <div class="mt-auto">
+                                    <div class="flex flex-col gap-2 mt-4">
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">Completed: 2023-05-10</p>
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">Final Grade: A</p>
+                                    </div>
+                                    <button class="nav-link mt-4 w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-target="project-detail-page">
+                                        <span class="truncate">View Details</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="project-detail-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                
+                <div class="mb-6 max-w-4xl mx-auto">
+                    <button class="nav-link flex items-center gap-2 text-subtext-light dark:text-subtext-dark hover:text-text-light dark:hover:text-text-dark transition-colors" data-target="projects-page">
+                        <span class="material-icons-outlined">arrow_back</span>
+                        <span>Back to Projects</span>
+                    </button>
+                </div>
+                
+                <div class="layout-content-container flex flex-col max-w-full flex-1">
+                    <div class="p-4 @container">
+                        <div class="flex flex-col items-stretch justify-start rounded-xl bg-card-light dark:bg-card-dark shadow-subtle p-6 max-w-4xl mx-auto border border-border-light dark:border-border-dark">
+                            <div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-2 mb-6">
+                                <p class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em]">Your Project Progress</p>
+                                <p class="text-subtext-light dark:text-subtext-dark text-base font-normal leading-normal">Follow the steps to complete your project.</p>
+                            </div>
+                            <div class="flex flex-col gap-4">
+                                <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 py-3 rounded-lg border border-border-light dark:border-border-dark justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-green-500 flex items-center justify-center rounded-full bg-green-100 dark:bg-green-900/50 shrink-0 size-12">
+                                            <span class="material-icons-outlined">check_circle</span>
+                                        </div>
+                                        <div class="flex flex-col justify-center">
+                                            <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal line-clamp-1">Abstract Creation</p>
+                                            <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-2">Define the scope and objectives of your project.</p>
+                                        </div>
+                                    </div>
+                                    <div class="shrink-0">
+                                        <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-gray-100 dark:bg-gray-700 text-text-light dark:text-text-dark text-sm font-medium leading-normal w-fit">
+                                            <span class="truncate">View</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 py-3 rounded-lg border border-accent-light dark:border-accent-dark justify-between shadow-[0_2px_8px_rgba(79,70,229,0.2)] dark:shadow-[0_2px_8px_rgba(49,46,129,0.3)]">
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-primary dark:text-accent-light flex items-center justify-center rounded-full bg-primary/10 dark:bg-primary/20 shrink-0 size-12 animate-pulse">
+                                            <span class="material-icons-outlined">edit</span>
+                                        </div>
+                                        <div class="flex flex-col justify-center">
+                                            <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal line-clamp-1">Tables and Design</p>
+                                            <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-2">Design the database and user interface.</p>
+                                        </div>
+                                    </div>
+                                    <div class="shrink-0">
+                                        <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary hover:bg-primary/90 dark:bg-primary dark:hover:bg-primary/90 text-white text-sm font-medium leading-normal w-fit">
+                                            <span class="truncate">Continue</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 py-3 rounded-lg border border-border-light dark:border-border-dark justify-between opacity-60">
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-subtext-light dark:text-subtext-dark flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 shrink-0 size-12">
+                                            <span class="material-icons-outlined">radio_button_unchecked</span>
+                                        </div>
+                                        <div class="flex flex-col justify-center">
+                                            <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal line-clamp-1">Project Development</p>
+                                            <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-2">Build the core features of your application.</p>
+                                        </div>
+                                    </div>
+                                    <div class="shrink-0">
+                                        <button class="flex min-w-[84px] max-w-[480px] cursor-not-allowed items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-sm font-medium leading-normal w-fit">
+                                            <span class="truncate">Start</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 py-3 rounded-lg border border-border-light dark:border-border-dark justify-between opacity-60">
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-subtext-light dark:text-subtext-dark flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 shrink-0 size-12">
+                                            <span class="material-icons-outlined">radio_button_unchecked</span>
+                                        </div>
+                                        <div class="flex flex-col justify-center">
+                                            <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal line-clamp-1">Project Report</p>
+                                            <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-2">Document your project and prepare the final report.</p>
+                                        </div>
+                                    </div>
+                                    <div class="shrink-0">
+                                        <button class="flex min-w-[84px] max-w-[480px] cursor-not-allowed items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-sm font-medium leading-normal w-fit">
+                                            <span class="truncate">Start</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="add-project-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle w-full max-w-4xl mx-auto border border-border-light dark:border-border-dark">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark">Create New Project</h2>
+                        <p class="text-subtext-light dark:text-subtext-dark">Follow the steps to setup your new project.</p>
+                    </div>
+                    <div class="flex items-center mb-8">
+                        <div class="flex items-center text-primary relative">
+                            <div class="rounded-full transition duration-500 ease-in-out h-10 w-10 border-2 border-primary bg-primary flex items-center justify-center">
+                                <span class="text-white font-bold">1</span>
+                            </div>
+                            <div class="absolute top-0 -ml-10 text-center mt-12 w-32 text-xs font-medium uppercase text-primary">Details</div>
+                        </div>
+                        <div class="flex-auto border-t-2 transition duration-500 ease-in-out border-primary"></div>
+                        <div class="flex items-center text-gray-500 relative">
+                            <div class="rounded-full transition duration-500 ease-in-out h-10 w-10 border-2 border-border-light dark:border-border-dark flex items-center justify-center">
+                                <span class="font-bold">2</span>
+                            </div>
+                            <div class="absolute top-0 -ml-10 text-center mt-12 w-32 text-xs font-medium uppercase text-subtext-light dark:text-subtext-dark">Team</div>
+                        </div>
+                        <div class="flex-auto border-t-2 transition duration-500 ease-in-out border-border-light dark:border-border-dark"></div>
+                        <div class="flex items-center text-gray-500 relative">
+                            <div class="rounded-full transition duration-500 ease-in-out h-10 w-10 border-2 border-border-light dark:border-border-dark flex items-center justify-center">
+                                <span class="font-bold">3</span>
+                            </div>
+                            <div class="absolute top-0 -ml-10 text-center mt-12 w-32 text-xs font-medium uppercase text-subtext-light dark:text-subtext-dark">Requirements</div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-sm font-medium text-text-light dark:text-text-dark" for="project-name">Project Name</label>
+                            <input class="mt-1 form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary border border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 h-12 placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 text-base font-normal" id="project-name" placeholder="e.g., Quantum Computing Simulation" type="text"/>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-text-light dark:text-text-dark" for="project-description">Project Description</label>
+                            <textarea class="mt-1 form-textarea flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary border border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal" id="project-description" placeholder="Briefly describe your project..." rows="4"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-text-light dark:text-text-dark" for="course-code">Course Code (Optional)</label>
+                            <input class="mt-1 form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary border border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 h-12 placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 text-base font-normal" id="course-code" placeholder="e.g., COMP 401" type="text"/>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex justify-end gap-4">
+                        <button class="nav-link flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-target="projects-page">
+                            <span class="truncate">Cancel</span>
+                        </button>
+                        <button class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90">
+                            <span class="truncate">Next</span>
+                            <span class="material-icons-outlined">arrow_forward</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="teams-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+                        <div>
+                            <p class="text-text-light dark:text-text-dark text-4xl font-black tracking-[-0.033em]">My Teams</p>
+                            <p class="text-base text-subtext-light dark:text-subtext-dark mt-1">View and manage all your team and guides in one place.</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button class="nav-link flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200" data-target="chat-page">
+                                <span class="material-icons-outlined" style="font-size: 20px;">chat</span>
+                                <span class="truncate ml-2">Chats</span>
+                            </button>
+                            <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200">
+                                <span class="truncate">Create New Team</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-text-light dark:text-text-dark text-[22px] font-bold tracking-[-0.015em] px-4 pb-3 pt-5">Active Teams</h2>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 mb-8 px-4">
+                        <div class="flex-1">
+                            <label class="flex flex-col min-w-40 h-12 w-full">
+                                <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+                                    <div class="text-subtext-light dark:text-subtext-dark flex border-none bg-card-light dark:bg-card-dark items-center justify-center pl-4 rounded-l-xl border border-border-light dark:border-border-dark border-r-0">
+                                        <span class="material-icons-outlined">search</span>
+                                    </div>
+                                    <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-0 border-none bg-card-light dark:bg-card-dark h-full placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 text-base font-normal border border-border-light dark:border-border-dark border-l-0" placeholder="Search teams..." value=""/>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex h-12 items-center justify-center rounded-xl bg-card-light dark:bg-card-dark p-1 md:w-auto w-full border border-border-light dark:border-border-dark">
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">All</span>
+                                <input checked="" class="invisible w-0" name="team-filter" type="radio" value="All"/>
+                            </label>
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">Active</span>
+                                <input class="invisible w-0" name="team-filter" type="radio" value="Active"/>
+                            </label>
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">Past</span>
+                                <input class="invisible w-0" name="team-filter" type="radio" value="Past"/>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+                        <div class="rounded-xl shadow-subtle bg-card-light dark:bg-card-dark p-6 flex flex-col justify-between border border-border-light dark:border-border-dark">
+                            <div>
+                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal">AI-Powered Chatbot</p>
+                                <p class="text-text-light dark:text-text-dark text-lg font-bold tracking-[-0.015em] mt-1">Capstone Project Group</p>
+                                <div class="flex items-center mt-4">
+                                    <div class="flex -space-x-2">
+                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                        <div class="h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold text-subtext-light dark:text-subtext-dark">+2</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between mt-6">
+                                <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors duration-200">
+                                    <span class="truncate">View Team</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="rounded-xl shadow-subtle bg-card-light dark:bg-card-dark p-6 flex flex-col justify-between border border-border-light dark:border-border-dark">
+                            <div>
+                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal">Data Analysis Project</p>
+                                <p class="text-text-light dark:text-text-dark text-lg font-bold tracking-[-0.015em] mt-1">Data Miners</p>
+                                <div class="flex items-center mt-4">
+                                    <div class="flex -space-x-2">
+                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between mt-6">
+                                <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors duration-200">
+                                    <span class="truncate">View Team</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="rounded-xl shadow-subtle bg-card-light dark:bg-card-dark p-6 flex flex-col items-center justify-center border-2 border-dashed border-border-light dark:border-border-dark">
+                            <span class="material-icons-outlined text-subtext-light dark:text-subtext-dark text-4xl mb-2">add_circle_outline</span>
+                            <p class="text-subtext-light dark:text-subtext-dark text-sm font-medium">You have no other teams.</p>
+                            <button class="mt-4 flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-gray-200 dark:bg-gray-700 text-text-light dark:text-text-dark text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+                                <span class="truncate">Join a Team</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-text-light dark:text-text-dark text-[22px] font-bold tracking-[-0.015em] px-4 pb-3 pt-10">Pending Invitations</h2>
+                    
+                    <h3 class="text-text-light dark:text-text-dark text-lg font-semibold px-4 pb-3 pt-4">From Guides (1)</h3>
+                    <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-subtle p-6 border border-border-light dark:border-border-dark mx-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <p class="text-text-light dark:text-text-dark font-semibold">Dr. Evelyn Reed wants to guide your project "Mobile App Development"</p>
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">Sent: 2025-10-20</p>
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                                <button class="rounded-lg px-4 py-2 text-sm font-medium bg-green-500 text-white hover:bg-green-600 transition-colors">Accept</button>
+                                <button class="rounded-lg px-4 py-2 text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors">Decline</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-text-light dark:text-text-dark text-lg font-semibold px-4 pb-3 pt-6">From Students (1)</h3>
+                    <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-subtle p-6 border border-border-light dark:border-border-dark mx-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div>
+                                <p class="text-text-light dark:text-text-dark font-semibold">Invitation to join "Frontend Wizards"</p>
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">Project: "E-commerce Redesign"</p>
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                                <button class="rounded-lg px-4 py-2 text-sm font-medium bg-green-500 text-white hover:bg-green-600 transition-colors">Accept</button>
+                                <button class="rounded-lg px-4 py-2 text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors">Decline</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="resources-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="flex flex-col gap-6">
+                    <div class="flex flex-wrap justify-between gap-3 p-4">
+                        <p class="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">Resources</p>
+                    </div>
+                    <div class="px-4 py-3">
+                        <label class="flex flex-col min-w-40 h-12 w-full">
+                            <div class="flex w-full flex-1 items-stretch rounded-xl h-full shadow-subtle">
+                                <div class="text-subtext-light dark:text-subtext-dark flex bg-card-light dark:bg-card-dark items-center justify-center pl-4 rounded-l-xl border border-border-light dark:border-border-dark border-r-0">
+                                    <span class="material-icons-outlined">search</span>
+                                </div>
+                                <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-0 border-none bg-card-light dark:bg-card-dark focus:border-none h-full placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 pl-2 text-base font-normal leading-normal border border-border-light dark:border-border-dark border-l-0" placeholder="Search for templates, tutorials..." value=""/>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="flex gap-3 p-3 overflow-x-auto">
+                        <button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white pl-4 pr-4 shadow-sm">
+                            <p class="text-sm font-medium leading-normal">All</p>
+                        </button>
+                        <button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-card-light dark:bg-card-dark text-text-light dark:text-text-dark pl-4 pr-4 shadow-subtle hover:bg-gray-100 dark:hover:bg-gray-700 border border-border-light dark:border-border-dark">
+                            <p class="text-sm font-medium leading-normal">Projects</p>
+                        </button>
+                        <button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-card-light dark:bg-card-dark text-text-light dark:text-text-dark pl-4 pr-4 shadow-subtle hover:bg-gray-100 dark:hover:bg-gray-700 border border-border-light dark:border-border-dark">
+                            <p class="text-sm font-medium leading-normal">Templates</p>
+                        </button>
+                        <button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-card-light dark:bg-card-dark text-text-light dark:text-text-dark pl-4 pr-4 shadow-subtle hover:bg-gray-100 dark:hover:bg-gray-700 border border-border-light dark:border-border-dark">
+                            <p class="text-sm font-medium leading-normal">Tutorials</p>
+                        </button>
+                        <button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-card-light dark:bg-card-dark text-text-light dark:text-text-dark pl-4 pr-4 shadow-subtle hover:bg-gray-100 dark:hover:bg-gray-700 border border-border-light dark:border-border-dark">
+                            <p class="text-sm font-medium leading-normal">Documentation</p>
+                        </button>
+                        <button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-card-light dark:bg-card-dark text-text-light dark:text-text-dark pl-4 pr-4 shadow-subtle hover:bg-gray-100 dark:hover:bg-gray-700 border border-border-light dark:border-border-dark">
+                            <p class="text-sm font-medium leading-normal">Links</p>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6 p-4">
+                        <div class="flex flex-col gap-4 p-4 rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient for project proposal template" style="background-image: url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');"></div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">Project Proposal Template</p>
+                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal mt-1">A comprehensive template for your project proposals.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">Template</span>
+                                <a class="text-primary hover:underline text-sm font-semibold" href="#">View</a>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4 p-4 rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient for Figma 101 tutorial" style="background-image: url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=2029&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');"></div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">Figma 101</p>
+                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal mt-1">Learn the basics of Figma with this tutorial.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">Tutorial</span>
+                                <a class="text-primary hover:underline text-sm font-semibold" href="#">View</a>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4 p-4 rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient for API documentation" style="background-image: url('https://images.unsplash.com/photo-1557682224-5b8590b9ec98?q=80&w=2029&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');"></div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">API Documentation</p>
+                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal mt-1">All the information you need about our API.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">Documentation</span>
+                                <a class="text-primary hover:underline text-sm font-semibold" href="#">View</a>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4 p-4 rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient for research databases link list" style="background-image: url('https://images.unsplash.com/photo-1604012423185-f67a2ba5a2e5?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');"></div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">Useful Research Databases</p>
+                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal mt-1">A curated list of external research links.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">Links</span>
+                                <a class="text-primary hover:underline text-sm font-semibold" href="#">View</a>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4 p-4 rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient for report template" style="background-image: url('https://images.unsplash.com/photo-1554034483-04fda0d3507b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');"></div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">Report Template</p>
+                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal mt-1">A template for your project reports.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">Template</span>
+                                <a class="text-primary hover:underline text-sm font-semibold" href="#">View</a>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-4 p-4 rounded-xl bg-card-light dark:bg-card-dark shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark">
+                            <div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract gradient for git basics tutorial" style="background-image: url('https://images.unsplash.com/photo-1557682260-96773eb01377?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');"></div>
+                            <div>
+                                <p class="text-text-light dark:text-text-dark text-base font-bold leading-normal">Git Basics</p>
+                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal mt-1">Get started with Git and version control.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">Tutorial</span>
+                                <a class="text-primary hover:underline text-sm font-semibold" href="#">View</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-center p-4">
+                        <nav class="flex items-center gap-2">
+                            <a class="flex items-center justify-center h-10 w-10 rounded-lg bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark shadow-subtle border border-border-light dark:border-border-dark hover:bg-gray-100" href="#">
+                                <span class="material-symbols-outlined">chevron_left</span>
+                            </a>
+                            <a class="flex items-center justify-center h-10 w-10 rounded-lg bg-primary text-white shadow-sm" href="#">1</a>
+                            <a class="flex items-center justify-center h-10 w-10 rounded-lg bg-card-light dark:bg-card-dark text-text-light dark:text-text-dark shadow-subtle border border-border-light dark:border-border-dark hover:bg-gray-100" href="#">2</a>
+                            <a class="flex items-center justify-center h-10 w-10 rounded-lg bg-card-light dark:bg-card-dark text-text-light dark:text-text-dark shadow-subtle border border-border-light dark:border-border-dark hover:bg-gray-100" href="#">3</a>
+                            <a class="flex items-center justify-center h-10 w-10 rounded-lg bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark shadow-subtle border border-border-light dark:border-border-dark hover:bg-gray-100" href="#">
+                                <span class="material-icons-outlined">chevron_right</span>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="max-w-4xl mx-auto">
+                    <div class="mb-12">
+                        <h1 class="text-4xl font-black tracking-tight text-text-light dark:text-text-dark">Settings</h1>
+                        <p class="text-subtext-light dark:text-subtext-dark mt-2">Manage your account settings and set e-mail preferences.</p>
+                    </div>
+                    <div class="space-y-12">
+                        <section class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-2xl font-bold text-text-light dark:text-text-dark tracking-tight">Personal Information</h2>
+                            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                                <div class="flex flex-col gap-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-16 w-16" data-alt="Alex Turner's profile picture" style='background-image: url("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                                        <div>
+                                            <label class="cursor-pointer rounded-lg bg-gray-100 dark:bg-gray-700/50 px-4 py-2 text-sm font-medium text-text-light dark:text-text-dark hover:bg-gray-200 dark:hover:bg-gray-700" for="file-upload">Upload new photo</label>
+                                            <input class="sr-only" id="file-upload" name="file-upload" type="file"/>
+                                            <p class="text-xs text-subtext-light dark:text-subtext-dark mt-2">At least 300x300px, PNG or JPG.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="full-name">Full Name</label>
+                                        <input class="form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" id="full-name" type="text" value="Alex Turner"/>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="student-id">Student ID</label>
+                                        <input class="form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" id="student-id" type="text" value="12345678"/>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-6">
+                                    <div class="flex flex-col">
+                                        <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="major">Major/Department</label>
+                                        <input class="form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" id="major" type="text" value="Computer Science"/>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="grad-year">Graduation Year</label>
+                                        <input class="form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" id="grad-year" type="text" value="2025"/>
+                                    </div>
+                                    <div class="flex justify-end pt-8">
+                                        <button class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors">Save Changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-2xl font-bold text-text-light dark:text-text-dark tracking-tight">Account & Security</h2>
+                            <div class="mt-6 space-y-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-text-light dark:text-text-dark">Email Address</p>
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">alex.turner@university.edu</p>
+                                    </div>
+                                    <button class="px-4 py-2 bg-gray-100 dark:bg-gray-700/50 text-text-light dark:text-text-dark text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">Change Email</button>
+                                </div>
+                                <div class="border-t border-border-light dark:border-border-dark/50"></div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-text-light dark:text-text-dark">Password</p>
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">Last changed on Jan 15, 2024</p>
+                                    </div>
+                                    <button class="px-4 py-2 bg-gray-100 dark:bg-gray-700/50 text-text-light dark:text-text-dark text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">Change Password</button>
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <section class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-2xl font-bold text-text-light dark:text-text-dark tracking-tight">Privacy Settings</h2>
+                            <div class="mt-6 space-y-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-text-light dark:text-text-dark">Profile Visibility</p>
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">Control who can see your profile.</p>
+                                    </div>
+                                    <select class="form-select rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark">
+                                        <option>Public</option>
+                                        <option selected="">Only to Project Members</option>
+                                        <option>Private</option>
+                                    </select>
+                                </div>
+                                <div class="border-t border-border-light dark:border-border-dark/50"></div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-text-light dark:text-text-dark">Appear in Search Results</p>
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">Allow others to find your profile via search.</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input checked="" type="checkbox" />
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="chat-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="md:col-span-1 flex flex-col bg-card-light dark:bg-card-dark rounded-xl shadow-subtle border border-border-light dark:border-border-dark h-[calc(100vh-10rem)]">
+                        <div class="p-4 border-b border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark">Direct Messages</h2>
+                            <div class="mt-4">
+                                <label class="flex flex-col min-w-40 h-12 w-full">
+                                    <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                                        <div class="text-subtext-light dark:text-subtext-dark flex border-none bg-background-light dark:bg-background-dark items-center justify-center pl-4 rounded-l-lg border border-border-light dark:border-border-dark border-r-0">
+                                            <span class="material-icons-outlined">search</span>
+                                        </div>
+                                        <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-0 border-none bg-background-light dark:bg-background-dark focus:border-none h-full placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 pl-2 text-base font-normal leading-normal border border-border-light dark:border-border-dark border-l-0" placeholder="Search chats" value=""/>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-y-auto">
+                            <div class="flex items-center gap-4 bg-primary/20 dark:bg-primary/20 px-4 min-h-[72px] py-3 justify-between border-l-4 border-primary">
+                                <div class="flex items-center gap-4">
+                                    <div class="relative">
+                                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" data-alt="Dr. Evelyn Reed avatar" style='background-image: url("https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1888&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                                        <span class="absolute bottom-0 right-0 block h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white dark:border-gray-800"></span>
+                                    </div>
+                                    <div class="flex flex-col justify-center">
+                                        <p class="text-text-light dark:text-text-dark text-base font-semibold leading-normal line-clamp-1">Dr. Evelyn Reed</p>
+                                        <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-1">Of course, what's your question?</p>
+                                    </div>
+                                </div>
+                                <div class="shrink-0"><p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal">3:45 PM</p></div>
+                            </div>
+                            <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 min-h-[72px] py-3 justify-between border-l-4 border-transparent hover:bg-gray-50 dark:hover:bg-card-dark/50">
+                                <div class="flex items-center gap-4">
+                                    <div class="relative">
+                                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" data-alt="Mr. David Chen avatar" style='background-image: url("https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1887&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                                    </div>
+                                    <div class="flex flex-col justify-center">
+                                        <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal line-clamp-1">Mr. David Chen</p>
+                                        <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-1">The document is attached.</p>
+                                    </div>
+                                </div>
+                                <div class="shrink-0 flex flex-col items-end gap-1">
+                                    <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal">1:20 PM</p>
+                                    <span class="flex items-center justify-center text-xs font-bold text-white bg-red-500 rounded-full h-5 w-5">2</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 min-h-[72px] py-3 justify-between border-l-4 border-transparent hover:bg-gray-50 dark:hover:bg-card-dark/50">
+                                <div class="flex items-center gap-4">
+                                    <div class="relative">
+                                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" data-alt="Prof. Sarah Jones avatar" style='background-image: url("https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                                    </div>
+                                    <div class="flex flex-col justify-center">
+                                        <p class="text-text-light dark:text-text-dark text-base font-medium leading-normal line-clamp-1">Prof. Sarah Jones</p>
+                                        <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-1">Let's discuss this on Friday.</p>
+                                    </div>
+                                </div>
+                                <div class="shrink-0"><p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal">Yesterday</p></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="md:col-span-2 flex flex-col bg-card-light dark:bg-card-dark rounded-xl shadow-subtle border border-border-light dark:border-border-dark h-[calc(100vh-10rem)]">
+                        <div class="flex items-center justify-between p-4 border-b border-border-light dark:border-border-dark">
+                            <div class="flex items-center gap-3">
+                                <div class="relative">
+                                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12" style='background-image: url("https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1888&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                                    <span class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-500 border-2 border-white dark:border-card-dark"></span>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-bold text-text-light dark:text-text-dark">Dr. Evelyn Reed</h2>
+                                    <p class="text-sm text-green-500">Online</p>
+                                </div>
+                            </div>
+                            <button class="p-2 rounded-full text-subtext-light dark:text-subtext-dark hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <span class="material-icons-outlined">more_vert</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex-1 p-6 overflow-y-auto space-y-6">
+                            <div class="flex items-start gap-3 max-w-lg">
+                                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1888&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                                <div class="flex flex-col gap-2">
+                                    <div class="bg-background-light dark:bg-background-dark p-4 rounded-r-lg rounded-bl-lg border border-border-light dark:border-border-dark">
+                                        <p class="text-base">Hello Alex, I've reviewed your project proposal. It looks like a great start!</p>
+                                    </div>
+                                    <span class="text-xs text-subtext-light dark:text-subtext-dark">3:40 PM</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3 justify-end">
+                                <div class="flex flex-col gap-2 items-end">
+                                    <div class="bg-primary text-white p-4 rounded-l-lg rounded-br-lg max-w-lg">
+                                        <p class="text-base">Thanks, Dr. Reed! I had a quick question about the database schema.</p>
+                                    </div>
+                                    <span class="text-xs text-subtext-light dark:text-subtext-dark">3:41 PM</span>
+                                </div>
+                                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                            </div>
+                             <div class="flex items-start gap-3 max-w-lg">
+                                <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style='background-image: url("https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1888&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                                <div class="flex flex-col gap-2">
+                                    <div class="bg-background-light dark:bg-background-dark p-4 rounded-r-lg rounded-bl-lg border border-border-light dark:border-border-dark">
+                                        <p class="text-base">Of course, what's your question?</p>
+                                    </div>
+                                    <span class="text-xs text-subtext-light dark:text-subtext-dark">3:45 PM</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 border-t border-border-light dark:border-border-dark mt-auto bg-card-light dark:bg-card-dark rounded-b-xl">
+                            <div class="bg-background-light dark:bg-background-dark rounded-lg p-3 border border-border-light dark:border-border-dark flex items-center gap-3">
+                                <button class="p-2 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons-outlined">add_reaction</span></button>
+                                <textarea class="w-full bg-transparent focus:outline-none resize-none text-base px-2 py-2 text-text-light dark:text-text-dark placeholder:text-subtext-light" placeholder="Type your message..." rows="1"></textarea>
+                                <button class="p-2 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons-outlined">attach_file</span></button>
+                                <button class="bg-primary text-white p-2.5 rounded-lg shadow-md hover:bg-primary/80 transition-colors">
+                                    <span class="material-icons-outlined">send</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+</div> 
+        
+        <a href="http://127.0.0.1:8000/ai_chat.html" target="_blank" id="floating-chat-btn" class="fixed bottom-8 right-8 z-30 flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-primary shadow-lg transition-transform duration-300 ease-in-out hover:scale-110">
+            <span class="material-icons-outlined text-white text-3xl">smart_toy</span>
+        </a>
+
+        <div id="settings-save-bar" class="hidden absolute bottom-0 left-0 right-0 p-4 bg-card-light/80 dark:bg-card-dark/80 backdrop-blur-sm border-t border-border-light dark:border-border-dark z-20 transition-all duration-300 ease-in-out">
+            <div class="max-w-4xl mx-auto flex justify-end">
+                <button class="nav-link bg-card-light dark:bg-card-dark py-2 px-6 border border-gray-300 dark:border-border-dark rounded-xl shadow-sm text-sm font-medium text-gray-700 dark:text-text-dark hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" data-target="dashboard-page">Cancel</button>
+                <button class="ml-3 inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="submit">Save Changes</button>
+            </div>
+        </div>
+
+    </main> 
+    
+    <script src="js/dashboard_common.js"></script>
+
+</body>
+</html>

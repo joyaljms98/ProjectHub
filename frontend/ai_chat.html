@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ProjectHub - AI Assistant</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#111827",
+                        "accent-light": "#E0E7FF",
+                        "accent-dark": "#312E81",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "subtext-light": "#6B7280",
+                        "subtext-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        lg: "1rem",
+                        xl: "1.5rem"
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                        'subtle-dark': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+                    }
+                },
+            },
+        };
+    </script>
+
+    <link rel="stylesheet" href="css/dashboard_common.css">
+    <style>
+        /* Sidebar specific styles */
+        html, body {
+            height: 100%; margin: 0; overflow: hidden;
+        }
+        body {
+            display: flex; /* Body manages layout of sidebars and main */
+        }
+        aside {
+            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out, padding 0.3s ease-in-out;
+            flex-shrink: 0; overflow-y: auto; height: 100vh; scrollbar-width: thin;
+            position: relative; /* Needed for z-index if overlap occurs during transition */
+            z-index: 10;
+        }
+        main {
+            flex-grow: 1; /* Main takes remaining space */
+            /* REMOVED transition: margin-left/right */
+            height: 100vh;
+            display: flex; /* Use flex to center child */
+            flex-direction: column;
+            justify-content: center; /* Center vertically */
+            align-items: center; /* Center horizontally */
+            overflow: hidden;
+            padding: 2rem; /* Padding around the chat wrapper */
+            /* Let main always fill the space between sidebars naturally */
+        }
+
+        /* --- Sidebar Widths --- */
+        :root {
+           --left-sidebar-width: 26rem; 
+           --right-sidebar-width: 26rem;
+        }
+
+        /* Left Sidebar */
+        #left-sidebar {
+            width: var(--left-sidebar-width); border-right: 1px solid var(--color-border-light);
+        }
+        .dark #left-sidebar { border-right-color: var(--color-border-dark); }
+        body.sidebar-left-collapsed #left-sidebar {
+            transform: translateX(-100%); width: 0; padding: 0; border: none;
+        }
+        /* REMOVED body:not(.sidebar-left-collapsed) main { margin-left... } */
+        body.sidebar-left-collapsed main { margin-left: 0; } /* Keep for transition */
+
+        /* Right Sidebar */
+        #right-sidebar {
+            width: var(--right-sidebar-width); border-left: 1px solid var(--color-border-light);
+        }
+        .dark #right-sidebar { border-left-color: var(--color-border-dark); }
+        body.sidebar-right-collapsed #right-sidebar {
+            transform: translateX(100%); width: 0; padding: 0; border: none;
+        }
+        /* REMOVED body:not(.sidebar-right-collapsed) main { margin-right... } */
+        body.sidebar-right-collapsed main { margin-right: 0; } /* Keep for transition */
+
+        /* --- Chat Container Centering & Max Width --- */
+        #chat-wrapper {
+            width: 100%; /* Take full width available IN MAIN */
+            /* Set ONE max-width. Adjust this value for desired size */
+            max-width: 64rem; /* Example: like max-w-7xl. CHANGE THIS AS NEEDED */
+            margin-left: auto; /* Center horizontally within main */
+            margin-right: auto; /* Center horizontally within main */
+            height: 100%;
+            max-height: 100%;
+            display: flex;
+        }
+        #chat-container {
+             width: 100%; height: 100%; max-height: 100%;
+             display: flex; flex-direction: column;
+             border-radius: 0.75rem; border: 1px solid var(--color-border-light);
+             box-shadow: var(--box-shadow-subtle); background-color: var(--color-card-light);
+        }
+        .dark #chat-container {
+            border-color: var(--color-border-dark); box-shadow: var(--box-shadow-subtle-dark);
+            background-color: var(--color-card-dark);
+        }
+         #chat-messages { flex-grow: 1; overflow-y: auto; scrollbar-width: thin; padding: 1.5rem; }
+         /* Chat Input/Header Areas */
+         #chat-container > div:last-child { /* Input Area */
+             padding: 1rem; border-top: 1px solid var(--color-border-light);
+             border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; flex-shrink: 0;
+         }
+         .dark #chat-container > div:last-child { border-top-color: var(--color-border-dark); }
+         #chat-container > div:first-child { /* Header */
+              padding: 1rem; background-color: rgba(79, 70, 229, 0.1);
+              border-bottom: 1px solid rgba(79, 70, 229, 0.2);
+              border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; flex-shrink: 0;
+         }
+         .dark #chat-container > div:first-child {
+              background-color: rgba(79, 70, 229, 0.2); border-bottom-color: rgba(79, 70, 229, 0.4);
+         }
+
+         /* Text area resize */
+         #chat-input { max-height: 150px; overflow-y: auto; }
+
+        /* Markdown styles (Keep existing) */
+        .chat-bubble pre { background-color: #e5e7eb; color: #1f2937; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-family: 'Courier New', Courier, monospace; font-size: 0.9em; }
+        .dark .chat-bubble pre { background-color: #1f2937; color: #f3f4f6; }
+        .chat-bubble code { background-color: #f3f4f6; color: #ef4444; padding: 0.2em 0.4em; border-radius: 0.25rem; font-size: 0.9em; border: 1px solid #e5e7eb; }
+        .dark .chat-bubble code { background-color: #374151; color: #fca5a5; border: 1px solid #4b5563; }
+        .chat-bubble blockquote { border-left: 4px solid #a5b4fc; padding-left: 1rem; margin-left: 0; font-style: italic; color: #6B7280; }
+        .dark .chat-bubble blockquote { border-left-color: #6366f1; color: #9CA3AF; }
+        .chat-bubble ul, .chat-bubble ol { padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .chat-bubble li { margin-bottom: 0.25rem; }
+
+        /* CSS Variables */
+        :root {
+            --color-border-light: #E5E7EB; --color-border-dark: #374151;
+           --color-card-light: #FFFFFF; --color-card-dark: #1F2937;
+           --box-shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+           --box-shadow-subtle-dark: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-sans">
+
+    <aside id="left-sidebar" class="bg-card-light dark:bg-card-dark p-6 border-r border-border-light dark:border-border-dark">
+        <div class="flex items-center gap-2 mb-10">
+            <div class="size-8">
+                <svg class="h-full w-full" fill="url(#chat-gradient)" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="chat-gradient" x1="0%" x2="100%" y1="0%" y2="0%">
+                            <stop offset="0%" stop-color="#3b82f6"></stop>
+                            <stop offset="50%" stop-color="#8b5cf6"></stop>
+                            <stop offset="100%" stop-color="#f97316"></stop>
+                        </linearGradient>
+                    </defs>
+                    <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                </svg>
+            </div>
+            <h1 class="text-xl font-bold text-text-light dark:text-text-dark">ProjectHub AI</h1>
+        </div>
+
+        <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-subtle border border-border-light dark:border-border-dark p-6">
+            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">AI & RAG Settings</h2>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-text-light dark:text-text-dark">Provider</label>
+                    <select id="provider" class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm">
+                        <option value="gemini">Google Gemini (Cloud)</option>
+                        <option value="ollama">Ollama (Local)</option>
+                    </select>
+                </div>
+                <div id="geminiSettings" class="space-y-4 pl-4 border-l-2 border-accent-light dark:border-accent-dark ml-2">
+                     <div>
+                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="gemini_api_key">Gemini API Key</label>
+                        <input class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="gemini_api_key" placeholder="Enter Gemini API Key" type="password" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="gemini_model">Gemini Model</label>
+                        <select class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="gemini_model">
+                            <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
+                            <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
+                            <option value="gemini-1.0-pro">gemini-1.0-pro</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="ollamaSettings" class="hidden space-y-4 pl-4 border-l-2 border-accent-light dark:border-accent-dark ml-2">
+                    <div>
+                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="ollama_endpoint">Ollama Endpoint</label>
+                        <input class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="ollama_endpoint" type="text" />
+                        <p id="ollama-connection-status" class="text-xs text-red-500 mt-1 h-3"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="ollama_model">Ollama LLM Model</label>
+                        <div class="flex gap-2">
+                            <select class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="ollama_model">
+                                <option value="">Click 'Check'</option>
+                            </select>
+                            <button id="check-ollama-btn" title="Check connection" class="mt-1 p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex-shrink-0">
+                                <span class="material-icons-outlined text-base">refresh</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="embedding_model">Ollama Embedding Model</label>
+                        <select class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="embedding_model">
+                            <option value="all-minilm">all-minilm (Fastest)</option>
+                            <option value="nomic-embed-text">nomic-embed-text</option>
+                            <option value="mxbai-embed-large">mxbai-embed-large</option>
+                            <option value="snowflake-arctic-embed">snowflake-arctic-embed</option>
+                            <option value="bge-m3">bge-m3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="space-y-4 pt-4 border-t border-border-light dark:border-border-dark">
+                    <div>
+                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="rag_docs_path">RAG Docs Path</label>
+                        <input class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="rag_docs_path" type="text" placeholder="e.g., C:\path\to\docs"/>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="vector_db_path">Vector DB Path (Base)</label>
+                        <input class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="vector_db_path" type="text" placeholder="e.g., ./chroma_db"/>
+                        <p class="text-xs text-subtext-light dark:text-subtext-dark mt-1">Actual path includes model.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="system_prompt">System Prompt</label>
+                        <textarea class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="system_prompt" rows="5" placeholder="Base instructions..."></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-4 pt-4 border-t border-border-light dark:border-border-dark">
+                    <button id="save-config-btn" class="flex-1 flex items-center justify-center gap-2 cursor-pointer rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-text-light dark:text-text-dark text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">
+                        <span class="material-icons-outlined text-base">save</span>
+                        <span>Save</span>
+                    </button>
+                    <button id="initialize-btn" class="flex-1 flex items-center justify-center gap-2 cursor-pointer rounded-lg h-10 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90">
+                        <span class="material-icons-outlined text-base">rocket_launch</span>
+                        <span>Initialize</span>
+                    </button>
+                </div>
+                <p id="settings-status" class="text-sm text-center h-4 mt-2"></p>
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <div id="chat-wrapper">
+            <div id="chat-container" class="bg-card-light dark:bg-card-dark rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                <div class="flex items-center justify-between p-4 bg-primary/10 dark:bg-primary/20 border-b border-primary/20 dark:border-primary/40 rounded-t-xl flex-shrink-0">
+                     <button id="left-sidebar-toggle" title="Toggle Settings" class="p-2 rounded-lg text-text-light dark:text-text-dark hover:bg-gray-200 dark:hover:bg-gray-700">
+                         <span class="material-icons-outlined">settings</span>
+                     </button>
+                     <div class="flex items-center gap-3">
+                        <span class="material-icons-outlined text-primary text-2xl">smart_toy</span>
+                        <h2 class="text-xl font-bold text-text-light dark:text-text-dark">Assistant</h2>
+                     </div>
+                     <button id="right-sidebar-toggle" title="Toggle Documents" class="p-2 rounded-lg text-text-light dark:text-text-dark hover:bg-gray-200 dark:hover:bg-gray-700">
+                         <span class="material-icons-outlined">description</span>
+                     </button>
+                </div>
+
+                <div id="chat-messages" class="flex-1 p-6 space-y-6">
+                    <div class="flex items-start gap-3 max-w-[90%] group">
+                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 flex-shrink-0 shadow-sm" data-alt="AI avatar" style='background-image: url("https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1945&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                        <div class="flex flex-col gap-1 w-full">
+                            <div class="bg-background-light dark:bg-background-dark p-3 rounded-r-lg rounded-bl-lg border border-border-light dark:border-border-dark shadow-sm">
+                                <p class="text-base chat-bubble">Hello! I'm the ProjectHub Assistant. Configure settings in the **left sidebar** & click **'Initialize'**. For RAG, select documents in the **right sidebar** before initializing.</p>
+                            </div>
+                            <span class="text-xs text-subtext-light dark:text-subtext-dark/80">Now</span>
+                        </div>
+                    </div>
+                    </div>
+
+                <div class="p-4 border-t border-border-light dark:border-border-dark mt-auto bg-card-light dark:bg-card-dark rounded-b-xl flex-shrink-0">
+                    <div class="flex items-center justify-center mb-3">
+                        <div class="flex items-center gap-2 bg-background-light dark:bg-background-dark p-1 rounded-full shadow-inner border border-border-light dark:border-border-dark">
+                            <button id="chat-mode-btn" class="px-4 py-1.5 text-sm font-semibold rounded-full bg-primary text-white shadow-sm">Chat Mode</button>
+                            <button id="rag-mode-btn" class="px-4 py-1.5 text-sm font-semibold text-subtext-light dark:text-subtext-dark rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">RAG Mode</button>
+                        </div>
+                    </div>
+                    <form id="chat-form" class="bg-background-light dark:bg-background-dark rounded-lg p-3 border border-border-light dark:border-border-dark">
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 relative">
+                                <textarea id="chat-input" class="w-full bg-transparent focus:outline-none resize-none text-base px-2 py-2 text-text-light dark:text-text-dark placeholder:text-subtext-light dark:placeholder:text-subtext-dark" placeholder="Ask the assistant..." rows="1" ></textarea>
+                            </div>
+                            <button id="send-btn" type="submit" class="bg-primary text-white p-2.5 rounded-lg shadow-md hover:bg-primary/80 transition-colors self-end" title="Send Message">
+                                <span class="material-icons-outlined">send</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside id="right-sidebar" class="bg-card-light dark:bg-card-dark p-6 border-l border-border-light dark:border-border-dark">
+        <div class="bg-card-light dark:bg-card-dark rounded-xl shadow-subtle border border-border-light dark:border-border-dark p-6">
+                <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">RAG Document Selection</h2>
+                <button id="scan-docs-btn-right" class="w-full flex items-center justify-center gap-2 mb-4 cursor-pointer rounded-lg h-10 px-4 bg-gray-200 dark:bg-gray-700 text-text-light dark:text-text-dark text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600">
+                    <span class="material-icons-outlined text-base">refresh</span>
+                    <span>Scan Documents</span>
+                </button>
+                <div id="document-list-container-right" class="max-h-[60vh] overflow-y-auto space-y-2 p-3 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
+                    <p class="text-subtext-light dark:text-subtext-dark text-sm">Click 'Scan Docs' to load files.</p>
+                </div>
+                <div class="flex items-center mt-4">
+                    <input id="force-rebuild-checkbox-right" type="checkbox" class="h-4 w-4 text-primary rounded border-gray-300 focus:ring-primary">
+                    <label for="force-rebuild-checkbox-right" class="ml-2 block text-sm text-subtext-light dark:text-subtext-dark cursor-pointer">Force Re-build Index</label>
+                </div>
+            </div>
+    </aside>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="js/ai_chat.js"></script>
+
+</body>
+</html>
