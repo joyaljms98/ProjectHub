@@ -914,10 +914,13 @@
             // Load guide requests
             loadGuideRequests('received');
 
-            // Set up "Add Project" form handler
-            const addProjectForm = document.querySelector('#add-project-page button[type="button"]:last-of-type');
-            if (addProjectForm) {
-                addProjectForm.addEventListener('click', handleStep1Submit);
+            // Set up "Add Project" form handler using the button ID
+            const createProjectBtn = document.getElementById('create-project-btn');
+            if (createProjectBtn) {
+                createProjectBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    handleStep1Submit(e);
+                });
             }
 
             // Logout handler
