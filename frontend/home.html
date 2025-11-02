@@ -5,15 +5,15 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>ProjectHub - Your Campus Project Collaboration Hub</title>
-    
+
     <!-- Tailwind CSS and Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-    
+
     <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
-        
+
     <!-- Tailwind Config -->
     <script>
         tailwind.config = {
@@ -21,16 +21,22 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: "#00BFFF",
+                        primary: "#00BFFF", // Keep existing primary
                         "background-light": "#FFFFFF",
                         "background-dark": "#101c22",
                         "text-light": "#0d171b",
                         "text-dark": "#f6f7f8",
                         "subtle-light": "#e7eff3",
                         "subtle-dark": "#1a2a33",
-                        "accent-light": "#ADD8E6",
+                        "accent-light": "#ADD8E6", // Keep existing accent
                         "text-headings": "#1E293B",
                         "text-body": "#475569",
+                        // Backend colors matching the dashboards for consistency in messages
+                        'be-primary': "#4F46E5",
+                        'be-accent-light': "#E0E7FF",
+                        'be-accent-dark': "#312E81",
+                        'be-error': '#EF4444', // Red for errors
+                        'be-success': '#10B981', // Green for success
                     },
                     fontFamily: {
                         display: ["Manrope", "sans-serif"],
@@ -56,11 +62,11 @@
 </head>
 
 <body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
-    
+
     <button id="back-button" class="fixed top-4 left-4 sm:left-10 z-[51] p-2 rounded-full hidden transition-all duration-300 back-button-home">
         <span class="material-symbols-outlined">arrow_back</span>
     </button>
-    
+
     <header id="main-header" class="fixed top-0 left-0 right-0 z-50 header-home transition-transform duration-300 ease-in-out">
         <div class="w-full max-w-6xl mx-auto flex items-center justify-between whitespace-nowrap px-4 sm:px-10 py-4">
             <div class="flex items-center gap-2 text-text-light dark:text-text-dark">
@@ -110,7 +116,8 @@
 
             <!-- Home Page Content -->
             <div id="home-page" class="page">
-                <div id="main-background"
+                <!-- Existing Home Page Content ... -->
+                 <div id="main-background"
                     class="relative flex h-auto min-h-screen w-full flex-col font-display group/design-root overflow-x-hidden dark:bg-background-dark pt-[68px]"
                     style="background-image: url('assets/bg.png'); background-size: 110%; background-position: center top;">
                     <div class="layout-container flex h-full grow flex-col">
@@ -190,7 +197,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Login Page Content -->
             <div id="login-page" class="hidden page pt-[68px]" style="opacity: 0;">
                 <main class="flex flex-1 items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
@@ -200,15 +207,18 @@
                                 Log In to ProjectHub
                             </p>
                         </div>
-                        <div class="bg-background-light dark:bg-subtle-dark/50 p-8 rounded-xl shadow-lg space-y-6">
+                        <form id="login-form" class="bg-background-light dark:bg-subtle-dark/50 p-8 rounded-xl shadow-lg space-y-6">
+                            <!-- Message Area -->
+                            <div id="login-message" class="text-center text-sm font-medium p-3 rounded-lg hidden"></div>
                             <div class="flex flex-col">
                                 <label class="flex flex-col min-w-40 flex-1">
                                     <p class="text-base font-medium pb-2">
-                                        Email or Username
+                                        Email <!-- Changed from Email or Username -->
                                     </p>
                                     <input
+                                        id="login-email"
                                         class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
-                                        placeholder="Enter your email or username" value="" />
+                                        placeholder="Enter your email" type="email" required value="" /> <!-- Added required -->
                                 </label>
                             </div>
                             <div class="flex flex-col">
@@ -218,10 +228,11 @@
                                     </p>
                                     <div class="flex w-full flex-1 items-stretch">
                                         <input
+                                            id="login-password"
                                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 focus:z-10 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
-                                            placeholder="Enter your password" type="password" value="" />
-                                        <button aria-label="Toggle password visibility"
-                                            class="text-[#4c809a] dark:text-gray-500 flex border-none bg-subtle-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
+                                            placeholder="Enter your password" type="password" required value="" /> <!-- Added required -->
+                                        <button type="button" aria-label="Toggle password visibility"
+                                            class="toggle-password text-[#4c809a] dark:text-gray-500 flex border-none bg-subtle-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
                                             <span class="material-symbols-outlined">
                                                 visibility_off
                                             </span>
@@ -236,13 +247,15 @@
                             </div>
                             <div>
                                 <button
-                                    class="w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 gradient-bg text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:opacity-90 transition-opacity">
+                                    id="login-button"
+                                    type="submit"
+                                    class="w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 gradient-bg text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
                                     <span class="truncate">
                                         Log In
                                     </span>
                                 </button>
                             </div>
-                        </div>
+                        </form>
                          <p class="text-center text-sm text-gray-600 dark:text-gray-400">
                             Don't have an account? <a href="#" class="nav-link font-medium gradient-text hover:opacity-80" data-target="signup-page">Sign up</a>
                         </p>
@@ -252,6 +265,7 @@
 
             <!-- Signup Page Content -->
             <div id="signup-page" class="hidden page pt-[68px]" style="opacity: 0;">
+                <!-- Existing Signup Choice Content ... -->
                  <main class="flex-grow flex flex-col items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
                     <div class="text-center mb-12">
                         <h1 class="text-[#0d171b] dark:text-white text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em]"><span class="gradient-text">Create Your ProjectHub Account</span></h1>
@@ -301,15 +315,17 @@
                                 Let's get your profile set up.
                             </p>
                         </div>
-                        <div class="bg-background-light dark:bg-subtle-dark/50 p-8 rounded-xl shadow-lg space-y-6">
+                        <form id="registration-form" class="bg-background-light dark:bg-subtle-dark/50 p-8 rounded-xl shadow-lg space-y-6">
+                             <!-- Message Area -->
+                            <div id="registration-message" class="text-center text-sm font-medium p-3 rounded-lg hidden"></div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="flex flex-col">
-                                    <label class="text-base font-medium pb-2" for="full-name">
+                                    <label class="text-base font-medium pb-2" for="reg-full-name"> <!-- Changed ID -->
                                         Full Name
                                     </label>
                                     <input
                                         class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
-                                        id="full-name" placeholder="Enter your full name" type="text" />
+                                        id="reg-full-name" placeholder="Enter your full name" type="text" required /> <!-- Added required -->
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2" for="reg-number">
@@ -317,7 +333,7 @@
                                     </label>
                                     <input
                                         class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
-                                        id="reg-number" placeholder="e.g., 2023-CS-123" type="text" />
+                                        id="reg-number" placeholder="e.g., 2023-CS-123" type="text" required /> <!-- Added required -->
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2" for="reg-email">
@@ -325,7 +341,7 @@
                                     </label>
                                     <input
                                         class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
-                                        id="reg-email" placeholder="Enter your email" type="email" />
+                                        id="reg-email" placeholder="Enter your email" type="email" required /> <!-- Added required -->
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2" for="reg-password">
@@ -334,9 +350,9 @@
                                     <div class="flex w-full flex-1 items-stretch">
                                         <input
                                             class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 focus:z-10 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
-                                            id="reg-password" placeholder="Create a password" type="password" />
-                                        <button aria-label="Toggle password visibility"
-                                            class="text-[#4c809a] dark:text-gray-500 flex border-none bg-subtle-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
+                                            id="reg-password" placeholder="Min. 8 characters" type="password" required minlength="8" /> <!-- Added required, minlength -->
+                                        <button type="button" aria-label="Toggle password visibility" 
+                                            class="toggle-password text-[#4c809a] dark:text-gray-500 flex border-none bg-subtle-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
                                             <span class="material-symbols-outlined">
                                                 visibility_off
                                             </span>
@@ -344,55 +360,40 @@
                                     </div>
                                 </div>
                                 <div class="flex flex-col">
-                                    <label class="text-base font-medium pb-2" for="department">
+                                    <label class="text-base font-medium pb-2" for="reg-department"> <!-- Changed ID -->
                                         Department
                                     </label>
                                     <select
                                         class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal pr-10"
-                                        id="department">
-                                        <option selected="">
-                                            Select your department
-                                        </option>
-                                        <option>
-                                            Computer Science
-                                        </option>
-                                        <option>
-                                            Electrical Engineering
-                                        </option>
-                                        <option>
-                                            Mechanical Engineering
-                                        </option>
-                                        <option>
-                                            Business Administration
-                                        </option>
+                                        id="reg-department" required> <!-- Added required -->
+                                        <option value="" disabled selected>Select your department</option> <!-- Added default disabled -->
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Electrical Engineering">Electrical Engineering</option>
+                                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                        <option value="Business Administration">Business Administration</option>
+                                        <!-- Add more departments as needed -->
                                     </select>
                                 </div>
                                 <div class="flex flex-col">
-                                    <label class="text-base font-medium pb-2" for="user-type">
+                                    <label class="text-base font-medium pb-2" for="reg-user-type"> <!-- Changed ID -->
                                         User Role
                                     </label>
                                     <select
                                         class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal pr-10"
-                                        id="user-type">
-                                        <option value="">
-                                            Select your role
-                                        </option>
-                                        <option value="Student">
-                                            Student
-                                        </option>
-                                        <option value="Teacher">
-                                            Teacher
-                                        </option>
+                                        id="reg-user-type" required> <!-- Added required -->
+                                        <option value="" disabled>Select your role</option> <!-- Default disabled, value will be set by JS -->
+                                        <option value="Student">Student</option>
+                                        <option value="Teacher">Teacher</option>
                                     </select>
                                 </div>
                                 <div class="flex flex-col">
-                                    <label class="text-base font-medium pb-2" for="security-question">
+                                    <label class="text-base font-medium pb-2" for="reg-security-question"> <!-- Changed ID -->
                                         Security Question
                                     </label>
                                     <select
                                         class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal pr-10"
-                                        id="security-question">
-                                        <option value="">Select a question...</option>
+                                        id="reg-security-question" required> <!-- Added required -->
+                                        <option value="" disabled selected>Select a question...</option> <!-- Added default disabled -->
                                         <option value="pet">What was your first pet's name?</option>
                                         <option value="street">What street did you grow up on?</option>
                                         <option value="mother_maiden">What is your mother's maiden name?</option>
@@ -400,34 +401,37 @@
                                         <option value="elementary">What was the name of your elementary school?</option>
                                     </select>
                                 </div>
-                                
+
                                 <div class="flex flex-col">
-                                    <label class="text-base font-medium pb-2" for="security-answer">
+                                    <label class="text-base font-medium pb-2" for="reg-security-answer"> <!-- Changed ID -->
                                         Security Answer
                                     </label>
                                     <input
                                         class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-purple-500 border-none bg-subtle-light dark:bg-background-dark h-14 placeholder:text-[#4c809a] dark:placeholder:text-gray-500 p-4 text-base font-normal"
-                                        id="security-answer" placeholder="Your answer (will be saved in caps)" type="text"
-                                        oninput="this.value = this.value.toUpperCase()" />
+                                        id="reg-security-answer" placeholder="Your answer (will be saved in caps)" type="text" required
+                                        oninput="this.value = this.value.toUpperCase()" /> <!-- Added required -->
                                 </div>
                             </div>
-                            
+
                             <div class="pt-4">
                                 <button
-                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:opacity-90 transition-opacity">
+                                    id="register-button"
+                                    type="submit"
+                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed">
                                     <span class="truncate">
                                         Complete Setup
                                     </span>
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </main>
             </div>
 
             <!-- About Page Content -->
             <div id="about-page" class="hidden page pt-[68px]" style="opacity: 0;">
-                <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
+                <!-- Existing About Page Content ... -->
+                 <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
                     <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
                         <div class="@container">
                             <div class="flex flex-col gap-6 px-4 py-10 @[480px]:gap-8 @[864px]:flex-row items-center">
@@ -569,7 +573,8 @@
 
             <!-- Contact Page Content -->
             <div id="contact-page" class="hidden page pt-[68px]" style="opacity: 0;">
-                <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-12">
+                <!-- Existing Contact Page Content ... -->
+                 <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-12">
                     <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
                         <div class="text-center mb-12">
                             <h1 class="text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em]">
@@ -619,7 +624,8 @@
 
             <!-- Reset Password Page Content -->
             <div id="reset-password-page" class="hidden page pt-[68px]" style="opacity: 0;">
-                <main class="flex flex-1 items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                <!-- Existing Reset Password Content ... -->
+                 <main class="flex flex-1 items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
                     <div class="w-full max-w-md space-y-8">
                         <div class="flex flex-col items-center text-center">
                             <p class="text-4xl font-black tracking-[-0.033em]">
@@ -695,7 +701,7 @@
                     </div>
                 </main>
             </div>
-        </div> 
+        </div>
     </div>
 
     <!-- Custom JavaScript -->
