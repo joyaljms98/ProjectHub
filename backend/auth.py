@@ -63,13 +63,20 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def verify_token(token: str) -> Optional[TokenData]:
     """Verifies a JWT token and returns the payload (TokenData)."""
     try:
+        # jwt.decode will automatically check expiration and raise JWTError if expired
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        # Validate payload against TokenData model
-        token_data = TokenData(**payload)
-        # Check expiration manually as jwt.decode might not raise error for expired token in all cases
-        if token_data.exp < datetime.now(timezone.utc):
-             print("Token expired.")
-             return None
+
+        # Extract email from 'sub' claim (standard JWT claim for subject)
+        email = payload.get("sub")
+        if not email:
+            print("Token missing 'sub' claim")
+            return None
+
+        # Extract role
+        role = payload.get("role")
+
+        # Create TokenData with extracted values
+        token_data = TokenData(email=email, role=role)
         return token_data
     except JWTError as e:
         print(f"JWT Error: {e}")
