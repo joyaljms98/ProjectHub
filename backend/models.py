@@ -1,7 +1,7 @@
 # Data Models Update
 
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, Any
+from typing import Optional, Any, List
 from datetime import datetime # Use datetime directly
 from bson import ObjectId # Import ObjectId
 
