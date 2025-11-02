@@ -702,11 +702,22 @@ function showAddProjectWizard() {
 }
 
 function handleStep1Submit(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
-    const name = document.getElementById('project-name').value;
-    const description = document.getElementById('project-description').value;
-    const courseCode = document.getElementById('course-code').value;
+    const name = document.getElementById('project-name').value.trim();
+    const description = document.getElementById('project-description').value.trim();
+    const courseCode = document.getElementById('course-code').value.trim();
+
+    // Validation
+    if (!name || name.length < 3) {
+        handleApiError({ detail: 'Project name must be at least 3 characters long' }, 'project-form-message');
+        return;
+    }
+
+    if (!description || description.length < 10) {
+        handleApiError({ detail: 'Project description must be at least 10 characters long' }, 'project-form-message');
+        return;
+    }
 
     const formData = {
         name,
