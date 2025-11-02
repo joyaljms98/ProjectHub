@@ -260,6 +260,1071 @@ async def reset_password(request: models.PasswordResetRequest, db: Database = De
 
     return {"message": "Password reset successfully"}
 
+
+# ============================================
+# PROJECT MANAGEMENT ENDPOINTS
+# ============================================
+
+@app.post("/projects", response_model=models.ProjectPublic, status_code=status.HTTP_201_CREATED)
+async def create_project(
+    project_data: models.ProjectCreate,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Create a new project (Step 1 of wizard)"""
+    # Verify user is Student
+    if current_user.get("role") != "Student":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only students can create projects"
+        )
+
+    # Initialize 4 fixed milestones
+    milestones = [
+        {"name": "Abstract Creation", "status": "not_started", "order": 1},
+        {"name": "Tables and Design", "status": "not_started", "order": 2},
+        {"name": "Project Development", "status": "not_started", "order": 3},
+        {"name": "Project Report", "status": "not_started", "order": 4}
+    ]
+
+    # Create project document
+    project_doc = {
+        "name": project_data.name,
+        "description": project_data.description,
+        "courseCode": project_data.courseCode,
+        "ownerId": current_user["_id"],
+        "ownerName": current_user.get("fullName", "Unknown"),
+        "department": current_user.get("department", "Unknown"),
+        "status": "Planning",
+        "teamMembers": [],
+        "guideId": None,
+        "guideName": None,
+        "milestones": milestones,
+        "progress": 0,
+        "deadline": project_data.deadline,
+        "createdAt": datetime.datetime.now(timezone.utc),
+        "updatedAt": datetime.datetime.now(timezone.utc)
+    }
+
+    # Insert into database
+    result = db.projects.insert_one(project_doc)
+    created_project = db.projects.find_one({"_id": result.inserted_id})
+    created_project["_id"] = str(created_project["_id"])
+
+    return created_project
+
+
+@app.get("/projects", response_model=List[models.ProjectPublic])
+async def list_projects(
+    status_filter: Optional[str] = Query(None, alias="status"),
+    role_filter: Optional[str] = Query(None, alias="role"),
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """List projects for current user"""
+    query = {}
+
+    if current_user.get("role") == "Student":
+        # Students see projects they own or are members of
+        if role_filter == "owner":
+            query["ownerId"] = current_user["_id"]
+        elif role_filter == "member":
+            query["teamMembers.userId"] = current_user["_id"]
+        else:
+            # Both owner and member
+            query["$or"] = [
+                {"ownerId": current_user["_id"]},
+                {"teamMembers.userId": current_user["_id"]}
+            ]
+    elif current_user.get("role") == "Teacher":
+        # Teachers see projects they guide
+        query["guideId"] = current_user["_id"]
+
+    # Apply status filter
+    if status_filter:
+        query["status"] = status_filter
+
+    projects = list(db.projects.find(query).sort("updatedAt", -1))
+
+    # Convert ObjectIds to strings
+    for project in projects:
+        project["_id"] = str(project["_id"])
+
+    return projects
+
+
+@app.get("/projects/{project_id}", response_model=models.ProjectPublic)
+async def get_project(
+    project_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Get single project details"""
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check access permission
+    user_id = current_user["_id"]
+    is_owner = project.get("ownerId") == user_id
+    is_member = any(member.get("userId") == user_id for member in project.get("teamMembers", []))
+    is_guide = project.get("guideId") == user_id
+
+    if not (is_owner or is_member or is_guide):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have access to this project"
+        )
+
+    project["_id"] = str(project["_id"])
+    return project
+
+
+@app.put("/projects/{project_id}", response_model=models.ProjectPublic)
+async def update_project(
+    project_id: str,
+    update_data: models.UpdateProjectRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Update project details"""
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check edit permission (owner or team member)
+    user_id = current_user["_id"]
+    is_owner = project.get("ownerId") == user_id
+    is_member = any(member.get("userId") == user_id for member in project.get("teamMembers", []))
+
+    if not (is_owner or is_member):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to edit this project"
+        )
+
+    # Build update document
+    update_doc = {}
+    if update_data.name is not None:
+        update_doc["name"] = update_data.name
+    if update_data.description is not None:
+        update_doc["description"] = update_data.description
+    if update_data.courseCode is not None:
+        update_doc["courseCode"] = update_data.courseCode
+    if update_data.status is not None:
+        update_doc["status"] = update_data.status
+    if update_data.deadline is not None:
+        update_doc["deadline"] = update_data.deadline
+
+    update_doc["updatedAt"] = datetime.datetime.now(timezone.utc)
+
+    # Update project
+    db.projects.update_one({"_id": project_obj_id}, {"$set": update_doc})
+
+    # Fetch updated project
+    updated_project = db.projects.find_one({"_id": project_obj_id})
+    updated_project["_id"] = str(updated_project["_id"])
+
+    return updated_project
+
+
+@app.delete("/projects/{project_id}")
+async def delete_project(
+    project_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Delete project"""
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check delete permission (only owner)
+    if project.get("ownerId") != current_user["_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can delete the project"
+        )
+
+    # Delete project and related documents
+    db.projects.delete_one({"_id": project_obj_id})
+    db.team_invitations.delete_many({"projectId": project_id})
+    db.guide_requests.delete_many({"projectId": project_id})
+
+    return {"message": "Project deleted successfully"}
+
+
+@app.put("/projects/{project_id}/milestones", response_model=models.ProjectPublic)
+async def update_milestone(
+    project_id: str,
+    milestone_data: models.UpdateMilestoneRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Update milestone status"""
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check edit permission
+    user_id = current_user["_id"]
+    is_owner = project.get("ownerId") == user_id
+    is_member = any(member.get("userId") == user_id for member in project.get("teamMembers", []))
+
+    if not (is_owner or is_member):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to edit this project"
+        )
+
+    # Validate milestone status
+    if milestone_data.status not in ["not_started", "in_progress", "completed"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid milestone status"
+        )
+
+    # Update milestone in array
+    milestones = project.get("milestones", [])
+    milestone_found = False
+    for milestone in milestones:
+        if milestone.get("order") == milestone_data.milestoneOrder:
+            milestone["status"] = milestone_data.status
+            milestone_found = True
+            break
+
+    if not milestone_found:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Milestone with order {milestone_data.milestoneOrder} not found"
+        )
+
+    # Recalculate progress
+    completed_count = sum(1 for m in milestones if m.get("status") == "completed")
+    progress = int((completed_count / len(milestones)) * 100)
+
+    # Update project
+    db.projects.update_one(
+        {"_id": project_obj_id},
+        {
+            "$set": {
+                "milestones": milestones,
+                "progress": progress,
+                "updatedAt": datetime.datetime.now(timezone.utc)
+            }
+        }
+    )
+
+    # Fetch updated project
+    updated_project = db.projects.find_one({"_id": project_obj_id})
+    updated_project["_id"] = str(updated_project["_id"])
+
+    return updated_project
+
+
+# ============================================
+# TEAM INVITATION ENDPOINTS
+# ============================================
+
+@app.post("/projects/{project_id}/team/invite", response_model=models.TeamInvitation, status_code=status.HTTP_201_CREATED)
+async def send_team_invite(
+    project_id: str,
+    invite_data: models.SendTeamInviteRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Send team invitation to student"""
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check permission (only owner can invite)
+    if project.get("ownerId") != current_user["_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can send invitations"
+        )
+
+    # Find invitee
+    invitee = db.users.find_one({"email": invite_data.inviteeEmail.lower()})
+    if not invitee:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student not found"
+        )
+
+    # Verify invitee is Student
+    if invitee.get("role") != "Student":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only invite students"
+        )
+
+    # Verify same department
+    if invitee.get("department") != project.get("department"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can only invite students from your department"
+        )
+
+    # Check team size (owner + members)
+    current_team_size = 1 + len(project.get("teamMembers", []))
+    if current_team_size >= 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Team is full (max 4 members)"
+        )
+
+    invitee_id = str(invitee["_id"])
+
+    # Check if already in team
+    if project.get("ownerId") == invitee_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User is already project owner"
+        )
+
+    if any(member.get("userId") == invitee_id for member in project.get("teamMembers", [])):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User is already team member"
+        )
+
+    # Check for existing pending invitation
+    existing_invite = db.team_invitations.find_one({
+        "projectId": project_id,
+        "inviteeId": invitee_id,
+        "status": "pending"
+    })
+    if existing_invite:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invitation already sent"
+        )
+
+    # Create invitation
+    invitation_doc = {
+        "projectId": project_id,
+        "projectName": project.get("name", "Unknown"),
+        "inviterId": current_user["_id"],
+        "inviterName": current_user.get("fullName", "Unknown"),
+        "inviteeId": invitee_id,
+        "inviteeName": invitee.get("fullName", "Unknown"),
+        "status": "pending",
+        "createdAt": datetime.datetime.now(timezone.utc),
+        "respondedAt": None
+    }
+
+    result = db.team_invitations.insert_one(invitation_doc)
+    created_invitation = db.team_invitations.find_one({"_id": result.inserted_id})
+    created_invitation["_id"] = str(created_invitation["_id"])
+
+    return created_invitation
+
+
+@app.get("/invitations/team", response_model=List[models.TeamInvitation])
+async def get_team_invitations(
+    status_filter: Optional[str] = Query("pending", alias="status"),
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Get team invitations for current user"""
+    query = {"inviteeId": current_user["_id"]}
+
+    if status_filter:
+        query["status"] = status_filter
+
+    invitations = list(db.team_invitations.find(query).sort("createdAt", -1))
+
+    for invitation in invitations:
+        invitation["_id"] = str(invitation["_id"])
+
+    return invitations
+
+
+@app.post("/invitations/team/{invitation_id}/respond", response_model=models.TeamInvitation)
+async def respond_to_team_invite(
+    invitation_id: str,
+    response_data: models.RespondToInviteRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Accept or decline team invitation"""
+    # Validate ObjectId
+    try:
+        invitation_obj_id = ObjectId(invitation_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid invitation ID format"
+        )
+
+    # Find invitation
+    invitation = db.team_invitations.find_one({"_id": invitation_obj_id})
+    if not invitation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Invitation not found"
+        )
+
+    # Verify inviteeId
+    if invitation.get("inviteeId") != current_user["_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not your invitation"
+        )
+
+    # Verify status is pending
+    if invitation.get("status") != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invitation already responded to"
+        )
+
+    # Find project
+    try:
+        project_obj_id = ObjectId(invitation.get("projectId"))
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID in invitation"
+        )
+
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project no longer exists"
+        )
+
+    if response_data.accept:
+        # Check team size again
+        current_team_size = 1 + len(project.get("teamMembers", []))
+        if current_team_size >= 4:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Team is now full"
+            )
+
+        # Add user to team
+        new_member = {
+            "userId": current_user["_id"],
+            "role": None,
+            "isLeader": False,
+            "joinedAt": datetime.datetime.now(timezone.utc)
+        }
+
+        db.projects.update_one(
+            {"_id": project_obj_id},
+            {
+                "$push": {"teamMembers": new_member},
+                "$set": {"updatedAt": datetime.datetime.now(timezone.utc)}
+            }
+        )
+
+        # Update invitation status
+        db.team_invitations.update_one(
+            {"_id": invitation_obj_id},
+            {
+                "$set": {
+                    "status": "accepted",
+                    "respondedAt": datetime.datetime.now(timezone.utc)
+                }
+            }
+        )
+    else:
+        # Decline invitation
+        db.team_invitations.update_one(
+            {"_id": invitation_obj_id},
+            {
+                "$set": {
+                    "status": "declined",
+                    "respondedAt": datetime.datetime.now(timezone.utc)
+                }
+            }
+        )
+
+    # Return updated invitation
+    updated_invitation = db.team_invitations.find_one({"_id": invitation_obj_id})
+    updated_invitation["_id"] = str(updated_invitation["_id"])
+
+    return updated_invitation
+
+
+@app.delete("/projects/{project_id}/team/{user_id}")
+async def remove_team_member(
+    project_id: str,
+    user_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Remove team member from project"""
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check permission (only owner)
+    if project.get("ownerId") != current_user["_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can remove team members"
+        )
+
+    # Verify user is in team
+    team_members = project.get("teamMembers", [])
+    member_found = any(member.get("userId") == user_id for member in team_members)
+
+    if not member_found:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User is not a team member"
+        )
+
+    # Remove member
+    db.projects.update_one(
+        {"_id": project_obj_id},
+        {
+            "$pull": {"teamMembers": {"userId": user_id}},
+            "$set": {"updatedAt": datetime.datetime.now(timezone.utc)}
+        }
+    )
+
+    # Delete any pending invitations
+    db.team_invitations.delete_many({"projectId": project_id, "inviteeId": user_id, "status": "pending"})
+
+    return {"message": "Team member removed successfully"}
+
+
+@app.put("/projects/{project_id}/team/{user_id}", response_model=models.ProjectPublic)
+async def update_team_member(
+    project_id: str,
+    user_id: str,
+    update_data: models.UpdateTeamMemberRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Update team member details"""
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Check permission (only owner)
+    if project.get("ownerId") != current_user["_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project owner can update team members"
+        )
+
+    # Find member
+    team_members = project.get("teamMembers", [])
+    member_index = None
+    for i, member in enumerate(team_members):
+        if member.get("userId") == user_id:
+            member_index = i
+            break
+
+    if member_index is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User is not a team member"
+        )
+
+    # Update member fields
+    if update_data.role is not None:
+        team_members[member_index]["role"] = update_data.role
+
+    if update_data.isLeader is not None:
+        # If setting as leader, remove leader status from others
+        if update_data.isLeader:
+            for member in team_members:
+                member["isLeader"] = False
+        team_members[member_index]["isLeader"] = update_data.isLeader
+
+    # Update project
+    db.projects.update_one(
+        {"_id": project_obj_id},
+        {
+            "$set": {
+                "teamMembers": team_members,
+                "updatedAt": datetime.datetime.now(timezone.utc)
+            }
+        }
+    )
+
+    # Return updated project
+    updated_project = db.projects.find_one({"_id": project_obj_id})
+    updated_project["_id"] = str(updated_project["_id"])
+
+    return updated_project
+
+
+# ============================================
+# GUIDE REQUEST ENDPOINTS
+# ============================================
+
+@app.get("/projects/unassigned", response_model=List[models.ProjectPublic])
+async def get_unassigned_projects(
+    department: Optional[str] = Query(None),
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Get unassigned projects for teacher browsing"""
+    # Verify user is Teacher
+    if current_user.get("role") != "Teacher":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only teachers can browse unassigned projects"
+        )
+
+    # Build query
+    query = {
+        "guideId": None,
+        "department": department or current_user.get("department"),
+        "status": {"$ne": "Inactive"}
+    }
+
+    projects = list(db.projects.find(query).sort("createdAt", -1))
+
+    for project in projects:
+        project["_id"] = str(project["_id"])
+
+    return projects
+
+
+@app.post("/projects/{project_id}/guide/request", response_model=models.GuideRequest, status_code=status.HTTP_201_CREATED)
+async def send_guide_request(
+    project_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Teacher sends request to guide a project"""
+    # Verify user is Teacher
+    if current_user.get("role") != "Teacher":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only teachers can send guide requests"
+        )
+
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Verify project doesn't have guide
+    if project.get("guideId"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Project already has a guide"
+        )
+
+    # Verify same department
+    if project.get("department") != current_user.get("department"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Can only guide projects in your department"
+        )
+
+    # Check for existing pending request
+    existing_request = db.guide_requests.find_one({
+        "projectId": project_id,
+        "teacherId": current_user["_id"],
+        "status": "pending"
+    })
+    if existing_request:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Request already sent"
+        )
+
+    # Create guide request
+    request_doc = {
+        "projectId": project_id,
+        "projectName": project.get("name", "Unknown"),
+        "teacherId": current_user["_id"],
+        "teacherName": current_user.get("fullName", "Unknown"),
+        "ownerId": project.get("ownerId"),
+        "ownerName": project.get("ownerName", "Unknown"),
+        "status": "pending",
+        "declineReason": None,
+        "createdAt": datetime.datetime.now(timezone.utc),
+        "respondedAt": None
+    }
+
+    result = db.guide_requests.insert_one(request_doc)
+    created_request = db.guide_requests.find_one({"_id": result.inserted_id})
+    created_request["_id"] = str(created_request["_id"])
+
+    return created_request
+
+
+@app.get("/requests/guide", response_model=List[models.GuideRequest])
+async def get_guide_requests(
+    request_type: Optional[str] = Query(None, alias="type"),
+    status_filter: Optional[str] = Query(None, alias="status"),
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Get guide requests (for owner) or sent requests (for teacher)"""
+    query = {}
+
+    # Determine query based on user role and type
+    if current_user.get("role") == "Student" or request_type == "received":
+        query["ownerId"] = current_user["_id"]
+        # Default to pending for received requests if no filter
+        if not status_filter:
+            query["status"] = "pending"
+    elif current_user.get("role") == "Teacher" or request_type == "sent":
+        query["teacherId"] = current_user["_id"]
+
+    # Apply status filter if provided
+    if status_filter and "status" not in query:
+        query["status"] = status_filter
+
+    requests = list(db.guide_requests.find(query).sort("createdAt", -1))
+
+    for request in requests:
+        request["_id"] = str(request["_id"])
+
+    return requests
+
+
+@app.post("/requests/guide/{request_id}/respond", response_model=models.GuideRequest)
+async def respond_to_guide_request(
+    request_id: str,
+    response_data: models.RespondToGuideRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Project owner responds to guide request"""
+    # Validate ObjectId
+    try:
+        request_obj_id = ObjectId(request_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid request ID format"
+        )
+
+    # Find request
+    guide_request = db.guide_requests.find_one({"_id": request_obj_id})
+    if not guide_request:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Guide request not found"
+        )
+
+    # Verify ownerId
+    if guide_request.get("ownerId") != current_user["_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not your project"
+        )
+
+    # Verify status is pending
+    if guide_request.get("status") != "pending":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Request already responded to"
+        )
+
+    if not response_data.accept:
+        # Decline request
+        if not response_data.declineReason or response_data.declineReason.strip() == "":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Decline reason is required"
+            )
+
+        db.guide_requests.update_one(
+            {"_id": request_obj_id},
+            {
+                "$set": {
+                    "status": "declined",
+                    "declineReason": response_data.declineReason,
+                    "respondedAt": datetime.datetime.now(timezone.utc)
+                }
+            }
+        )
+    else:
+        # Accept request
+        # Find project
+        try:
+            project_obj_id = ObjectId(guide_request.get("projectId"))
+        except InvalidId:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid project ID in request"
+            )
+
+        project = db.projects.find_one({"_id": project_obj_id})
+        if not project:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Project no longer exists"
+            )
+
+        # Verify project doesn't have guide
+        if project.get("guideId"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Project already has a guide"
+            )
+
+        # Find teacher
+        try:
+            teacher_obj_id = ObjectId(guide_request.get("teacherId"))
+        except InvalidId:
+            teacher_obj_id = None
+
+        teacher = None
+        if teacher_obj_id:
+            teacher = db.users.find_one({"_id": teacher_obj_id})
+
+        # Update project with guide
+        db.projects.update_one(
+            {"_id": project_obj_id},
+            {
+                "$set": {
+                    "guideId": guide_request.get("teacherId"),
+                    "guideName": teacher.get("fullName", "Unknown") if teacher else "Unknown",
+                    "updatedAt": datetime.datetime.now(timezone.utc)
+                }
+            }
+        )
+
+        # Update this request as accepted
+        db.guide_requests.update_one(
+            {"_id": request_obj_id},
+            {
+                "$set": {
+                    "status": "accepted",
+                    "respondedAt": datetime.datetime.now(timezone.utc)
+                }
+            }
+        )
+
+        # Decline all other pending requests for this project
+        db.guide_requests.update_many(
+            {
+                "projectId": guide_request.get("projectId"),
+                "status": "pending",
+                "_id": {"$ne": request_obj_id}
+            },
+            {
+                "$set": {
+                    "status": "declined",
+                    "declineReason": "Another guide was accepted",
+                    "respondedAt": datetime.datetime.now(timezone.utc)
+                }
+            }
+        )
+
+    # Return updated request
+    updated_request = db.guide_requests.find_one({"_id": request_obj_id})
+    updated_request["_id"] = str(updated_request["_id"])
+
+    return updated_request
+
+
+@app.put("/projects/{project_id}/deadline", response_model=models.ProjectPublic)
+async def set_deadline(
+    project_id: str,
+    deadline_data: models.SetDeadlineRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Guide sets/updates project deadline"""
+    # Validate ObjectId
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid project ID format"
+        )
+
+    # Find project
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found"
+        )
+
+    # Verify user is project guide
+    if project.get("guideId") != current_user["_id"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project guide can set deadline"
+        )
+
+    # Update deadline
+    db.projects.update_one(
+        {"_id": project_obj_id},
+        {
+            "$set": {
+                "deadline": deadline_data.deadline,
+                "updatedAt": datetime.datetime.now(timezone.utc)
+            }
+        }
+    )
+
+    # Return updated project
+    updated_project = db.projects.find_one({"_id": project_obj_id})
+    updated_project["_id"] = str(updated_project["_id"])
+
+    return updated_project
+
+
+# ============================================
+# STUDENT SEARCH ENDPOINT
+# ============================================
+
+@app.get("/students/search")
+async def search_students(
+    q: str = Query(..., min_length=1),
+    department: Optional[str] = Query(None),
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Search for students in same department"""
+    # Verify user is Student
+    if current_user.get("role") != "Student":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only students can search for team members"
+        )
+
+    # Build query
+    search_dept = department or current_user.get("department")
+
+    query = {
+        "role": "Student",
+        "department": search_dept,
+        "$or": [
+            {"fullName": {"$regex": q, "$options": "i"}},
+            {"email": {"$regex": q, "$options": "i"}}
+        ],
+        "_id": {"$ne": ObjectId(current_user["_id"])}  # Exclude current user
+    }
+
+    # Find students, limit to 10
+    students = list(db.users.find(
+        query,
+        {"_id": 1, "fullName": 1, "email": 1, "registrationNumber": 1, "department": 1}
+    ).limit(10))
+
+    # Convert ObjectIds to strings
+    for student in students:
+        student["id"] = str(student["_id"])
+        del student["_id"]
+
+    return students
+
+
 # --- Run the server (for local development) ---
 if __name__ == "__main__":
     import uvicorn
