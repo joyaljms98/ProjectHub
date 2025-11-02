@@ -57,6 +57,43 @@ def connect_to_mongo():
         )
         print("   - Ensured partial unique index for 'registrationNumber' (non-null).")
 
+        # ============================================
+        # PROJECT-RELATED COLLECTIONS AND INDEXES
+        # ============================================
+
+        # Projects collection indexes
+        db.projects.create_index("ownerId")
+        print("   - Ensured 'ownerId' index on projects collection.")
+
+        db.projects.create_index("teamMembers.userId")
+        print("   - Ensured 'teamMembers.userId' index on projects collection.")
+
+        db.projects.create_index("guideId")
+        print("   - Ensured 'guideId' index on projects collection.")
+
+        db.projects.create_index("department")
+        print("   - Ensured 'department' index on projects collection.")
+
+        db.projects.create_index("status")
+        print("   - Ensured 'status' index on projects collection.")
+
+        # Team invitations collection indexes
+        db.team_invitations.create_index([("inviteeId", ASCENDING), ("status", ASCENDING)])
+        print("   - Ensured 'inviteeId + status' compound index on team_invitations collection.")
+
+        db.team_invitations.create_index("projectId")
+        print("   - Ensured 'projectId' index on team_invitations collection.")
+
+        # Guide requests collection indexes
+        db.guide_requests.create_index([("ownerId", ASCENDING), ("status", ASCENDING)])
+        print("   - Ensured 'ownerId + status' compound index on guide_requests collection.")
+
+        db.guide_requests.create_index("teacherId")
+        print("   - Ensured 'teacherId' index on guide_requests collection.")
+
+        db.guide_requests.create_index("projectId")
+        print("   - Ensured 'projectId' index on guide_requests collection.")
+
         return db # Return db instance directly
     except ConnectionFailure as e:
         print(f"❌ Failed to connect to MongoDB at {MONGO_URI}: {e}")
