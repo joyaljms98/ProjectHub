@@ -2,12 +2,15 @@
 
 import datetime # Ensure datetime is imported
 from datetime import timedelta, timezone # Import timezone
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Header, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pymongo.errors import DuplicateKeyError
 from pymongo.database import Database
+from bson import ObjectId
+from bson.errors import InvalidId
 # Import ValidationError for specific error checking
 from pydantic import ValidationError
+from typing import Optional, List
 
 
 import database
