@@ -4,8 +4,6 @@ import datetime # Ensure datetime is imported
 from datetime import timedelta, timezone # Import timezone
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
-# Use AsyncIOMotorDatabase for type hints if using Motor
-from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorClient
 from pymongo.errors import DuplicateKeyError
 from pymongo.database import Database
 # Import ValidationError for specific error checking
@@ -126,8 +124,10 @@ async def signup_user(user_data: models.UserCreate, db: Database = Depends(get_d
 
 
         if not created_user_doc:
-             print(f"Error: Could not find user immediately after insertion with ID: {inserted_id}")
-             raise HTTPException(status_code=500, detail="Failed to retrieve user after creation.")
+            print(f"Error: Could not find user immediately after insertion with ID: {inserted_id}")
+            raise HTTPException(status_code=500, detail="Failed to retrieve user after creation.")
+        
+        created_user_doc["_id"] = str(created_user_doc["_id"])
 
         # Let FastAPI handle the response model validation and conversion
         # Pydantic v2 with the alias should handle the ObjectId -> str conversion for 'id'

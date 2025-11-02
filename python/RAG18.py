@@ -45,11 +45,11 @@ FRONTEND_DIR = "../frontend" # Path to the frontend folder
 CONFIG_FILE = "rag_config.json" # Config file in the same (python) folder
 DEFAULT_VECTOR_DB_BASE = "./chroma_db" # Base path for DBs in the same (python) folder
 
-# We will load DOCS_DIR from the config file, but use a default if not present
-# The default path should still be the absolute path or relative to where you RUN the script
-DEFAULT_DOCS_DIR = r"C:\Users\joyal\OTHER\CUSAT\- sem 3\1 My notes\6 Mini Project\4 Project Code\ProjectHub3\frontend\docs" # Example: Assuming docs are in frontend/docs
-# --- OR --- If docs are in python/docs:
-# DEFAULT_DOCS_DIR = "./docs"
+
+# Get the absolute path to this script's directory (python/)
+SCRIPT_DIR_PATH = Path(__file__).resolve().parent
+# Go up one level to the base folder (V2/) and join with 'Docs'
+DEFAULT_DOCS_DIR = str(SCRIPT_DIR_PATH.parent / "Docs")
 
 
 SYSTEM_PROMPT = (

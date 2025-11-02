@@ -28,21 +28,25 @@ security_answer_context = CryptContext(schemes=["sha256_crypt"], deprecated="aut
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifies a plain password against a hashed password."""
-    return pwd_context.verify(plain_password, hashed_password)
+    # FIX: Encode plain_password to bytes
+    return pwd_context.verify(plain_password.encode('utf-8'), hashed_password)
 
 def get_password_hash(password: str) -> str:
     """Hashes a plain password."""
-    return pwd_context.hash(password)
+    # FIX: Encode password to bytes
+    return pwd_context.hash(password.encode('utf-8'))
 
 def get_security_answer_hash(answer: str):
     """Hashes the security answer in uppercase."""
     # We use .upper() to ensure the check is case-insensitive
-    return security_answer_context.hash(answer.upper())
+    # FIX: Encode answer to bytes
+    return security_answer_context.hash(answer.upper().encode('utf-8'))
 
 def verify_security_answer(plain_answer: str, hashed_answer: str):
     """Verifies a plain answer against the hashed answer, case-insensitively."""
     # We also use .upper() on the user's input to match the hash
-    return security_answer_context.verify(plain_answer.upper(), hashed_answer)
+    # FIX: Encode plain_answer to bytes
+    return security_answer_context.verify(plain_answer.upper().encode('utf-8'), hashed_answer)
 
 # --- JWT Token Handling ---
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -76,15 +80,3 @@ def verify_token(token: str) -> Optional[TokenData]:
     except Exception as e:
          print(f"Unexpected error verifying token: {e}")
          return None
-
-
-# --- Security Answer Hashing ---
-# Use the same context for simplicity, though a different salt could be used in theory
-def verify_security_answer(plain_answer: str, hashed_answer: str) -> bool:
-    """Verifies a plain security answer against its hash."""
-    # Compare in uppercase as answers are stored in uppercase
-    return pwd_context.verify(plain_answer.upper(), hashed_answer)
-
-def get_security_answer_hash(answer: str) -> str:
-    """Hashes a plain security answer (stores in uppercase)."""
-    return pwd_context.hash(answer.upper())
