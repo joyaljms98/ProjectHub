@@ -1,7 +1,7 @@
 # Data Models Update
 
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, Any
+from typing import Optional
 from datetime import datetime # Use datetime directly
 from bson import ObjectId # Import ObjectId
 
@@ -20,7 +20,7 @@ class UserCreate(UserBase):
 class UserInDBBase(UserBase):
     # Use Field alias to map MongoDB's _id to Pydantic's id (as str)
     # Make id required as it should always exist in DB/Public models
-    id: str = Field(..., alias="_id")
+    id: str = Field(..., alias='_id')
     registrationNumber: Optional[str] = None
     department: Optional[str] = None
     securityQuestion: Optional[str] = None
@@ -30,7 +30,6 @@ class UserInDBBase(UserBase):
         populate_by_name = True # Allows using alias '_id'
         from_attributes = True # Allows creating from ORM models (like dicts from MongoDB)
         # Ensure ObjectIds are encoded as strings when converting to JSON
-        arbitrary_types_allowed = True
         json_encoders = {
             ObjectId: str,
             # Ensure datetime objects are also serialized correctly
