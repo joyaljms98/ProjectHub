@@ -1,4 +1,7 @@
-// document.addEventListener('DOMContentLoaded', function() {
+    // Global user object, populated by populateUserInfo()
+    let projectHubUser = null;
+    
+    // document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch and populate user info
     async function populateUserInfo() {
@@ -19,6 +22,7 @@
             }
             
             const user = await response.json();
+            projectHubUser = user;
 
             // Find and update all elements
             const welcomeName = document.getElementById('user-welcome-name');
@@ -83,7 +87,16 @@
         }
 
         resize() {
-            this.setHeight()
+            // ** FIX: Wait for images to load *before* setting height **
+            if (this.dom.content && window.imagesLoaded) {
+                imagesLoaded(this.dom.content, () => {
+                    this.setHeight();
+                });
+            } else {
+                // Fallback if imagesLoaded isn't available or no content
+                this.setHeight();
+            }
+            
             this.setStyles() 
             this.scroll() // Run scroll to update
         }
@@ -113,7 +126,7 @@
 
         on() {
             this.setStyles()
-            this.setHeight()
+            //this.setHeight()
             this.addEvents()
             this.requestAnimationFrame()
         }
@@ -157,9 +170,9 @@
 
 
     // --- SPA NAVIGATION LOGIC ---
-    let smoothScroller = null;
+    window.smoothScroller = null;
     try {
-        smoothScroller = new Smooth();
+        window.smoothScroller = new Smooth();
     } catch(e) {
         console.warn("Smooth scroll init failed. Using native scroll.", e);
         const scrollEl = document.querySelector('[data-scroll]');

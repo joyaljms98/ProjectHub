@@ -116,7 +116,7 @@ class RAGConfig:
             "system_prompt": SYSTEM_PROMPT,
             "last_file_hash": "",
             "provider": "gemini", # Default to Gemini
-            "gemini_model": "gemini-1.5-flash-latest",
+            "gemini_model": "gemini-2.5-flash-latest",
             "ollama_model": "", # No default Ollama model initially
             "embedding_model": "all-minilm"
         }
@@ -162,7 +162,7 @@ class LLMProvider:
 class GeminiProvider(LLMProvider):
     """Google Gemini API Provider using native SDK"""
 
-    def __init__(self, api_key, model_name="gemini-1.5-flash-latest"):
+    def __init__(self, api_key, model_name="gemini-2.5-flash"):
         super().__init__(model_name)
         self.api_key = api_key
         # Ensure genai is loaded before proceeding
@@ -362,7 +362,7 @@ class RAGSystem:
             print(f"\nInitializing provider: {provider_type}")
             if provider_type == "gemini":
                 api_key = config.get("gemini_api_key")
-                model = config.get("gemini_model", "gemini-1.5-flash-latest")
+                model = config.get("gemini_model", "gemini-2.5-flash")
                 if not api_key:
                     raise ValueError("Gemini API key is missing in config.")
 

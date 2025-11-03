@@ -90,7 +90,7 @@
                 </a>
                 <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="students-page">
                     <span class="material-icons">school</span>
-                    <span>Students</span>
+                    <span>Student Directory</span>
                 </a>
                 <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="resources-page">
                     <span class="material-icons">search</span>
@@ -117,6 +117,10 @@
     <!-- Main Content -->
     <main data-scroll class="overflow-hidden bg-background-light dark:bg-background-dark z-10">
         
+        <button id="notification-btn" class="absolute top-8 right-8 z-50 p-2 rounded-lg bg-card-light dark:bg-card-dark shadow-md text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out">
+            <span class="material-icons-outlined">notifications</span>
+        </button>
+
         <button id="hamburger-btn" class="absolute top-8 left-8 z-50 p-2 rounded-lg bg-card-light dark:bg-card-dark shadow-md text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out">
             <span id="menu-icon" class="material-icons">menu</span>
             <span id="close-icon" class="material-icons hidden">menu_open</span>
@@ -126,46 +130,23 @@
 
             <div id="dashboard-page" class="page p-8 pt-24">
                 <header class="flex justify-between items-center mb-8">
-                    <h1 class="text-4xl font-bold text-text-light dark:text-text-dark">Dashboard</h1>
+                    <div class="flex min-w-72 flex-col gap-1">
+                        <p class="text-4xl font-black leading-tight tracking-[-0.033em] bg-gradient-to-r from-blue-500 via-purple-500 to-orange-400 text-transparent bg-clip-text">Welcome, <span id="user-welcome-name">Teacher</span>!</p>
+                        <p class="text-subtext-light dark:text-subtext-dark text-base font-normal leading-normal">Here's an overview of your campus activity.</p>
+                    </div>
+                    
                     <div class="flex items-center gap-4">
                         <div class="relative">
                             <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
                             <input class="w-80 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg pl-10 pr-4 py-2 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary" placeholder="Search projects, students..." type="text" />
                         </div>
-                         <img alt="Profile" class="w-10 h-10 rounded-full" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1888&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
                     </div>
                 </header>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-1 bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
-                        <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Active Projects</h2>
-                        <div class="space-y-3 mb-4">
-                            <div class="flex justify-between items-center p-4 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
-                                <div>
-                                    <p class="font-semibold text-text-light dark:text-text-dark mt-1">AI-Powered Campus Navigation</p>
-                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Student: Emma Rodriguez</p>
-                                </div>
-                                <div class="flex -space-x-2">
-                                    <img alt="Emma Rodriguez" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format=fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center p-4 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
-                                <div>
-                                    <p class="font-semibold text-text-light dark:text-text-dark mt-1">Smart Campus Lighting</p>
-                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Student: Liam Johnson</p>
-                                </div>
-                                <div class="flex -space-x-2">
-                                    <img alt="Liam Johnson" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlibrb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                </div>
-                            </div>
-                            <div class="flex justify-between items-center p-4 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
-                                <div>
-                                    <p class="font-semibold text-text-light dark:text-text-dark mt-1">Automated Attendance Tracker</p>
-                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Student: Olivia Chen</p>
-                                </div>
-                                <div class="flex -space-x-2">
-                                    <img alt="Olivia Chen" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=2070&auto=format&fit=crop&ixlib.rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                </div>
-                            </div>
+                        <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">My Guided Projects</h2>
+                        <div id="dashboard-active-projects" class="space-y-3 mb-4">
+                            <p class="text-sm text-subtext-light dark:text-subtext-dark p-4">Loading projects...</p>
                         </div>
                         <button class="nav-link flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-11 px-5 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90" data-target="projects-page">
                             <span class="truncate">Manage All Projects</span>
@@ -173,38 +154,25 @@
                     </div>
                     
                     <div class="lg:col-span-2 bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
-                        <h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Verification Queue</h3>
+                        <h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Project Opportunities</h3>
                         <div class="border-b border-border-light dark:border-border-dark">
                             <nav aria-label="Tabs" class="flex space-x-8 -mb-px">
-                                <a class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-primary border-primary" href="#">Proposal</a>
-                                <a class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-subtext-light dark:text-subtext-dark border-transparent hover:text-text-light dark:hover:text-text-dark hover:border-gray-300 dark:hover:border-gray-600" href="#">In Progress</a>
-                                <a class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-subtext-light dark:text-subtext-dark border-transparent hover:text-text-light dark:hover:text-text-dark hover:border-gray-300 dark:hover:border-gray-600" href="#">Review</a>
-                                <a class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-subtext-light dark:text-subtext-dark border-transparent hover:text-text-light dark:hover:text-text-dark hover:border-gray-300 dark:hover:border-gray-600" href="#">Completed</a>
+                                <button onclick="showTab(this, 'dashboard-unassigned-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-primary border-primary">
+                                    Unassigned Projects
+                                </button>
+                                <button onclick="showTab(this, 'dashboard-sent-requests-tab')" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-subtext-light dark:text-subtext-dark border-transparent hover:text-text-light dark:hover:text-text-dark hover:border-gray-300 dark:hover:border-gray-600">
+                                    My Sent Requests
+                                </button>
                             </nav>
                         </div>
-                        <div class="mt-6 space-y-4">
-                            <div class="p-4 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark flex items-center justify-between">
-                                <div>
-                                    <p class="font-semibold text-text-light dark:text-text-dark">AI-Powered Campus Navigation App</p>
-                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Submitted by: Emma Rodriguez</p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button class="px-4 py-1.5 text-sm font-medium text-red-600 bg-red-100 dark:bg-red-900/50 rounded-lg hover:bg-red-200 dark:hover:bg-red-800/70">Reject</button>
-                                    <button class="px-4 py-1.5 text-sm font-medium text-green-600 bg-green-100 dark:bg-green-900/50 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/70">Approve</button>
-                                </div>
-                            </div>
-                            <div class="p-4 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark flex items-center justify-between">
-                                <div>
-                                    <p class="font-semibold text-text-light dark:text-text-dark">Sustainable Campus Initiative</p>
-                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Submitted by: James White</p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button class="px-4 py-1.5 text-sm font-medium text-red-600 bg-red-100 dark:bg-red-900/50 rounded-lg hover:bg-red-200 dark:hover:bg-red-800/70">Reject</button>
-                                    <button class="px-4 py-1.5 text-sm font-medium text-green-600 bg-green-100 dark:bg-green-900/50 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/70">Approve</button>
-                                </div>
-                            </div>
+                        <div id="dashboard-unassigned-tab" class="tab-content mt-6 space-y-4">
+                            <p class="text-sm text-subtext-light dark:text-subtext-dark p-4">Loading unassigned projects...</p>
+                        </div>
+                        <div id="dashboard-sent-requests-tab" class="tab-content mt-6 space-y-4 hidden">
+                            <p class="text-sm text-subtext-light dark:text-subtext-dark p-4">Loading sent requests...</p>
                         </div>
                     </div>
+
                 </div>
             </div>
             <div id="projects-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
@@ -220,37 +188,13 @@
                             <span class="material-icons-outlined" style="font-size: 20px;">chat</span>
                             <span class="truncate ml-2">Chats</span>
                         </button>
-
-                        <button class="flex items-center justify-center rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200 shadow-sm">
-                            <span class="material-icons" style="font-size: 20px;">add</span>
-                            <span class="truncate ml-2">Add Project</span>
-                        </button>
                     </div>
                 </header>
 
                 <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark mb-8">
-                    <h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Pending Project Requests</h3>
-                    <div class="space-y-4">
-                        <div class="p-4 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark flex items-center justify-between">
-                            <div>
-                                <p class="font-semibold text-text-light dark:text-text-dark">AI-Powered Campus Navigation App</p>
-                                <p class="text-sm text-subtext-light dark:text-subtext-dark">Submitted by: Emma Rodriguez</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button class="px-4 py-1.5 text-sm font-medium text-red-600 bg-red-100 dark:bg-red-900/50 rounded-lg hover:bg-red-200 dark:hover:bg-red-800/70">Reject</button>
-                                <button class="px-4 py-1.5 text-sm font-medium text-green-600 bg-green-100 dark:bg-green-900/50 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/70">Approve</button>
-                            </div>
-                        </div>
-                        <div class="p-4 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark flex items-center justify-between">
-                            <div>
-                                <p class="font-semibold text-text-light dark:text-text-dark">Sustainable Campus Initiative</p>
-                                <p class="text-sm text-subtext-light dark:text-subtext-dark">Submitted by: James White</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button class="px-4 py-1.5 text-sm font-medium text-red-600 bg-red-100 dark:bg-red-900/50 rounded-lg hover:bg-red-200 dark:hover:bg-red-800/70">Reject</button>
-                                <button class="px-4 py-1.5 text-sm font-medium text-green-600 bg-green-100 dark:bg-green-900/50 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/70">Approve</button>
-                            </div>
-                        </div>
+                    <h3 class="text-xl font-semibold mb-4 text-text-light dark:text-text-dark">Unassigned Projects (Your Department)</h3>
+                    <div id="unassigned-projects-container" class="space-y-4">
+                        <p class="text-sm text-subtext-light dark:text-subtext-dark p-4">Loading unassigned projects...</p>
                     </div>
                 </div>
                 
@@ -267,74 +211,9 @@
                                     <th class="py-3 px-4 font-medium">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="text-text-light dark:text-text-dark">
-                                <tr class="border-b border-border-light dark:border-border-dark">
-                                    <td class="py-4 px-4 font-medium">Smart Campus Lighting System</td>
-                                    <td class="py-4 px-4 text-subtext-light dark:text-subtext-dark">Liam Johnson</td>
-                                    <td class="py-4 px-4">
-                                        <div class="w-full bg-background-light dark:bg-border-dark rounded-full h-2.5">
-                                            <div class="bg-blue-500 h-2.5 rounded-full" style="width: 75%"></div>
-                                        </div>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
-                                            In Progress
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <button class="text-primary hover:underline font-medium text-sm">View Details</button>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-border-light dark:border-border-dark">
-                                    <td class="py-4 px-4 font-medium">Automated Attendance Tracker</td>
-                                    <td class="py-4 px-4 text-subtext-light dark:text-subtext-dark">Olivia Chen</td>
-                                    <td class="py-4 px-4">
-                                        <div class="w-full bg-background-light dark:bg-border-dark rounded-full h-2.5">
-                                            <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 40%"></div>
-                                        </div>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300">
-                                            Proposal
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <button class="text-primary hover:underline font-medium text-sm">View Details</button>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-border-light dark:border-border-dark">
-                                    <td class="py-4 px-4 font-medium">Digital Library Expansion</td>
-                                    <td class="py-4 px-4 text-subtext-light dark:text-subtext-dark">Noah Kim</td>
-                                    <td class="py-4 px-4">
-                                        <div class="w-full bg-background-light dark:bg-border-dark rounded-full h-2.5">
-                                            <div class="bg-green-500 h-2.5 rounded-full" style="width: 100%"></div>
-                                        </div>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
-                                            Completed
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <button class="text-primary hover:underline font-medium text-sm">View Details</button>
-                                    </td>
-                                </tr>
-                                <tr class="border-b border-border-light dark:border-border-dark">
-                                    <td class="py-4 px-4 font-medium">Campus Events Mobile App</td>
-                                    <td class="py-4 px-4 text-subtext-light dark:text-subtext-dark">Sophia Patel</td>
-                                    <td class="py-4 px-4">
-                                        <div class="w-full bg-background-light dark:bg-border-dark rounded-full h-2.5">
-                                            <div class="bg-purple-500 h-2.5 rounded-full" style="width: 90%"></div>
-                                        </div>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
-                                            In Review
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <button class="text-primary hover:underline font-medium text-sm">View Details</button>
-                                    </td>
+                            <tbody id="guided-projects-table-body" class="text-text-light dark:text-text-dark">
+                                <tr>
+                                    <td colspan="5" class="py-4 px-4 text-center text-subtext-light dark:text-subtext-dark">Loading your projects...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -343,168 +222,42 @@
             </div>
             <div id="students-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
                 <header class="flex justify-between items-center mb-8">
-                    <h1 class="text-4xl font-bold text-text-light dark:text-text-dark">My Students</h1>
+                    <h1 class="text-4xl font-bold text-text-light dark:text-text-dark">Student Directory</h1>
                     <div class="flex items-center gap-4">
                         <div class="relative">
                             <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
-                            <input class="w-80 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg pl-10 pr-4 py-2 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary" placeholder="Search students..." type="text"/>
+                            <input class="w-80 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg pl-10 pr-4 py-2 text-text-light dark:text-text-dark focus:border-primary focus:ring-primary" placeholder="Search students..."/>
                         </div>
-                        
-                        <button class="nav-link flex items-center justify-center rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200 shadow-sm" data-target="chat-page">
-                            <span class="material-icons-outlined" style="font-size: 20px;">chat</span>
-                            <span class="truncate ml-2">Chats</span>
-                        </button>
-
-                        <button class="flex items-center justify-center rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200 shadow-sm">
-                            <span class="material-icons" style="font-size: 20px;">add</span>
-                            <span class="truncate ml-2">Add Student</span>
-                        </button>
                     </div>
                 </header>
                 
                 <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-semibold text-text-light dark:text-text-dark">Guided Students (8)</h3>
+                        <h3 id="student-count-header" class="text-xl font-semibold text-text-light dark:text-text-dark">Students in Your Department</h3>
                         <div class="flex items-center gap-4">
                             <div class="flex items-center gap-2 text-sm text-subtext-light dark:text-subtext-dark">
                                 <span>Sort by:</span>
                                 <select class="bg-transparent border-none text-text-light dark:text-text-dark font-medium focus:ring-0 p-1">
                                     <option>Name</option>
-                                    <option>Progress</option>
-                                    <option>Last Active</option>
+                                    <option>Guided</option>
                                 </select>
                             </div>
-                            <button class="text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">grid_view</span></button>
-                            <button class="text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">list</span></button>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                        <div class="bg-background-light dark:bg-background-dark p-4 rounded-lg flex flex-col items-center text-center shadow-sm border border-border-light dark:border-border-dark">
-                            <img alt="Liam Johnson" class="w-20 h-20 rounded-full mb-4" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                            <h4 class="font-semibold text-lg text-text-light dark:text-text-dark">Liam Johnson</h4>
-                            <p class="text-sm text-subtext-light dark:text-subtext-dark mb-6">liam.j@university.edu</p>
-                            <div class="flex w-full justify-around mt-auto">
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">chat_bubble_outline</span></button>
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">visibility</span></button>
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">more_horiz</span></button>
-                            </div>
-                        </div>
-                        <div class="bg-background-light dark:bg-background-dark p-4 rounded-lg flex flex-col items-center text-center shadow-sm border border-border-light dark:border-border-dark">
-                            <img alt="Olivia Chen" class="w-20 h-20 rounded-full mb-4" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=2070&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                            <h4 class="font-semibold text-lg text-text-light dark:text-text-dark">Olivia Chen</h4>
-                            <p class="text-sm text-subtext-light dark:text-subtext-dark mb-6">olivia.c@university.edu</p>
-                            <div class="flex w-full justify-around mt-auto">
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">chat_bubble_outline</span></button>
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">visibility</span></button>
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">more_horiz</span></button>
-                            </div>
-                        </div>
-                        <div class="bg-background-light dark:bg-background-dark p-4 rounded-lg flex flex-col items-center text-center shadow-sm border border-border-light dark:border-border-dark">
-                            <img alt="Noah Patel" class="w-20 h-20 rounded-full mb-4" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1887&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                            <h4 class="font-semibold text-lg text-text-light dark:text-text-dark">Noah Patel</h4>
-                            <p class="text-sm text-subtext-light dark:text-subtext-dark mb-6">noah.p@university.edu</p>
-                            <div class="flex w-full justify-around mt-auto">
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">chat_bubble_outline</span></button>
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">visibility</span></button>
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">more_horiz</span></button>
-                            </div>
-                        </div>
-                        <div class="bg-background-light dark:bg-background-dark p-4 rounded-lg flex flex-col items-center text-center shadow-sm border border-border-light dark:border-border-dark">
-                            <img alt="Emma Rodriguez" class="w-20 h-20 rounded-full mb-4" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                            <h4 class="font-semibold text-lg text-text-light dark:text-text-dark">Emma Rodriguez</h4>
-                            <p class="text-sm text-subtext-light dark:text-subtext-dark mb-6">emma.r@university.edu</p>
-                            <div class="flex w-full justify-around mt-auto">
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">chat_bubble_outline</span></button>
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">visibility</span></button>
-                                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary"><span class="material-icons">more_horiz</span></button>
-                            </div>
-                        </div>
-                         </div>
+                    <div id="student-directory-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                        <p class="text-subtext-light dark:text-subtext-dark col-span-full text-center">Loading students...</p>
+                    </div>
                 </div> 
 
                 <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark mt-8">
-                    <h3 class="text-xl font-semibold mb-6 text-text-light dark:text-text-dark">Guided Teams (3)</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        
-                        <div class="rounded-xl shadow-subtle bg-background-light dark:bg-background-dark p-6 flex flex-col justify-between border border-border-light dark:border-border-dark">
-                            <div>
-                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal">AI-Powered Chatbot</p>
-                                <p class="text-text-light dark:text-text-dark text-lg font-bold tracking-[-0.015em] mt-1">Capstone Project Group</p>
-                                <div class="flex items-center mt-4">
-                                    <div class="flex -space-x-2">
-                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1887&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                        <div class="h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold text-subtext-light dark:text-subtext-dark">+2</div>
-                                    </div>
-                                </div>
-                                <div class="w-full mt-4">
-                                    <p class="text-xs text-subtext-light dark:text-subtext-dark text-left mb-1">Progress</p>
-                                    <div class="w-full bg-border-light dark:bg-border-dark rounded-full h-2.5">
-                                        <div class="bg-blue-500 h-2.5 rounded-full" style="width: 75%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between mt-6">
-                                <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors duration-200">
-                                    <span class="truncate">View Team</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl shadow-subtle bg-background-light dark:bg-background-dark p-6 flex flex-col justify-between border border-border-light dark:border-border-dark">
-                            <div>
-                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal">Data Analysis Project</p>
-                                <p class="text-text-light dark:text-text-dark text-lg font-bold tracking-[-0.015em] mt-1">Data Miners</p>
-                                <div class="flex items-center mt-4">
-                                    <div class="flex -space-x-2">
-                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1887&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                    </div>
-                                </div>
-                                <div class="w-full mt-4">
-                                    <p class="text-xs text-subtext-light dark:text-subtext-dark text-left mb-1">Progress</p>
-                                    <div class="w-full bg-border-light dark:bg-border-dark rounded-full h-2.5">
-                                        <div class="bg-green-500 h-2.5 rounded-full" style="width: 90%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between mt-6">
-                                <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors duration-200">
-                                    <span class="truncate">View Team</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl shadow-subtle bg-background-light dark:bg-background-dark p-6 flex flex-col justify-between border border-border-light dark:border-border-dark">
-                            <div>
-                                <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal">E-commerce Redesign</p>
-                                <p class="text-text-light dark:text-text-dark text-lg font-bold tracking-[-0.015em] mt-1">Frontend Wizards</p>
-                                <div class="flex items-center mt-4">
-                                    <div class="flex -space-x-2">
-                                        <img alt="Member avatar" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark" src="https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=1886&auto=format=fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"/>
-                                    </div>
-                                </div>
-                                <div class="w-full mt-4">
-                                    <p class="text-xs text-subtext-light dark:text-subtext-dark text-left mb-1">Progress</p>
-                                    <div class="w-full bg-border-light dark:bg-border-dark rounded-full h-2.5">
-                                        <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 40%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between mt-6">
-                                <button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors duration-200">
-                                    <span class="truncate">View Team</span>
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+                <h3 class="text-xl font-semibold mb-6 text-text-light dark:text-text-dark">Guided Teams</h3>
                 
+                <div id="guided-teams-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <p class="text-subtext-light dark:text-subtext-dark col-span-full">Loading guided teams...</p>
+                </div>
+            </div> 
+            </div>
 
             <div id="resources-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
                 <header class="flex justify-between items-center mb-8">
@@ -698,6 +451,43 @@
                     </div>
                 </div>
             </div>
+
+            <div id="project-detail-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                
+                <div class="mb-6 max-w-4xl mx-auto">
+                    <button class="nav-link flex items-center gap-2 text-subtext-light dark:text-subtext-dark hover:text-text-light dark:hover:text-text-dark transition-colors" data-target="projects-page">
+                        <span class="material-icons-outlined">arrow_back</span>
+                        <span>Back to Projects</span>
+                    </button>
+                </div>
+                
+                <div class="layout-content-container flex flex-col max-w-full flex-1">
+                    <div class="p-4 @container">
+                        <div class="flex flex-col items-stretch justify-start rounded-xl bg-card-light dark:bg-card-dark shadow-subtle p-6 max-w-4xl mx-auto border border-border-light dark:border-border-dark">
+                            
+                            <div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-2 mb-6">
+                                <p id="project-detail-name" class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em]">Loading Project...</p>
+                                <p id="project-detail-description" class="text-subtext-light dark:text-subtext-dark text-base font-normal leading-normal">Loading description...</p>
+                            </div>
+
+                            <h4 class="text-lg font-semibold text-text-light dark:text-text-dark mb-4">Milestones</h4>
+                            <div id="project-milestones-container" class="flex flex-col gap-4">
+                                <p class="text-subtext-light dark:text-subtext-dark">Loading milestones...</p>
+                            </div>
+
+                            <h4 class="text-lg font-semibold text-text-light dark:text-text-dark mt-6 mb-4">Team</h4>
+                            <div id="project-detail-team-list" class="space-y-4">
+                                <p class="text-subtext-light dark:text-subtext-dark">Loading team...</p>
+                            </div>
+
+                            <div id="project-detail-actions" class="mt-6 pt-6 border-t border-border-light dark:border-border-dark">
+                                </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="chat-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="md:col-span-1 flex flex-col bg-card-light dark:bg-card-dark rounded-xl shadow-subtle border border-border-light dark:border-border-dark h-[calc(100vh-10rem)]">
@@ -807,12 +597,28 @@
     </main> 
     
     <!-- Shared JavaScript -->
-    <script src="js/projects.js"></script>
     <script src="js/dashboard_common.js"></script>
+    <script src="js/projects.js"></script>
     
     <script>
+        // Simple tab switcher for the dashboard
+        function showTab(buttonElement, tabIdToShow) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.className = "tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-subtext-light dark:text-subtext-dark border-transparent hover:text-text-light dark:hover:text-text-dark hover:border-gray-300 dark:hover:border-gray-600";
+            });
+            // Show the selected tab content
+            document.getElementById(tabIdToShow).classList.remove('hidden');
+            // Activate the selected tab button
+            buttonElement.className = "tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-primary border-primary";
+        }
+            
         // Initialize project management system on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() { // <-- ADD ASYNC
             // Check if user is authenticated
             const token = localStorage.getItem('accessToken');
             if (!token) {
@@ -820,14 +626,22 @@
                 return;
             }
 
-            populateUserInfo(); // Fetches and displays user's name
+            await populateUserInfo(); // Fetches and displays user's name
 
-            // Initialize projects functionality
-            initializeProjects(); // This will call loadUserProjects() for the teacher
+            // --- Define a function for dashboard-specific data ---
+            function refreshTeacherDashboard() {
+                // These three functions populate the main dashboard widgets
+                loadUserProjects();       // For "My Guided Projects"
+                loadUnassignedProjects(); // For "Unassigned Projects" tab
+                loadGuideRequests('sent');  // For "My Sent Requests" tab
+            }
 
-            // Load teacher-specific data
-            loadUnassignedProjects();
-            loadGuideRequests('sent');
+            // --- Load all data on initial load ---
+            refreshTeacherDashboard(); // Call it once immediately
+            loadDepartmentStudents();  // This is for the "Student Directory" page, no refresh needed here
+
+            // --- Setup 10-second refresh for the dashboard ---
+            setInterval(refreshTeacherDashboard, 10000); // Refresh every 10 seconds
 
             // Logout handler
             const logoutLinks = document.querySelectorAll('a[href="#"]');
@@ -842,6 +656,7 @@
             });
         });
     </script>
+
 
 </body>
 </html>

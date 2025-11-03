@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div class="flex items-start gap-3 justify-end group">
                     <div class="flex flex-col gap-1 items-end">
                         <div class="bg-primary text-white p-3 rounded-l-lg rounded-br-lg max-w-lg shadow-sm">
-                            <p class="text-base whitespace-pre-wrap">${safeText}</p> {/* Use pre-wrap */}
+                            <p class="text-base whitespace-pre-wrap">${safeText}</p> 
                         </div>
                         <span class="text-xs text-subtext-light dark:text-subtext-dark/80">${timestamp}</span>
                     </div>
@@ -124,14 +124,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>`;
         } else { // AI message
             const streamClass = isStreaming ? 'streaming-bubble' : '';
-             // Use a subtle animation for streaming bubbles
-             const animationStyle = isStreaming ? 'style="animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;"' : '';
+            // Use a subtle animation for streaming bubbles
+            const animationStyle = isStreaming ? 'style="animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;"' : '';
             messageHtml = `
                 <div class="flex items-start gap-3 max-w-[90%] group ${streamClass}" ${animationStyle}>
-                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 flex-shrink-0 shadow-sm" data-alt="AI avatar" style='background-image: url("https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1945&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 flex-shrink-0 shadow-sm" data-alt="AI avatar" style='background-image: url("https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1945&auto-format&fit-crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
                     <div class="flex flex-col gap-1 w-full">
                         <div class="bg-background-light dark:bg-background-dark p-3 rounded-r-lg rounded-bl-lg border border-border-light dark:border-border-dark shadow-sm">
-                            <div class="text-base chat-bubble">${parsedText}</div> {/* Use parsed HTML */}
+                            <div class="text-base chat-bubble">${parsedText}</div> 
                         </div>
                          <span class="text-xs text-subtext-light dark:text-subtext-dark/80">${timestamp}</span>
                     </div>

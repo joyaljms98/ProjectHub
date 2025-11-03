@@ -105,11 +105,11 @@
         </div>
         <div class="mt-auto">
             <div class="flex items-center gap-3">
-                <img alt="Admin avatar" class="w-10 h-10 rounded-full" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                <img alt="Admin avatar" id="user-avatar" class="w-10 h-10 rounded-full" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
                 <div>
-                    <p class="font-semibold text-text-light dark:text-text-dark">Admin</p>
-                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Administrator</p>
-                    <a class="text-sm text-subtext-light dark:text-subtext-dark hover:underline" href="#">Logout</a>
+                    <p id="user-full-name" class="font-semibold text-text-light dark:text-text-dark">Admin</p>
+                    <p id="user-role" class="text-sm text-subtext-light dark:text-subtext-dark">Administrator</p>
+                    <a id="logout-link" class="text-sm text-subtext-light dark:text-subtext-dark hover:underline" href="#">Logout</a>
                 </div>
             </div>
         </div>
@@ -128,29 +128,30 @@
             <!-- Dashboard Page -->
             <div id="dashboard-page" class="page p-8 pt-24">
                 <header class="flex justify-between items-center mb-8">
-                    <h1 class="text-4xl font-bold text-text-light dark:text-text-dark">Admin Dashboard</h1>
-                    <div class="relative">
-                        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
-                        <input class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg pl-10 pr-4 py-2 w-80 focus:ring-primary focus:border-primary text-text-light dark:text-text-dark" placeholder="Search projects, users..." type="text" />
+                    <div class="flex min-w-72 flex-col gap-1">
+                        <p class="text-4xl font-black leading-tight tracking-[-0.033em] bg-gradient-to-r from-blue-500 via-purple-500 to-orange-400 text-transparent bg-clip-text">Welcome, <span id="user-welcome-name">Admin</span>!</p>
+                        <p class="text-subtext-light dark:text-subtext-dark text-base font-normal leading-normal">Here's an overview of your campus activity.</p>
                     </div>
+                    <div id="admin-dashboard-message" class="text-sm"></div>
                 </header>
                 
                 <div class="grid grid-cols-4 gap-6 mb-8">
                     <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
                         <p class="text-subtext-light dark:text-subtext-dark">Total Projects</p>
-                        <p class="text-4xl font-bold text-text-light dark:text-text-dark">1,234</p>
+                        <p id="stats-total-projects" class="text-4xl font-bold text-text-light dark:text-text-dark">0</p>
                     </div>
                     <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
                         <p class="text-subtext-light dark:text-subtext-dark">Total Students</p>
-                        <p class="text-4xl font-bold text-text-light dark:text-text-dark">5,678</p>
+                        <p id="stats-total-students" class="text-4xl font-bold text-text-light dark:text-text-dark">0</p>
                     </div>
                     <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
                         <p class="text-subtext-light dark:text-subtext-dark">Total Faculty Members</p>
-                        <p class="text-4xl font-bold text-text-light dark:text-text-dark">90</p>
+                        <p id="stats-total-teachers" class="text-4xl font-bold text-text-light dark:text-text-dark">0</p>
                     </div>
                     <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
                         <p class="text-subtext-light dark:text-subtext-dark">API Status (Ollama)</p>
                         <div class="flex items-center gap-2">
+                            <!-- Note: This remains static as it's set by RAG18.py, not main.py -->
                             <p class="text-2xl font-bold text-green-500">Online</p>
                             <span class="w-3 h-3 bg-green-500 rounded-full"></span>
                         </div>
@@ -164,19 +165,19 @@
                         <div class="grid grid-cols-4 gap-4 mb-4">
                             <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Total Projects</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,234</p>
+                                <p id="stats-proj-total-2" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Completed Project</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,050</p>
+                                <p id="stats-proj-completed" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">In-Progress</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">150</p>
+                                <p id="stats-proj-inprogress" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
-                            <div class="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg shadow-sm">
-                                <p class="text-subtext-light dark:text-subtext-dark">Overdue</p>
-                                <p class="text-2xl font-bold text-red-500">9</p>
+                            <div class="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Planning</p>
+                                <p id="stats-proj-planning" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                         </div>
                         <div class="flex justify-end gap-4">
@@ -189,19 +190,19 @@
                         <div class="grid grid-cols-4 gap-4 mb-4">
                             <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Total Teachers</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">90</p>
+                                <p id="stats-teach-total" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Active Teachers</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">85</p>
+                                <p id="stats-teach-active" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             <div class="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Guides</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">78</p>
+                                <p id="stats-teach-guides" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             <div class="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Inactive Teachers</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">5</p>
+                                <p id="stats-teach-inactive" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             
                         </div>
@@ -216,19 +217,19 @@
                         <div class="grid grid-cols-4 gap-4 mb-4">
                             <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Total Students</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">5,678</p>
+                                <p id="stats-stud-total" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Active Students</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">5,500</p>
+                                <p id="stats-stud-active" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Solo Projects</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,200</p>
+                                <p id="stats-stud-solo" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                             <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
                                 <p class="text-subtext-light dark:text-subtext-dark">Team Projects</p>
-                                <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,100</p>
+                                <p id="stats-stud-team" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
                             </div>
                         </div>
                         <div class="flex justify-end gap-4">
@@ -242,154 +243,60 @@
             <!-- Projects Page -->
             <div id="projects-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
                 <div class="flex items-center justify-between mb-8">
-                    <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage Projects</h1>
-                    <div class="flex gap-3">
-                        
-                        <button class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <span class="material-icons text-base">edit</span>
-                            Edit projects
-                        </button>
-                        <button class="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
-                            <span class="material-icons text-base">delete</span>
-                            Delete projects
-                        </button>
-                    </div>
+                    <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage All Projects</h1>
+                    <div id="admin-projects-message" class="text-sm"></div>
                 </div>
 
-                <div class="flex items-center justify-between mb-6">
-                    <div class="relative w-full max-w-md">
+                <div class="relative w-full max-w-md flex items-center gap-2">
+                    <div class="relative flex-grow">
                         <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
-                        <input class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search projects..." type="text" />
+                        <input id="project-search-input" class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search projects (name, owner, guide, status...)" type="text" />
                     </div>
-                    <div class="flex items-center gap-4">
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">
-                            <span class="material-icons" style="font-size: 20px;">filter_list</span>
-                            Filter
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-4 mb-6">
-                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Total Projects</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,234</p>
-                    </div>
-                    <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Completed Project</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,050</p>
-                    </div>
-                    <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">In-Progress</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">150</p>
-                    </div>
-                    <div class="bg-red-100 dark:bg-red-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Overdue</p>
-                        <p class="text-2xl font-bold text-red-500">9</p>
-                    </div>
+                    <button id="project-search-reset" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm">Reset</button>
                 </div>
 
                 <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
-                            <tr>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Project ID</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Project Name</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Teacher/Guide</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Status</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Due Date</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9001</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Quantum Computing Simulation</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Dr. Alan Turing</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">In-Progress</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2024-12-15</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9002</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Sustainable Urban Farming</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Prof. Rosa Parks</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Completed</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2024-05-20</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9003</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Historical Data Visualization</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Dr. Ada Lovelace</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2025-02-01</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9004</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">AI Ethics Framework</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Prof. Immanuel Kant</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">Under Verification</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2024-06-10</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">P-9005</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Advanced Robotics Arm</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Dr. Smith</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Overdue</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2024-05-30</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'name')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Project Name</span>
+                                    <span id="sort-icon-projects-name" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'ownerName')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Owner</span>
+                                    <span id="sort-icon-projects-ownerName" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'guideName')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Guide</span>
+                                    <span id="sort-icon-projects-guideName" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'status')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Status</span>
+                                    <span id="sort-icon-projects-status" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'deadline')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Due Date</span>
+                                    <span id="sort-icon-projects-deadline" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="project-table-body">
+                            <!-- Rows will be injected by JS -->
+                            <tr><td colspan="6" class="p-4 text-center text-subtext-light dark:text-subtext-dark">Loading projects...</td></tr>
                         </tbody>
                     </table>
-                    <div class="flex items-center justify-between p-4">
-                        <span class="text-sm text-subtext-light dark:text-subtext-dark">Showing 1 to 5 of 25 projects</span>
-                        <div class="flex gap-2">
-                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50" disabled="">Previous</button>
-                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">Next</button>
-                        </div>
-                    </div>
                 </div>
             </div>
             
@@ -397,132 +304,65 @@
             <div id="students-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
                 <div class="flex items-center justify-between mb-8">
                     <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage Students</h1>
-                    <div class="flex gap-3">
+                     <div class="flex gap-3">
                         <button class="nav-link bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary/90 transition-colors" data-target="add-student-page">
                             <span class="material-icons" style="font-size: 20px;">add</span>
                             Add Student
                         </button>
-                        <button class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <span class="material-icons text-base">edit</span>
-                            Edit Students
-                        </button>
-                        <button class="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
-                            <span class="material-icons text-base">delete</span>
-                            Delete Students
-                        </button>
                     </div>
                 </div>
+                <div id="admin-students-message" class="text-sm mb-4"></div>
 
-                <div class="flex items-center justify-between mb-6">
-                    <div class="relative w-full max-w-md">
+                <div class="relative w-full max-w-md flex items-center gap-2">
+                    <div class="relative flex-grow">
                         <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
-                        <input class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search students..." type="text" />
+                        <input id="student-search-input" class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search students (name, email, ID, dept...)" type="text" />
                     </div>
-                    <div class="flex items-center gap-4">
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">
-                            <span class="material-icons" style="font-size: 20px;">filter_list</span>
-                            Filter
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-4 gap-4 mb-6">
-                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Total Students</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">5,678</p>
-                    </div>
-                    <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Active Students</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">5,500</p>
-                    </div>
-                    <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Solo Projects</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,200</p>
-                    </div>
-                    <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Team Projects</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">1,100</p>
-                    </div>
+                    <button id="student-search-reset" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm">Reset</button>
                 </div>
 
                 <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
-                            <tr>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Student ID</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Student Name</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Email</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Password</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Major</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Status</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Join Date</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">S-112233</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Jane Doe</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">jane.doe@university.edu</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Computer Science</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2023-08-15</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">S-112234</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">John Appleseed</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">john.a@university.edu</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Electrical Engineering</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pending</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2023-09-01</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">S-112235</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Peter Jones</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">peter@university.edu</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Mechanical Engineering</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Suspended</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2022-01-20</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'fullName')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Student Name</span>
+                                    <span id="sort-icon-students-fullName" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'email')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Email</span>
+                                    <span id="sort-icon-students-email" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'registrationNumber')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Reg. Number</span>
+                                    <span id="sort-icon-students-registrationNumber" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'department')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Department</span>
+                                    <span id="sort-icon-students-department" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'createdAt')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Join Date</span>
+                                    <span id="sort-icon-students-createdAt" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="student-table-body">
+                            <!-- Rows will be injected by JS -->
+                             <tr><td colspan="6" class="p-4 text-center text-subtext-light dark:text-subtext-dark">Loading students...</td></tr>
                         </tbody>
                     </table>
-                    <div class="flex items-center justify-between p-4">
-                        <span class="text-sm text-subtext-light dark:text-subtext-dark">Showing 1 to 3 of 5,678 students</span>
-                        <div class="flex gap-2">
-                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50" disabled="">Previous</button>
-                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">Next</button>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -535,127 +375,60 @@
                             <span class="material-icons" style="font-size: 20px;">add</span>
                             Add Teacher
                         </button>
-                        <button class="bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                            <span class="material-icons text-base">edit</span>
-                            Edit Teachers
-                        </button>
-                        <button class="bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
-                            <span class="material-icons text-base">delete</span>
-                            Delete Teachers
-                        </button>
                     </div>
                 </div>
+                <div id="admin-teachers-message" class="text-sm mb-4"></div>
 
-                <div class="flex items-center justify-between mb-6">
-                    <div class="relative w-full max-w-md">
+                <div class="relative w-full max-w-md flex items-center gap-2">
+                    <div class="relative flex-grow">
                         <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
-                        <input class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search teachers..." type="text" />
+                        <input id="teacher-search-input" class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search teachers (name, email, ID, dept...)" type="text" />
                     </div>
-                    <div class="flex items-center gap-4">
-                        <button class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">
-                            <span class="material-icons" style="font-size: 20px;">filter_list</span>
-                            Filter
-                        </button>
-                    </div>
+                    <button id="teacher-search-reset" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm">Reset</button>
                 </div>
                 
-                <div class="grid grid-cols-4 gap-4 mb-6">
-                    <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Total Teachers</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">90</p>
-                    </div>
-                    <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Active Teachers</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">85</p>
-                    </div>
-                    <div class="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Inactive Teachers</p>
-                        <p classs="text-2xl font-bold text-text-light dark:text-text-dark">5</p>
-                    </div>
-                    <div class="bg-teal-100 dark:bg-teal-900/3s0 p-4 rounded-lg shadow-sm">
-                        <p class="text-subtext-light dark:text-subtext-dark">Guides</p>
-                        <p class="text-2xl font-bold text-text-light dark:text-text-dark">78</p>
-                    </div>
-                </div>
-
                 <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
                     <table class="w-full text-left">
                         <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
-                            <tr>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Teacher ID</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Teacher Name</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Email</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Password</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Department</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Status</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Join Date</th>
-                                <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">T-F987</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Dr. Alan Turing</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">alan.t@university.edu</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Computer Science</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2020-09-01</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">T-F988</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Dr. Rosa Parks</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">rosa.p@university.edu</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Social Sciences</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">On Leave</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2018-01-15</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="border-b border-border-light dark:border-border-dark">
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">T-F989</td>
-                                <td class="p-4 text-text-light dark:text-text-dark">Dr. Ada Lovelace</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">ada.l@university.edu</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">********</td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">Mathematics</td>
-                                <td class="p-4">
-                                    <span class="px-2 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Active</span>
-                                </td>
-                                <td class="p-4 text-subtext-light dark:text-subtext-dark">2021-03-10</td>
-                                <td class="p-4">
-                                    <div class="flex gap-2">
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">visibility</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-subtext-light dark:text-subtext-dark"><span class="material-icons text-base">edit</span></button>
-                                        <button class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-red-500"><span class="material-icons text-base">delete</span></button>
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'fullName')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Teacher Name</span>
+                                    <span id="sort-icon-teachers-fullName" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'email')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Email</span>
+                                    <span id="sort-icon-teachers-email" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'registrationNumber')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Reg. Number</span>
+                                    <span id="sort-icon-teachers-registrationNumber" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'department')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Department</span>
+                                    <span id="sort-icon-teachers-department" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'createdAt')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Join Date</span>
+                                    <span id="sort-icon-teachers-createdAt" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="teacher-table-body">
+                            <!-- Rows will be injected by JS -->
+                             <tr><td colspan="6" class="p-4 text-center text-subtext-light dark:text-subtext-dark">Loading teachers...</td></tr>
                         </tbody>
                     </table>
-                    <div class="flex items-center justify-between p-4">
-                        <span class="text-sm text-subtext-light dark:text-subtext-dark">Showing 1 to 3 of 90 teachers</span>
-                        <div class="flex gap-2">
-                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50" disabled="">Previous</button>
-                            <button class="px-3 py-1 rounded-md border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700">Next</button>
-                        </div>
-                    </div>
                 </div>
             </div>
             
@@ -664,161 +437,15 @@
                 <h1 class="text-3xl font-bold text-text-light dark:text-text-dark mb-8">Settings</h1>
                 
                 <div class="max-w-4xl mx-auto space-y-8 pb-24">
+                    <!-- Other settings cards remain unchanged -->
                     <div class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200/80 p-8">
                         <h2 class="text-xl font-semibold mb-6 text-gray-700 dark:text-gray-300">General Settings</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="platform_name">Platform Name</label>
-                                <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="platform_name" type="text" value="ProjectHub" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="platform_title">Platform Title</label>
-                                <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="platform_title" type="text" value="Admin Dashboard" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="campus_name">Campus Name</label>
-                                <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="campus_name" type="text" value="CUCEK" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="contact_info">Contact Info</label>
-                                <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="contact_info" type="email" value="admin@projecthub.com" />
-                            </div>
-                        </div>
+                        <p class="text-subtext-light dark:text-subtext-dark">General settings are managed elsewhere.</p>
                     </div>
                     
                     <div class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200/80 p-8">
                         <h2 class="text-xl font-semibold mb-6 text-gray-700 dark:text-gray-300">Chatbot, AI & RAG Management</h2>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
-
-                            <div class="space-y-10">
-                                <div class="space-y-4">
-                                    <h3 class="text-lg font-semibold text-text-light dark:text-text-dark border-b border-border-light dark:border-border-dark pb-2">General AI Settings</h3>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="greetingMessage">Greeting Message</label>
-                                        <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="greetingMessage" type="text" value="Welcome to ProjectHub! How can I help?" />
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="responseBehavior">Response Behavior</label>
-                                        <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-xl" id="responseBehavior">
-                                            <option selected="">Friendly</option>
-                                            <option>Professional</option>
-                                            <option>Concise</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="system_prompt">System Prompt</label>
-                                        <textarea class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="system_prompt" rows="3" placeholder="Enter the base instructions for the AI..."></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="ollama_endpoint_general">API Endpoint (for Ollama)</label>
-                                        <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="ollama_endpoint_general" placeholder="e.g., http://localhost:11434" type="text" value="http://localhost:11434" />
-                                    </div>
-                                </div>
-
-                                <div class="space-y-4">
-                                    <div class="flex items-center justify-between pb-2 border-b border-border-light dark:border-border-dark">
-                                        <h3 class="text-lg font-semibold text-text-light dark:text-text-dark">Enable Gemini</h3>
-                                        <label class="switch">
-                                            <input id="enableGeminiToggle" type="checkbox" onchange="toggleGeminiSettings(this.checked)" />
-                                            <span class="slider round"></span>
-                                        </label>
-                                    </div>
-                                    <div id="geminiSettings" class="hidden space-y-4 pl-4 border-l-2 border-accent-light dark:border-accent-dark ml-2">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="gemini_api_provider">API Provider</label>
-                                            <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-xl" id="gemini_api_provider">
-                                                <option selected="">Google Gemini</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="gemini_model">External LLM Model</label>
-                                            <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-xl" id="gemini_model">
-                                                <option selected="">gemini-1.5-pro-latest</option>
-                                                <option>gemini-1.5-flash-latest</option>
-                                                <option>gemini-1.0-pro</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="gemini_api_key">API Key</label>
-                                            <input class="mt-1 block w-full rounded-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark shadow-sm focus:border-primary focus:ring-primary sm:text-sm" id="gemini_api_key" placeholder="Enter your Gemini API Key" type="password" value="" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="space-y-10">
-                                <div class="space-y-4">
-                                    <h3 class="text-lg font-semibold text-text-light dark:text-text-dark border-b border-border-light dark:border-border-dark pb-2">RAG System Settings</h3>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="embedding_model">Embedding Models</label>
-                                        <select class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-xl" id="embedding_model">
-                                            <option selected="">all-MiniLM-L6-v2 (Default)</option>
-                                            <option>text-embedding-ada-002</option>
-                                            <option>e5-large-v2</option>
-                                            <option>nomic-embed-text</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="rag_files_folders">RAG Files and Folders Source</label>
-                                        <div class="mt-1 flex rounded-xl shadow-sm">
-                                            <input class="block w-full min-w-0 flex-1 rounded-none rounded-l-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark px-3 py-2 focus:border-primary focus:ring-primary sm:text-sm" id="rag_files_folders" name="rag_files_folders" placeholder="/path/to/project/docs" type="text" />
-                                            <button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-xl border border-gray-300 dark:border-border-dark bg-gray-50 dark:bg-card-dark px-4 py-2 text-sm font-medium text-gray-700 dark:text-text-dark hover:bg-gray-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" type="button">
-                                                <span>Select Folder</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-600 dark:text-subtext-dark" for="vector_database_folder">Vector Database folder Source</label>
-                                        <div class="mt-1 flex rounded-xl shadow-sm">
-                                            <input class="block w-full min-w-0 flex-1 rounded-none rounded-l-xl border-gray-300 dark:border-border-dark dark:bg-background-dark dark:text-text-dark px-3 py-2 focus:border-primary focus:ring-primary sm:text-sm" id="vector_database_folder" name="vector_database_folder" placeholder="e.g., ./chroma_db" type="text" value="./chroma_db"/>
-                                            <button class="relative -ml-px inline-flex items-center space-x-2 rounded-r-xl border border-primary bg-accent-light dark:bg-accent-dark px-4 py-2 text-sm font-medium text-primary dark:text-white hover:bg-blue-100 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary" type="button">
-                                                <span>Rebuild Index</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-4">
-                                    <div class="flex items-center justify-between pb-2 border-b border-border-light dark:border-border-dark">
-                                        <h3 class="text-lg font-semibold text-text-light dark:text-text-dark">Enable Ollama (Local)</h3>
-                                        <label class="switch">
-                                            <input id="enableOllamaToggle" type="checkbox" checked onchange="toggleOllamaSettings(this.checked)" />
-                                            <span class="slider round"></span>
-                                        </label>
-                                    </div>
-                                    <div id="ollamaSettings" class="space-y-4 pl-4 border-l-2 border-accent-light dark:border-accent-dark ml-2">
-                                        <div>
-                                            <h4 class="text-md font-medium text-gray-600 dark:text-subtext-dark mb-2">Available Internal Models</h4>
-                                            <div class="space-y-3">
-                                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
-                                                    <span class="font-medium text-gray-800 dark:text-text-dark">llama3:latest</span>
-                                                    <label class="switch">
-                                                        <input type="checkbox" checked />
-                                                        <span class="slider round"></span>
-                                                    </label>
-                                                </div>
-                                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
-                                                    <span class="font-medium text-gray-800 dark:text-text-dark">mistral:latest</span>
-                                                    <label class="switch">
-                                                        <input type="checkbox" checked />
-                                                        <span class="slider round"></span>
-                                                    </label>
-                                                </div>
-                                                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-background-dark rounded-xl">
-                                                    <span class="font-medium text-gray-800 dark:text-text-dark">codegemma:latest</span>
-                                                    <label class="switch">
-                                                        <input type="checkbox" />
-                                                        <span class="slider round"></span>
-                                                    </label>
-                                                </div>
-                                                </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-                        
+                        <p class="text-subtext-light dark:text-subtext-dark">AI settings are managed from the <a href="ai_chat.html" class="text-primary underline" target="_blank">AI Chat Page</a>.</p>
                     </div>
                 </div>
             </div> 
@@ -831,102 +458,64 @@
                             <h1 class="text-4xl font-black tracking-[-0.033em] text-center text-text-light dark:text-text-dark">
                                 Add New Student
                             </h1>
-                            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400 text-center">
-                                Enter the student's details below.
-                            </p>
                         </div>
-                        <div class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-lg space-y-6">
+                        <!-- Added ID to the form -->
+                        <form id="add-student-form" class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-lg space-y-6">
+                            <div id="add-student-message" class="text-sm"></div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="full-name-add-student">
                                         Full Name
                                     </label>
                                     <input
-                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                        id="full-name-add-student" placeholder="Enter full name" type="text" />
+                                        class="form-input"
+                                        id="full-name-add-student" placeholder="Enter full name" type="text" required />
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-number-add-student">
                                         Registration Number
                                     </label>
                                     <input
-                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                        id="reg-number-add-student" placeholder="e.g., 2023-CS-123" type="text" />
+                                        class="form-input"
+                                        id="reg-number-add-student" placeholder="e.g., 2023-CS-123" type="text" required />
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-email-add-student">
                                         Email
                                     </label>
                                     <input
-                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                        id="reg-email-add-student" placeholder="Enter email" type="email" />
+                                        class="form-input"
+                                        id="reg-email-add-student" placeholder="Enter email" type="email" required />
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-password-add-student">
                                         Password
                                     </label>
-                                    <div class="flex w-full flex-1 items-stretch">
-                                        <input
-                                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:z-10 border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                            id="reg-password-add-student" placeholder="Create a password" type="password" />
-                                        <button aria-label="Toggle password visibility"
-                                            class="text-subtext-light dark:text-subtext-dark flex border border-l-0 border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
-                                            <span class="material-icons">
-                                                visibility_off
-                                            </span>
-                                        </button>
-                                    </div>
+                                    <input
+                                        class="form-input"
+                                        id="reg-password-add-student" placeholder="Min 8 characters" type="password" required minlength="8" />
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="department-add-student">
                                         Department
                                     </label>
-                                    <select
-                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
-                                        id="department-add-student">
-                                        <option selected="">
-                                            Select department
-                                        </option>
-                                        <option>
-                                            Computer Science
-                                        </option>
-                                        <option>
-                                            Electrical Engineering
-                                        </option>
-                                        <option>
-                                            Mechanical Engineering
-                                        </option>
-                                        <option>
-                                            Business Administration
-                                        </option>
+                                    <select class="form-select" id="department-add-student" required>
+                                        <option value="" selected disabled>Select department</option>
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Electrical Engineering">Electrical Engineering</option>
+                                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                        <option value="Business Administration">Business Administration</option>
                                     </select>
                                 </div>
-                                <div class="flex flex-col">
-                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="user-type-add-student">
-                                        User Role
-                                    </label>
-                                    <select
-                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
-                                        id="user-type-add-student">
-                                        <option value="">
-                                            Select role
-                                        </option>
-                                        <option value="Student" selected>
-                                            Student
-                                        </option>
-                                        <option value="Teacher">
-                                            Teacher
-                                        </option>
-                                    </select>
-                                </div>
+                                <!-- This is hidden but set for the form submission -->
+                                <input type="hidden" id="user-type-add-student" value="Student" />
+                                
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-question-add-student">
                                         Security Question
                                     </label>
-                                    <select
-                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
-                                        id="security-question-add-student">
-                                        <option value="">Select a question...</option>
+                                    <select class="form-select" id="security-question-add-student" required>
+                                        <option value="" disabled selected>Select a question...</option>
                                         <option value="pet">What was your first pet's name?</option>
                                         <option value="street">What street did you grow up on?</option>
                                         <option value="mother_maiden">What is your mother's maiden name?</option>
@@ -935,26 +524,28 @@
                                     </select>
                                 </div>
                                 
-                                <div class="flex flex-col">
+                                <div class="flex flex-col md:col-span-2">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-answer-add-student">
                                         Security Answer
                                     </label>
                                     <input
-                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                        id="security-answer-add-student" placeholder="Your answer (will be saved in caps)" type="text"
+                                        class="form-input"
+                                        id="security-answer-add-student" placeholder="Your answer (will be saved in caps)" type="text" required
                                         oninput="this.value = this.value.toUpperCase()" />
                                 </div>
                             </div>
                             
                             <div class="pt-4">
                                 <button
-                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:bg-primary/90 transition-opacity">
+                                    type="submit"
+                                    id="add-student-submit-btn"
+                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:bg-primary/90 transition-opacity disabled:opacity-50">
                                     <span class="truncate">
                                         Add Student
                                     </span>
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </main>
             </div>
@@ -967,102 +558,68 @@
                             <h1 class="text-4xl font-black tracking-[-0.033em] text-center text-text-light dark:text-text-dark">
                                 Add New Teacher
                             </h1>
-                            <p class="mt-2 text-lg text-gray-600 dark:text-gray-400 text-center">
-                                Enter the teacher's details below.
-                            </p>
                         </div>
-                        <div class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-lg space-y-6">
+                         <!-- Added ID to the form -->
+                        <form id="add-teacher-form" class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-lg space-y-6">
+                            <div id="add-teacher-message" class="text-sm"></div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="full-name-add-teacher">
                                         Full Name
                                     </label>
                                     <input
-                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                        id="full-name-add-teacher" placeholder="Enter full name" type="text" />
+                                        class="form-input"
+                                        id="full-name-add-teacher" placeholder="Enter full name" type="text" required />
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-number-add-teacher">
                                         Registration Number
                                     </label>
                                     <input
-                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                        id="reg-number-add-teacher" placeholder="e.g., T-F990" type="text" />
+                                        class="form-input"
+                                        id="reg-number-add-teacher" placeholder="e.g., T-F990" type="text" required/>
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-email-add-teacher">
                                         Email
                                     </label>
                                     <input
-                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                        id="reg-email-add-teacher" placeholder="Enter email" type="email" />
+                                        class="form-input"
+                                        id="reg-email-add-teacher" placeholder="Enter email" type="email" required/>
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-password-add-teacher">
                                         Password
                                     </label>
-                                    <div class="flex w-full flex-1 items-stretch">
-                                        <input
-                                            class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-l-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:z-10 border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                            id="reg-password-add-teacher" placeholder="Create a password" type="password" />
-                                        <button aria-label="Toggle password visibility"
-                                            class="text-subtext-light dark:text-subtext-dark flex border border-l-0 border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark items-center justify-center pr-4 rounded-r-lg">
-                                            <span class="material-icons">
-                                                visibility_off
-                                            </span>
-                                        </button>
-                                    </div>
+                                    <input
+                                        class="form-input"
+                                        id="reg-password-add-teacher" placeholder="Min 8 characters" type="password" required minlength="8" />
                                 </div>
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="department-add-teacher">
                                         Department
                                     </label>
                                     <select
-                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
-                                        id="department-add-teacher">
-                                        <option selected="">
-                                            Select department
-                                        </option>
-                                        <option>
-                                            Computer Science
-                                        </option>
-                                        <option>
-                                            Electrical Engineering
-                                        </option>
-                                        <option>
-                                            Mechanical Engineering
-                                        </option>
-                                        <option>
-                                            Business Administration
-                                        </option>
+                                        class="form-select"
+                                        id="department-add-teacher" required>
+                                        <option value="" selected disabled>Select department</option>
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Electrical Engineering">Electrical Engineering</option>
+                                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                        <option value="Business Administration">Business Administration</option>
                                     </select>
                                 </div>
-                                <div class="flex flex-col">
-                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="user-type-add-teacher">
-                                        User Role
-                                    </label>
-                                    <select
-                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
-                                        id="user-type-add-teacher">
-                                        <option value="">
-                                            Select role
-                                        </option>
-                                        <option value="Student">
-                                            Student
-                                        </option>
-                                        <option value="Teacher" selected>
-                                            Teacher
-                                        </option>
-                                    </select>
-                                </div>
+                                <!-- This is hidden but set for the form submission -->
+                                <input type="hidden" id="user-type-add-teacher" value="Teacher" />
+                                
                                 <div class="flex flex-col">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-question-add-teacher">
                                         Security Question
                                     </label>
                                     <select
-                                        class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal pr-10"
-                                        id="security-question-add-teacher">
-                                        <option value="">Select a question...</option>
+                                        class="form-select"
+                                        id="security-question-add-teacher" required>
+                                        <option value="" disabled selected>Select a question...</option>
                                         <option value="pet">What was your first pet's name?</option>
                                         <option value="street">What street did you grow up on?</option>
                                         <option value="mother_maiden">What is your mother's maiden name?</option>
@@ -1071,40 +628,64 @@
                                     </select>
                                 </div>
                                 
-                                <div class="flex flex-col">
+                                <div class="flex flex-col md:col-span-2">
                                     <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-answer-add-teacher">
                                         Security Answer
                                     </label>
                                     <input
-                                        class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary border border-border-light dark:border-border-dark bg-card-light dark:bg-background-dark h-14 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal"
-                                        id="security-answer-add-teacher" placeholder="Your answer (will be saved in caps)" type="text"
+                                        class="form-input"
+                                        id="security-answer-add-teacher" placeholder="Your answer (will be saved in caps)" type="text" required
                                         oninput="this.value = this.value.toUpperCase()" />
                                 </div>
                             </div>
                             
                             <div class="pt-4">
                                 <button
-                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:bg-primary/90 transition-opacity">
+                                    type="submit"
+                                    id="add-teacher-submit-btn"
+                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:bg-primary/90 transition-opacity disabled:opacity-50">
                                     <span class="truncate">
                                         Add Teacher
                                     </span>
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </main>
             </div>
-
         </div>    
 
-        <!-- Settings Save Bar -->
-        <div id="settings-save-bar" class="hidden absolute bottom-0 left-0 right-0 p-4 bg-card-light/80 dark:bg-card-dark/80 backdrop-blur-sm border-t border-border-light dark:border-border-dark z-20 transition-all duration-300 ease-in-out">
-            <div class="max-w-4xl mx-auto flex justify-end">
-                <button class="bg-card-light dark:bg-card-dark py-2 px-6 border border-gray-300 dark:border-border-dark rounded-xl shadow-sm text-sm font-medium text-gray-700 dark:text-text-dark hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="button">Cancel</button>
-                <button class="ml-3 inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" type="submit">Save Changes</button>
+    <div id="admin-edit-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
+                <div id="modal-overlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+                
+                <div class="relative z-10 bg-card-light dark:bg-card-dark rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+                    <div class="flex items-center justify-between p-4 border-b border-border-light dark:border-border-dark">
+                        <h3 id="modal-title" class="text-xl font-bold text-text-light dark:text-text-dark">Edit Details</h3>
+                        <button id="modal-close-btn" class_="p-2 rounded-full text-subtext-light dark:text-subtext-dark hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    
+                    <div id="modal-message" class="text-sm p-4" style="display: none;"></div>
+                    
+                    <form id="modal-form-body" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                        <p class="text-subtext-light dark:text-subtext-dark">Loading...</p>
+                    </form>
+                    
+                    <div class="flex items-center justify-end gap-4 p-4 bg-gray-50 dark:bg-card-dark/50 border-t border-border-light dark:border-border-dark">
+                        <button id="modal-cancel-btn" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium">
+                            Cancel
+                        </button>
+                        <button id="modal-save-btn" class="px-6 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 shadow-sm">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
+            </div>    
 
+    </main>    
+    
     </main> 
     
     <!-- Shared & Specific JavaScript -->
@@ -1113,4 +694,3 @@
     
 </body>
 </html>
-

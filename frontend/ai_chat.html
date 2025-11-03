@@ -195,16 +195,18 @@
                     </select>
                 </div>
                 <div id="geminiSettings" class="space-y-4 pl-4 border-l-2 border-accent-light dark:border-accent-dark ml-2">
-                     <div>
-                        <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="gemini_api_key">Gemini API Key</label>
-                        <input class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="gemini_api_key" placeholder="Enter Gemini API Key" type="password" />
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="gemini_api_key">Gemini API Key</label>
+                            <a href="https://aistudio.google.com/api-keys" target="_blank" class="text-xs text-primary hover:underline">Get API here</a>
+                        </div>
+                        <input class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="gemini_api_key" placeholder="Enter Gemini API Key" type="password">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-subtext-light dark:text-subtext-dark" for="gemini_model">Gemini Model</label>
                         <select class="mt-1 block w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark focus:border-primary focus:ring-primary text-text-light dark:text-text-dark text-sm" id="gemini_model">
-                            <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
-                            <option value="gemini-1.5-pro-latest">gemini-1.5-pro-latest</option>
-                            <option value="gemini-1.0-pro">gemini-1.0-pro</option>
+                            <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                            <option value="gemini-2.5-pro">gemini-2.5-pro</option>
                         </select>
                     </div>
                 </div>
@@ -275,7 +277,7 @@
                      </button>
                      <div class="flex items-center gap-3">
                         <span class="material-icons-outlined text-primary text-2xl">smart_toy</span>
-                        <h2 class="text-xl font-bold text-text-light dark:text-text-dark">Assistant</h2>
+                        <h2 class="text-xl font-bold text-text-light dark:text-text-dark">HubMaster Bot</h2>
                      </div>
                      <button id="right-sidebar-toggle" title="Toggle Documents" class="p-2 rounded-lg text-text-light dark:text-text-dark hover:bg-gray-200 dark:hover:bg-gray-700">
                          <span class="material-icons-outlined">description</span>
@@ -284,15 +286,15 @@
 
                 <div id="chat-messages" class="flex-1 p-6 space-y-6">
                     <div class="flex items-start gap-3 max-w-[90%] group">
-                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 flex-shrink-0 shadow-sm" data-alt="AI avatar" style='background-image: url("https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1945&auto=format&fit=crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                        <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 flex-shrink-0 shadow-sm" data-alt="AI avatar" style='background-image: url("https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1945&auto-format&fit-crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%D");'></div>
                         <div class="flex flex-col gap-1 w-full">
                             <div class="bg-background-light dark:bg-background-dark p-3 rounded-r-lg rounded-bl-lg border border-border-light dark:border-border-dark shadow-sm">
-                                <p class="text-base chat-bubble">Hello! I'm the ProjectHub Assistant. Configure settings in the **left sidebar** & click **'Initialize'**. For RAG, select documents in the **right sidebar** before initializing.</p>
+                                <p class="text-base chat-bubble">Hello! I'm the HubMaster, your ProjectHub Assistant. <br><br>Configure settings in the <strong>left sidebar</strong> & click <strong>'Initialize'</strong>. <br>For RAG, select documents in the <strong>right sidebar</strong> before initializing.</p>
                             </div>
                             <span class="text-xs text-subtext-light dark:text-subtext-dark/80">Now</span>
                         </div>
                     </div>
-                    </div>
+                </div>
 
                 <div class="p-4 border-t border-border-light dark:border-border-dark mt-auto bg-card-light dark:bg-card-dark rounded-b-xl flex-shrink-0">
                     <div class="flex items-center justify-center mb-3">

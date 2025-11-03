@@ -360,6 +360,33 @@ async def list_projects(
 
     return projects
 
+@app.get("/projects/unassigned", response_model=List[models.ProjectPublic])
+async def get_unassigned_projects(
+    department: Optional[str] = Query(None),
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Get unassigned projects for teacher browsing"""
+    # Verify user is Teacher
+    if current_user.get("role") != "Teacher":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only teachers can browse unassigned projects"
+        )
+
+    # Build query
+    query = {
+        "guideId": None,
+        "department": department or current_user.get("department"),
+        "status": {"$ne": "Inactive"}
+    }
+
+    projects = list(db.projects.find(query).sort("createdAt", -1))
+
+    for project in projects:
+        project["_id"] = str(project["_id"])
+
+    return projects
 
 @app.get("/projects/{project_id}", response_model=models.ProjectPublic)
 async def get_project(
@@ -969,34 +996,6 @@ async def update_team_member(
 # GUIDE REQUEST ENDPOINTS
 # ============================================
 
-@app.get("/projects/unassigned", response_model=List[models.ProjectPublic])
-async def get_unassigned_projects(
-    department: Optional[str] = Query(None),
-    current_user: dict = Depends(get_current_user),
-    db: Database = Depends(get_db)
-):
-    """Get unassigned projects for teacher browsing"""
-    # Verify user is Teacher
-    if current_user.get("role") != "Teacher":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only teachers can browse unassigned projects"
-        )
-
-    # Build query
-    query = {
-        "guideId": None,
-        "department": department or current_user.get("department"),
-        "status": {"$ne": "Inactive"}
-    }
-
-    projects = list(db.projects.find(query).sort("createdAt", -1))
-
-    for project in projects:
-        project["_id"] = str(project["_id"])
-
-    return projects
-
 
 @app.post("/projects/{project_id}/guide/request", response_model=models.GuideRequest, status_code=status.HTTP_201_CREATED)
 async def send_guide_request(
@@ -1340,6 +1339,260 @@ async def search_students(
 
     return students
 
+@app.get("/students/department", response_model=List[models.UserPublic])
+async def get_students_in_department(
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """
+    Gets all students in the teacher's department.
+    """
+    if current_user.get("role") != "Teacher":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only teachers can view the department student list"
+        )
+    
+    department = current_user.get("department")
+    if not department:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Teacher has no department assigned"
+        )
+
+    students = list(db.users.find({
+        "role": "Student",
+        "department": department
+    }))
+    
+    # Convert ObjectIds
+    for student in students:
+        student["_id"] = str(student["_id"])
+        
+    return students
+
+    
+# ============================================
+# ADMIN ENDPOINTS
+# ============================================
+
+from pydantic import BaseModel, Field, EmailStr
+
+class AdminStats(BaseModel):
+    """Data model for the admin dashboard stats card"""
+    total_projects: int
+    total_students: int
+    total_teachers: int
+    projects_completed: int
+    projects_in_progress: int
+    projects_planning: int
+    active_students: int # A simple count for now
+    active_teachers: int # A simple count for now
+    guides_count: int
+    
+def get_current_admin_user(current_user: dict = Depends(get_current_user)):
+    """Dependency to check if the current user is an Admin."""
+    if current_user.get("role") != "Admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: Requires admin privileges"
+        )
+    return current_user
+
+@app.get("/api/admin/stats", response_model=AdminStats)
+async def get_admin_statistics(
+    db: Database = Depends(get_db),
+    admin_user: dict = Depends(get_current_admin_user)
+):
+    """Fetches aggregated statistics for the admin dashboard."""
+    
+    # Project counts
+    total_projects = db.projects.count_documents({})
+    projects_completed = db.projects.count_documents({"status": "Completed"})
+    projects_in_progress = db.projects.count_documents({"status": "Active"}) # Assuming Active = In-Progress
+    projects_planning = db.projects.count_documents({"status": "Planning"})
+    
+    # User counts
+    total_students = db.users.count_documents({"role": "Student"})
+    total_teachers = db.users.count_documents({"role": "Teacher"})
+    
+    # Get all teacher IDs
+    teacher_ids = [str(user["_id"]) for user in db.users.find({"role": "Teacher"}, {"_id": 1})]
+    
+    # Find how many unique teachers are listed as guides
+    guides_count = len(db.projects.distinct("guideId", {"guideId": {"$in": teacher_ids}}))
+
+    # Note: "Active" user logic is not defined, so we'll just return totals for now
+    # You could add a "last_login" field to your user model to calculate this properly
+    
+    return {
+        "total_projects": total_projects,
+        "total_students": total_students,
+        "total_teachers": total_teachers,
+        "projects_completed": projects_completed,
+        "projects_in_progress": projects_in_progress,
+        "projects_planning": projects_planning,
+        "active_students": total_students, # Placeholder
+        "active_teachers": total_teachers, # Placeholder
+        "guides_count": guides_count
+    }
+
+@app.get("/api/admin/users", response_model=List[models.UserPublic])
+async def get_all_users(
+    role: Optional[str] = Query(None, description="Filter by role (Student or Teacher)"),
+    db: Database = Depends(get_db),
+    admin_user: dict = Depends(get_current_admin_user)
+):
+    """Fetches all users, optionally filtered by role."""
+    query = {}
+    if role in ["Student", "Teacher"]:
+        query["role"] = role
+    else:
+        # By default, don't return Admins in this list
+        query["role"] = {"$in": ["Student", "Teacher"]}
+
+    users = list(db.users.find(query))
+    for user in users:
+        user["_id"] = str(user["_id"])
+    return users
+
+@app.get("/api/admin/projects", response_model=List[models.ProjectPublic])
+async def get_all_projects(
+    db: Database = Depends(get_db),
+    admin_user: dict = Depends(get_current_admin_user)
+):
+    """Fetches all projects in the database."""
+    projects = list(db.projects.find({}))
+    for project in projects:
+        project["_id"] = str(project["_id"])
+    return projects
+
+@app.delete("/api/admin/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    user_id: str,
+    db: Database = Depends(get_db),
+    admin_user: dict = Depends(get_current_admin_user)
+):
+    """Admin-only: Deletes a user by their ID."""
+    try:
+        user_obj_id = ObjectId(user_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid user ID format")
+
+    # TODO: Add logic here to handle cascading deletes
+    # e.g., what happens to projects owned by this user?
+    # For now, we just delete the user.
+    
+    result = db.users.delete_one({"_id": user_obj_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "User deleted successfully"} # Note: 204 response won't send a body
+
+@app.delete("/api/admin/projects/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project_admin(
+    project_id: str,
+    db: Database = Depends(get_db),
+    admin_user: dict = Depends(get_current_admin_user)
+):
+    """Admin-only: Deletes a project and its related invitations/requests."""
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid project ID format")
+
+    result = db.projects.delete_one({"_id": project_obj_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Clean up related documents
+    db.team_invitations.delete_many({"projectId": project_id})
+    db.guide_requests.delete_many({"projectId": project_id})
+    
+    return {"message": "Project deleted successfully"} # Note: 204 response won't send a body
+
+class AdminUserUpdate(BaseModel):
+    """Admin-only: Model for updating any user details."""
+    fullName: Optional[str] = Field(None, min_length=1)
+    email: Optional[EmailStr] = None
+    registrationNumber: Optional[str] = None
+    department: Optional[str] = Field(None, min_length=1)
+    # We explicitly exclude password and security questions for safety
+
+class AdminProjectUpdate(BaseModel):
+    """Admin-only: Model for updating any project details."""
+    name: Optional[str] = Field(None, min_length=1)
+    ownerName: Optional[str] = Field(None, min_length=1) # In case of owner name change
+    guideName: Optional[str] = Field(None) # Allow setting to null
+    status: Optional[str] = Field(None, min_length=1)
+    
+# --- ADD THESE NEW PUT ENDPOINTS ---
+@app.put("/api/admin/users/{user_id}", response_model=models.UserPublic)
+async def update_user_details(
+    user_id: str,
+    update_data: AdminUserUpdate,
+    db: Database = Depends(get_db),
+    admin_user: dict = Depends(get_current_admin_user)
+):
+    """Admin-only: Updates a user's details."""
+    try:
+        user_obj_id = ObjectId(user_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid user ID format")
+
+    # Create update doc, removing any 'None' values so Mongo doesn't overwrite
+    # existing fields with 'null' if they weren't provided.
+    update_doc = update_data.model_dump(exclude_unset=True)
+
+    if not update_doc:
+        raise HTTPException(status_code=400, detail="No update data provided")
+        
+    # Special handling for email to keep it lowercase
+    if "email" in update_doc:
+        update_doc["email"] = update_doc["email"].lower()
+
+    update_result = db.users.update_one(
+        {"_id": user_obj_id},
+        {"$set": update_doc}
+    )
+    
+    if update_result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    updated_user = db.users.find_one({"_id": user_obj_id})
+    updated_user["_id"] = str(updated_user["_id"])
+    return updated_user
+
+
+@app.put("/api/admin/projects/{project_id}", response_model=models.ProjectPublic)
+async def update_project_details(
+    project_id: str,
+    update_data: AdminProjectUpdate,
+    db: Database = Depends(get_db),
+    admin_user: dict = Depends(get_current_admin_user)
+):
+    """Admin-only: Updates a project's details."""
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid project ID format")
+
+    update_doc = update_data.model_dump(exclude_unset=True)
+
+    if not update_doc:
+        raise HTTPException(status_code=400, detail="No update data provided")
+
+    update_result = db.projects.update_one(
+        {"_id": project_obj_id},
+        {"$set": update_doc}
+    )
+
+    if update_result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    updated_project = db.projects.find_one({"_id": project_obj_id})
+    updated_project["_id"] = str(updated_project["_id"])
+    return updated_project
 
 # --- Run the server (for local development) ---
 if __name__ == "__main__":

@@ -268,6 +268,17 @@
                             <div id="project-milestones-container" class="flex flex-col gap-4">
                                 <p class="text-subtext-light dark:text-subtext-dark">Loading milestones...</p>
                             </div>
+                            <div id="project-milestones-container" class="flex flex-col gap-4">
+                                <p class="text-subtext-light dark:text-subtext-dark">Loading milestones...</p>
+                            </div>
+
+                            <h4 class="text-lg font-semibold text-text-light dark:text-text-dark mt-6 mb-4">Team</h4>
+                            <div id="project-detail-team-list" class="space-y-4">
+                                <p class="text-subtext-light dark:text-subtext-dark">Loading team...</p>
+                            </div>
+
+                            <div id="project-detail-actions" class="mt-6 pt-6 border-t border-border-light dark:border-border-dark">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -559,7 +570,7 @@
     
     <script>
         // Initialize project management system on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Check if user is authenticated
             const token = localStorage.getItem('accessToken');
             if (!token) {
@@ -567,29 +578,25 @@
                 return;
             }
 
-            populateUserInfo(); // <-- ADD THIS LINE
+            await populateUserInfo(); 
 
-            // Initialize projects functionality
-            initializeProjects();
+            // Setup button listeners (like "Add Project")
+            setupProjectEventListeners();
 
-            // Load team invitations
-            loadTeamInvitations();
-
-            // Load guide requests
-            loadGuideRequests('received');
-
-            // Load team invitations
-            loadTeamInvitations();
-            loadSentInvitations(); // <-- ADD THIS
-    
-            // Load guide requests
-            loadGuideRequests('received');
-
-            // Set up "Add Project" form handler
-            const addProjectForm = document.getElementById('add-project-form-step1');
-            if (addProjectForm) {
-                // We use addEventListener in projects.js, so this is redundant, but safe.
+            // --- Define a function for dashboard-specific data ---
+            function refreshStudentDashboard() {
+                // These two functions populate the main dashboard widgets
+                loadUserProjects();
+                loadTeamInvitations();
             }
+
+            // --- Load all data on initial load ---
+            refreshStudentDashboard(); // Call it once immediately
+            loadSentInvitations();     // This is for the "My Team" page, no refresh needed here
+            loadGuideRequests('received'); // This is for the "My Team" page, no refresh needed here
+
+            // --- Setup 10-second refresh for the dashboard ---
+            setInterval(refreshStudentDashboard, 10000); // Refresh every 10 seconds
 
             // Logout handler
             const logoutLinks = document.querySelectorAll('a[href="#"]');
