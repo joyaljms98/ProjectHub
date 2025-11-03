@@ -51,6 +51,8 @@ SCRIPT_DIR_PATH = Path(__file__).resolve().parent
 # Go up one level to the base folder (V2/) and join with 'Docs'
 DEFAULT_DOCS_DIR = str(SCRIPT_DIR_PATH.parent / "Docs")
 
+# Default path for the RAG documents, inside the main Docs folder
+DEFAULT_RAG_DOCS_DIR = str(SCRIPT_DIR_PATH.parent / "Docs" / "RAG")
 
 SYSTEM_PROMPT = (
     "You are HubMaster, a virtual assistant created by the ProjectHub team. "
@@ -111,7 +113,7 @@ class RAGConfig:
         return {
             "gemini_api_key": "",
             "ollama_endpoint": "http://127.0.0.1:11434",
-            "rag_docs_path": DEFAULT_DOCS_DIR,
+            "rag_docs_path": DEFAULT_RAG_DOCS_DIR,
             "vector_db_path": DEFAULT_VECTOR_DB_BASE, # Use base path
             "system_prompt": SYSTEM_PROMPT,
             "last_file_hash": "",
@@ -804,8 +806,33 @@ async def chat_endpoint(request: ChatRequest):
             yield f"Error: {e}"
         return StreamingResponse(error_stream(), media_type="text/event-stream", status_code=500)
 
+# --- ADD THE NEW ENDPOINT HERE ---
+@app.get("/api/resources")
+async def get_resource_files():
+    """Scans the 'frontend/README Guide' directory for .txt files."""
+    try:
+        # Path is relative to RAG18.py (python/../frontend/README Guide)
+        guide_dir = SCRIPT_DIR_PATH.parent / "frontend" / "README Guide"
+        
+        if not guide_dir.is_dir():
+            print(f"Warning: Resource directory not found at {guide_dir}")
+            return JSONResponse(content={"files": []})
+
+        files = [f.name for f in guide_dir.iterdir() if f.is_file() and f.name.lower().endswith('.txt')]
+        
+        # Sort files to ensure "Phase 1" comes before "Phase 2"
+        files.sort() 
+        
+        return JSONResponse(content={"files": files})
+    except Exception as e:
+        print(f"Error scanning resource directory: {e}")
+        raise HTTPException(status_code=500, detail=f"Error scanning resources: {e}")
+# --- END OF NEW ENDPOINT ---
+
 
 # ==================== Serve Static Files ====================
+# (This comment might be deleted, that's fine)
+
 # Mount the frontend directory to be served at the root
 # Make sure the path is relative to where this script is (python/)
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="static")

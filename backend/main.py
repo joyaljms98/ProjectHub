@@ -12,9 +12,9 @@ from bson.errors import InvalidId
 from pydantic import ValidationError
 from typing import Optional, List
 
-
 import database
 import models
+from models import LinkCreate, ProjectLinkPublic
 import auth
 
 # --- App Initialization ---
@@ -1294,6 +1294,102 @@ async def set_deadline(
     return updated_project
 
 
+# ============================================
+# PROJECT PHASE & LINK ENDPOINTS (NEW)
+# ============================================
+
+@app.post("/projects/{project_id}/phases/{phase_order}/links", response_model=models.ProjectLinkPublic, status_code=status.HTTP_201_CREATED)
+async def submit_project_link(
+    project_id: str,
+    phase_order: int,
+    link_data: models.LinkCreate,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Student submits a new link for a project phase."""
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid project ID format")
+
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Check permission (owner or team member)
+    user_id = current_user["_id"]
+    is_owner = project.get("ownerId") == user_id
+    is_member = any(member.get("userId") == user_id for member in project.get("teamMembers", []))
+
+    if not (is_owner or is_member):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not a member of this project"
+        )
+    
+    if not (1 <= phase_order <= 4):
+         raise HTTPException(status_code=400, detail="Phase order must be between 1 and 4")
+
+    # Create link document
+    link_doc = {
+        "projectId": project_id,
+        "phaseOrder": phase_order,
+        "linkUrl": link_data.linkUrl,
+        "linkDescription": link_data.linkDescription,
+        "submittedByUserId": user_id,
+        "submittedByUserName": current_user.get("fullName", "Unknown"),
+        "submittedAt": datetime.datetime.now(timezone.utc)
+    }
+    
+    result = db.project_links.insert_one(link_doc)
+    created_link = db.project_links.find_one({"_id": result.inserted_id})
+    created_link["_id"] = str(created_link["_id"])
+
+    return created_link
+
+@app.get("/projects/{project_id}/phases/{phase_order}/links", response_model=List[models.ProjectLinkPublic])
+async def get_project_links(
+    project_id: str,
+    phase_order: int,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Gets all submitted links for a project phase."""
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid project ID format")
+
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Check access permission (owner, member, or guide)
+    user_id = current_user["_id"]
+    is_owner = project.get("ownerId") == user_id
+    is_member = any(member.get("userId") == user_id for member in project.get("teamMembers", []))
+    is_guide = project.get("guideId") == user_id
+
+    if not (is_owner or is_member or is_guide):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have access to this project"
+        )
+
+    if not (1 <= phase_order <= 4):
+         raise HTTPException(status_code=400, detail="Phase order must be between 1 and 4")
+
+    links = list(db.project_links.find({
+        "projectId": project_id,
+        "phaseOrder": phase_order
+    }).sort("submittedAt", 1))
+
+    for link in links:
+        link["_id"] = str(link["_id"])
+        
+    return links
+
+    
 # ============================================
 # STUDENT SEARCH ENDPOINT
 # ============================================

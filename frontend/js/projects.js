@@ -6,6 +6,7 @@ const API_BASE_URL = "http://127.0.0.1:8001";
 let currentProjectId = null;
 let userProjects = [];
 let guidedStudentIds = new Set();
+let currentProjectForPhaseView = null;
 // let currentUser = null;
 
 // ============================================
@@ -558,12 +559,15 @@ function renderMilestones(milestones, projectId, projectStatus) {
         "completed": { icon: "check_circle", color: "text-green-500", bgColor: "bg-green-100 dark:bg-green-900/50" }
     };
     
-    const isEditable = (projectHubUser.role === 'Student') && (projectStatus ==='Planning' || projectStatus === 'Active');
+    // Student can edit, Teacher can only view
+    const isEditable = (projectHubUser && projectHubUser.role === 'Student') && (projectStatus ==='Planning' || projectStatus === 'Active');
 
     return milestones.sort((a, b) => a.order - b.order).map(milestone => {
         const config = statusMap[milestone.status] || statusMap["not_started"];
         return `
-            <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 py-3 rounded-lg border border-border-light dark:border-border-dark justify-between ${config.pulse || ''}">
+            <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 py-3 rounded-lg border border-border-light dark:border-border-dark justify-between ${config.pulse || ''} hover:bg-background-light dark:hover:bg-background-dark transition-colors"
+                 onclick="viewPhaseDetails(event, '${projectId}', ${milestone.order}, '${milestone.name}')" style="cursor: pointer;">
+                
                 <div class="flex items-center gap-4">
                     <div class="${config.color} flex items-center justify-center rounded-full ${config.bgColor} shrink-0 size-12">
                         <span class="material-icons-outlined">${config.icon}</span>
@@ -573,18 +577,16 @@ function renderMilestones(milestones, projectId, projectStatus) {
                         <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-2">${milestone.status.replace('_', ' ')}</p>
                     </div>
                 </div>
+                
                 ${isEditable ? `
-                <div class="shrink-0">
-                    <select class="form-select rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" 
-                            onchange="updateMilestone('${projectId}', ${milestone.order}, this.value)">
-                        <option value="not_started" ${milestone.status === 'not_started' ? 'selected' : ''}>Not Started</option>
+                <div class="shrink-0" onclick="event.stopPropagation();"> <select class="form-select rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" 
+                            onchange="event.stopPropagation(); updateMilestone('${projectId}', ${milestone.order}, this.value)"> <option value="not_started" ${milestone.status === 'not_started' ? 'selected' : ''}>Not Started</option>
                         <option value="in_progress" ${milestone.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
                         <option value="completed" ${milestone.status === 'completed' ? 'selected' : ''}>Completed</option>
                     </select>
                 </div>
                 ` : `
-                <div class="shrink-0">
-                     <span class="text-sm font-medium text-subtext-light dark:text-subtext-dark">Locked</span>
+                <div class="shrink-0" onclick="event.stopPropagation();"> <span class="text-sm font-medium text-subtext-light dark:text-subtext-dark">Locked</span>
                 </div>
                 `}
             </div>
@@ -1444,6 +1446,280 @@ function renderGuidedTeams(projects) {
     }).join('');
     if (window.smoothScroller) {
         window.smoothScroller.resize();
+    }
+}
+
+// ============================================
+// PHASE DETAIL FUNCTIONS (NEW SECTION)
+// ============================================
+
+/**
+ * Navigates back to the main project detail view.
+ */
+function goBackToProjectDetail() {
+    if (currentProjectForPhaseView) {
+        viewProjectDetails(currentProjectForPhaseView._id);
+    } else {
+        // Fallback
+        showPage('projects-page');
+    }
+}
+
+/**
+ * Main function to render the Phase Detail Page
+ */
+async function viewPhaseDetails(event, projectId, phaseOrder, phaseName) {
+    event.stopPropagation(); // Stop click from bubbling up if nested
+
+    // Find and store the project context
+    currentProjectForPhaseView = userProjects.find(p => p._id === projectId);
+    if (!currentProjectForPhaseView) {
+        console.error("Could not find project context for ID:", projectId);
+        try {
+            const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, { headers: getAuthHeaders() });
+            currentProjectForPhaseView = await response.json();
+        } catch (e) {
+            handleApiError("Could not load project details.", "project-detail-message"); // A common error ID
+            return;
+        }
+    }
+
+    // Get the page container
+    const page = document.getElementById('phase-detail-page');
+    if (!page) {
+        console.error("Fatal: phase-detail-page element not found in HTML.");
+        return;
+    }
+
+    // Set title
+    const titleEl = document.getElementById('phase-detail-title');
+    if (titleEl) titleEl.textContent = phaseName;
+
+    // --- Render Page Skeleton ---
+    const guideContentEl = document.getElementById('phase-checklist-content'); // We use the checklist div
+    const linksListEl = document.getElementById('phase-links-list');
+    const formContainerEl = document.getElementById('phase-link-form-container');
+    const formEl = document.getElementById('phase-link-form');
+    const formMessageEl = document.getElementById('phase-link-message');
+    // Get the submit button
+    const formButton = formEl ? formEl.querySelector('button[type="submit"]') : null;
+
+    // Clear old content
+    if (guideContentEl) guideContentEl.innerHTML = `<p class="text-subtext-light dark:text-subtext-dark">Loading checklist...</p>`;
+    if (linksListEl) linksListEl.innerHTML = `<p class="text-subtext-light dark:text-subtext-dark text-sm">Loading links...</p>`;
+    if (formMessageEl) formMessageEl.innerHTML = '';
+
+    // --- Role-Specific Rendering (WITH NEW GUIDE CHECK) ---
+    if (projectHubUser && projectHubUser.role === 'Student') {
+        
+        // Show the form container and form for students
+        if (formContainerEl) formContainerEl.style.display = 'block';
+        if (formEl) formEl.style.display = 'block';
+
+        // NEW CHECK: See if a guide is assigned
+        if (currentProjectForPhaseView && currentProjectForPhaseView.guideId) {
+            // YES, a guide is assigned
+            
+            // Enable button and hook up form submission
+            if (formButton) formButton.disabled = false;
+            if (formEl) {
+                formEl.onsubmit = null; 
+                formEl.onsubmit = (e) => handleLinkSubmit(e, projectId, phaseOrder);
+            }
+        } else {
+            // NO, a guide is not assigned
+            
+            // Disable button
+            if (formButton) formButton.disabled = true;
+            
+            // Prevent form submission just in case
+            if (formEl) {
+                formEl.onsubmit = (e) => e.preventDefault(); 
+            }
+            
+            // Show the specific error message
+            handleApiError({ message: "Submission is disabled. You are not assigned to any guide." }, 'phase-link-message');
+        }
+
+    } else if (projectHubUser && projectHubUser.role === 'Teacher') {
+        // Hide submission form for teachers
+        if (formContainerEl) formContainerEl.style.display = 'none';
+    }
+    
+    // --- Navigate and Load Data ---
+    showPage('phase-detail-page'); // Show the new page
+    
+    // Load async data
+    loadPhaseGuideContent(phaseOrder); // This now loads the checklist
+    loadPhaseLinks(projectId, phaseOrder); // This loads submitted links
+    
+    // Re-calculate smooth scroll
+    if (window.smoothScroller) {
+        window.smoothScroller.resize();
+    }
+}
+
+/**
+ * Fetches and displays the static guide content from the .txt file.
+ */
+function loadPhaseGuideContent(phaseOrder) {
+    const checklistContentEl = document.getElementById('phase-checklist-content');
+    if (!checklistContentEl) return;
+
+    let checklistHTML = '';
+
+    switch (phaseOrder) {
+        case 1:
+            checklistHTML = `
+                <p class="text-subtext-light dark:text-subtext-dark mb-4">Ensure your Phase 1 submission (Abstract) is complete.</p>
+                <ul class="list-disc list-inside space-y-2 text-text-light dark:text-text-dark">
+                    <li>Clear Project Title</li>
+                    <li>Defined Objective and Scope</li>
+                    <li>Chosen Technology Stack</li>
+                    <li>Final Abstract (~250 words)</li>
+                </ul>
+                <p class="text-sm text-subtext-light dark:text-subtext-dark mt-4">Upload a single file (PDF or DOCX) with your abstract and plan.</p>
+            `;
+            break;
+        case 2:
+            checklistHTML = `
+                <p class="text-subtext-light dark:text-subtext-dark mb-4">Ensure your Phase 2 submission (Design) is complete.</p>
+                <ul class="list-disc list-inside space-y-2 text-text-light dark:text-text-dark">
+                    <li>Module Identification</li>
+                    <li>Database Schema (Tables & Fields)</li>
+                    <li>Entity Relationship (ER) Diagram</li>
+                    <li>Data Flow Diagrams (DFDs)</li>
+                    <li>UI/UX Wireframes (Optional but good)</li>
+                </ul>
+                <p class="text-sm text-subtext-light dark:text-subtext-dark mt-4">Upload your design document, diagram images, and database schema.</p>
+            `;
+            break;
+        case 3:
+            checklistHTML = `
+                <p class="text-subtext-light dark:text-subtext-dark mb-4">Ensure your Phase 3 submission (Development) is complete.</p>
+                <ul class="list-disc list-inside space-y-2 text-text-light dark:text-text-dark">
+                    <li>Project Source Code (GitHub link)</li>
+                    <li>Working Prototype (Hosted link if available)</li>
+                    <li>Database File (.sql backup)</li>
+                    <li>A simple "README.md" on how to run the project.</li>
+                </ul>
+                <p class="text-sm text-subtext-light dark:text-subtext-dark mt-4">Upload a ZIP of your code OR a link to your GitHub repository.</p>
+            `;
+            break;
+        case 4:
+            checklistHTML = `
+                <p class="text-subtext-light dark:text-subtext-dark mb-4">Ensure your Phase 4 submission (Report) is complete.</p>
+                <ul class="list-disc list-inside space-y-2 text-text-light dark:text-text-dark">
+                    <li>Final Project Report (PDF)</li>
+                    <li>Presentation Slides (PPT)</li>
+                    <li>Final Source Code (ZIP or GitHub link)</li>
+                </ul>
+                <p class="text-sm text-subtext-light dark:text-subtext-dark mt-4">Upload your final report and presentation files.</p>
+            `;
+            break;
+        default:
+            checklistHTML = `<p class="text-red-500">Error: Invalid phase selected.</p>`;
+    }
+    
+    checklistContentEl.innerHTML = checklistHTML;
+}
+
+/**
+ * Fetches and renders the list of submitted links for a phase.
+ */
+async function loadPhaseLinks(projectId, phaseOrder) {
+    const linksListEl = document.getElementById('phase-links-list');
+    try {
+        const response = await fetch(`${API_BASE_URL}/projects/${projectId}/phases/${phaseOrder}/links`, {
+            method: 'GET',
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            throw await response.json();
+        }
+
+        const links = await response.json();
+        renderPhaseLinks(links);
+    } catch (error) {
+        console.error('Error loading links:', error);
+        if (linksListEl) linksListEl.innerHTML = `<p class="text-red-500 text-sm">${error.detail || 'Could not load links.'}</p>`;
+    }
+}
+
+/**
+ * Renders the list of links into the DOM.
+ */
+function renderPhaseLinks(links) {
+    const linksListEl = document.getElementById('phase-links-list');
+    if (!linksListEl) return;
+    
+    const isTeacher = projectHubUser && projectHubUser.role === 'Teacher';
+
+    if (links.length === 0) {
+        linksListEl.innerHTML = `<p class="text-subtext-light dark:text-subtext-dark text-sm">No files have been submitted for this phase yet.</p>`;
+        return;
+    }
+
+    linksListEl.innerHTML = links.map(link => {
+        // Teacher gets a clickable link, Student sees their submission
+        const linkHTML = isTeacher 
+            ? `<a href="${link.linkUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline break-all">${link.linkUrl}</a>`
+            : `<span class="text-subtext-light dark:text-subtext-dark break-all">${link.linkUrl}</span>`;
+
+        return `
+            <div class="p-3 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
+                <p class="text-sm font-medium text-text-light dark:text-text-dark">${link.linkDescription}</p>
+                <div class="text-xs text-subtext-light dark:text-subtext-dark mt-1">
+                    <p>Submitted by: ${link.submittedByUserName}</p>
+                    <p>${formatDate(link.submittedAt)}</p>
+                </div>
+                ${linkHTML}
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Handles the submission of the "Add Link" form.
+ */
+async function handleLinkSubmit(event, projectId, phaseOrder) {
+    event.preventDefault();
+    const messageEl = document.getElementById('phase-link-message');
+    const form = event.target;
+    const button = form.querySelector('button[type="submit"]');
+    
+    const linkUrl = document.getElementById('phase-link-url').value;
+    const linkDescription = document.getElementById('phase-link-desc').value;
+
+    if (!linkUrl || !linkDescription) {
+        handleApiError({ message: "Both fields are required." }, 'phase-link-message');
+        return;
+    }
+    
+    button.disabled = true;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/projects/${projectId}/phases/${phaseOrder}/links`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ linkUrl, linkDescription })
+        });
+        
+        if (!response.ok) {
+            throw await response.json();
+        }
+
+        showSuccess('Link submitted successfully!', 'phase-link-message');
+        form.reset();
+        
+        // Refresh the links list
+        loadPhaseLinks(projectId, phaseOrder);
+
+    } catch (error) {
+        handleApiError(error, 'phase-link-message');
+    } finally {
+        button.disabled = false;
     }
 }
 

@@ -98,6 +98,12 @@ def connect_to_mongo():
         db.guide_requests.create_index("projectId")
         print("   - Ensured 'projectId' index on guide_requests collection.")
 
+        db.project_links.create_index([("projectId", ASCENDING), ("phaseOrder", ASCENDING)])
+        print("   - Ensured 'projectId + phaseOrder' compound index on project_links collection.")
+
+        db.project_links.create_index("submittedByUserId")
+        print("   - Ensured 'submittedByUserId' index on project_links collection.")
+        
         return db # Return db instance directly
     except ConnectionFailure as e:
         print(f"❌ Failed to connect to MongoDB at {MONGO_URI}: {e}")

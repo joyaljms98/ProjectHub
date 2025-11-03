@@ -235,3 +235,32 @@ class UpdateTeamMemberRequest(BaseModel):
 class SetDeadlineRequest(BaseModel):
     """Request to set/update project deadline"""
     deadline: datetime
+
+
+# ============================================
+# PROJECT LINK MODELS
+# ============================================
+
+class ProjectLinkBase(BaseModel):
+    linkUrl: str = Field(..., max_length=1000)
+    linkDescription: str = Field(..., max_length=500)
+
+class LinkCreate(ProjectLinkBase):
+    pass
+
+class ProjectLinkPublic(ProjectLinkBase):
+    id: str = Field(..., alias="_id")
+    projectId: str
+    phaseOrder: int
+    submittedByUserId: str
+    submittedByUserName: str
+    submittedAt: datetime
+
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+        arbitrary_types_allowed = True
+        json_encoders = {
+            ObjectId: str,
+            datetime: lambda dt: dt.isoformat()
+        }

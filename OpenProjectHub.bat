@@ -103,14 +103,9 @@ echo.
 echo Waiting 10 seconds for backends to start...
 timeout /t 10 /nobreak >nul
 
-set "FRONTEND_FILE=%BASE_DIR%\frontend\home.html"
-if not exist "%FRONTEND_FILE%" (
-    echo [ERROR] Frontend file not found: "%FRONTEND_FILE%"
-    pause
-    exit /b
-)
+set "FRONTEND_URL=http://127.0.0.1:8000/home.html"
 
-echo [OPEN] Opening "%FRONTEND_FILE%" in Chrome...
+echo [OPEN] Opening %FRONTEND_URL% in Chrome...
 set "CHROME_PATH="
 for %%I in (
   "C:\Program Files\Google\Chrome\Application\chrome.exe"
@@ -120,9 +115,9 @@ for %%I in (
 )
 
 if defined CHROME_PATH (
-  start "" "%CHROME_PATH%" "%FRONTEND_FILE%"
+  start "" "%CHROME_PATH%" "%FRONTEND_URL%"
 ) else (
-  start "" "%FRONTEND_FILE%"
+  start "" "%FRONTEND_URL%"
 )
 
 echo.
@@ -130,7 +125,7 @@ echo [SUCCESS] ProjectHub started successfully!
 echo --------------------------------------------
 echo RAG backend:      http://127.0.0.1:8000/
 echo FastAPI backend:  http://127.0.0.1:8001/
-echo Frontend:         "%FRONTEND_FILE%"
+echo Frontend:         %FRONTEND_URL%
 echo --------------------------------------------
 pause
 endlocal
