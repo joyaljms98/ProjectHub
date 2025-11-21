@@ -1,5 +1,5 @@
 # ProjectHub
-My CUCEK Mini Project
+Our CUCEK Mini Project
 Project repository and Campus project management system with integrated RAG Bot that can use ollama or Gemini API key to run.
 
 Download the files in the repository.
