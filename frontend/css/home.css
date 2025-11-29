@@ -1,0 +1,155 @@
+@keyframes shimmer {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 200% 50%; /* Moves 2x the width */
+    }
+}
+
+.shimmer {
+    /* Seamless looping gradient: (Blue -> Purple -> Orange -> Purple -> Blue) */
+    background-image: linear-gradient(90deg, 
+        #3b82f6, 
+        #8b5cf6, 
+        #f97316, 
+        #8b5cf6, 
+        #3b82f6
+    );
+    background-size: 200% 100%; /* Gradient is 2x the element width */
+    background-position: 0% 50%;
+}
+.shimmer:hover {
+    animation: shimmer 1.5s infinite linear; /* Your speed */
+}
+
+/* Back Button Bubble Styles */
+#back-button {
+    backdrop-filter: blur(4px); /* Fallback for older browsers */
+    -webkit-backdrop-filter: blur(4px); /* Safari */
+}
+.back-button-home {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+.back-button-home:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+.back-button-internal {
+    color: #0d171b; /* text-light */
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.back-button-internal:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Header Hide on Scroll */
+#main-header.header-hidden {
+    transform: translateY(-100%);
+}
+
+/* Animated gradient text with seamless loop */
+.animate-gradient-text {
+    /* Same seamless gradient */
+    background-image: linear-gradient(90deg, 
+        #3b82f6, 
+        #8b5cf6, 
+        #f97316, 
+        #8b5cf6, 
+        #3b82f6
+    );
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite linear; /* Your speed */
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.gradient-text {
+    background: linear-gradient(to right, #4F46E5, #9333EA, #F97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+.gradient-bg {
+    background: linear-gradient(to right, #4F46E5, #9333EA, #F97316);
+}
+
+/* Header Styles */
+#main-header {
+    transition: background-color 0.3s ease-in-out;
+}
+#main-header.header-internal {
+     background-color: #FFFFFF;
+     border-bottom: 1px solid #e7eff3;
+}
+.dark #main-header.header-internal {
+     background-color: #101c22;
+     border-bottom-color: #1a2a33;
+}
+#main-header.header-home .nav-link,
+#main-header.header-home h2 {
+    color: white;
+}
+
+/* Nav Link Base Styles */
+#main-header nav .nav-link {
+    color: #475569;
+    opacity: 0.7;
+    transition: opacity 0.2s, color 0.2s;
+}
+.dark #main-header.header-internal nav .nav-link {
+    color: #e7eff3;
+}
+#main-header nav .nav-link:hover {
+    opacity: 1;
+}
+#main-header.header-home nav .nav-link {
+    color: white;
+    opacity: 0.8;
+}
+ #main-header.header-home nav .nav-link:hover {
+    opacity: 1;
+    color: white;
+}
+
+/* Active Nav Link Styles */
+.nav-link.active {
+    color: #8B5CF6 !important;
+    opacity: 1;
+}
+#main-header.header-home .nav-link.active {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+    color: white !important;
+    opacity: 1;
+}
+#nav-login.nav-link.active,
+#nav-signup.nav-link.active {
+    background: transparent;
+    color: #8B5CF6 !important;
+    border: 1px solid #8B5CF6;
+}
+#main-header.header-home #nav-login.nav-link.active,
+#main-header.header-home #nav-signup.nav-link.active {
+     background: rgba(255, 255, 255, 0.1);
+     border-color: #fff;
+     color: #fff !important;
+}
+
+/* Fade Transition for pages */
+.page {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Blurred background header */
+#main-header.header-home {
+    background-color: rgba(0, 0, 0, 0.305);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(0px);
+    border-bottom-width: 0px;
+    border-color: rgba(0, 0, 0, 0);
+}
+#home-page footer {
+    background-color: #0000004b;
+}

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ProjectHub - Admin Dashboard</title>
+    
+    <!-- Tailwind CSS and Fonts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#111827",
+                        "accent-light": "#E0E7FF",
+                        "accent-dark": "#312E81",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "subtext-light": "#6B7280",
+                        "subtext-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Inter", "sans-serif"], 
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        lg: "1rem",
+                        xl: "1.5rem"
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                        'subtle-dark': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="css/dashboard_common.css">
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-sans">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-card-light dark:bg-card-dark p-6 flex flex-col justify-between border-r border-border-light dark:border-border-dark fixed top-0 left-0 h-screen z-20">
+        <div>
+            <div class="flex items-center gap-2 mb-10">
+                <div class="size-8">
+                    <svg class="h-full w-full" fill="url(#admin-gradient)" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="admin-gradient" x1="0%" x2="100%" y1="0%" y2="0%">
+                                <stop offset="0%" stop-color="#3b82f6"></stop>
+                                <stop offset="50%" stop-color="#8b5cf6"></stop>
+                                <stop offset="100%" stop-color="#f97316"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold text-text-light dark:text-text-dark">ProjectHub</h1>
+            </div>
+            
+            <nav class="space-y-2">
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="dashboard-page">
+                    <span class="material-icons">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="projects-page">
+                    <span class="material-icons">folder_open</span>
+                    <span>Projects</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="students-page">
+                    <span class="material-icons">school</span>
+                    <span>Students</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="teachers-page">
+                    <span class="material-icons">person</span>
+                    <span>Teachers</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="settings-page">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+        <div class="mt-auto">
+            <div class="flex items-center gap-3">
+                <img alt="Admin avatar" id="user-avatar" class="w-10 h-10 rounded-full" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" />
+                <div>
+                    <p id="user-full-name" class="font-semibold text-text-light dark:text-text-dark">Admin</p>
+                    <p id="user-role" class="text-sm text-subtext-light dark:text-subtext-dark">Administrator</p>
+                    <a id="logout-link" class="text-sm text-subtext-light dark:text-subtext-dark hover:underline" href="#">Logout</a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main data-scroll class="overflow-hidden bg-background-light dark:bg-background-dark z-10">
+        
+        <button id="hamburger-btn" class="absolute top-8 left-8 z-50 p-2 rounded-lg bg-card-light dark:bg-card-dark shadow-md text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out">
+            <span id="menu-icon" class="material-icons">menu</span>
+            <span id="close-icon" class="material-icons hidden">menu_open</span>
+        </button>
+
+        <div data-scroll-content>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page p-8 pt-24">
+                <header class="flex justify-between items-center mb-8">
+                    <div class="flex min-w-72 flex-col gap-1">
+                        <p class="text-4xl font-black leading-tight tracking-[-0.033em] bg-gradient-to-r from-blue-500 via-purple-500 to-orange-400 text-transparent bg-clip-text">Welcome, <span id="user-welcome-name">Admin</span>!</p>
+                        <p class="text-subtext-light dark:text-subtext-dark text-base font-normal leading-normal">Here's an overview of your campus activity.</p>
+                    </div>
+                    <div id="admin-dashboard-message" class="text-sm"></div>
+                </header>
+                
+                <div class="grid grid-cols-4 gap-6 mb-8">
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Projects</p>
+                        <p id="stats-total-projects" class="text-4xl font-bold text-text-light dark:text-text-dark">0</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Students</p>
+                        <p id="stats-total-students" class="text-4xl font-bold text-text-light dark:text-text-dark">0</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <p class="text-subtext-light dark:text-subtext-dark">Total Faculty Members</p>
+                        <p id="stats-total-teachers" class="text-4xl font-bold text-text-light dark:text-text-dark">0</p>
+                    </div>
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <p class="text-subtext-light dark:text-subtext-dark">API Status (Ollama)</p>
+                        <div class="flex items-center gap-2">
+                            <!-- Note: This remains static as it's set by RAG18.py, not main.py -->
+                            <p class="text-2xl font-bold text-green-500">Online</p>
+                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-8 mt-12">
+                
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-4">Project Oversight</h2>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Total Projects</p>
+                                <p id="stats-proj-total-2" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Completed Project</p>
+                                <p id="stats-proj-completed" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">In-Progress</p>
+                                <p id="stats-proj-inprogress" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Planning</p>
+                                <p id="stats-proj-planning" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button class="nav-link bg-primary text-white hover:bg-primary/90 font-bold py-2 px-4 rounded-lg text-sm transition-colors duration-200" data-target="projects-page">Edit Projects</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-4">Teachers Oversight</h2>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Total Teachers</p>
+                                <p id="stats-teach-total" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Active Teachers</p>
+                                <p id="stats-teach-active" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-teal-100 dark:bg-teal-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Guides</p>
+                                <p id="stats-teach-guides" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-yellow-100 dark:bg-yellow-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Inactive Teachers</p>
+                                <p id="stats-teach-inactive" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button class="nav-link bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-text-light dark:text-text-dark font-bold py-2 px-4 rounded-lg text-sm" data-target="add-teacher-page">Add Teachers</button>
+                            <button class="nav-link bg-primary text-white hover:bg-primary/90 font-bold py-2 px-4 rounded-lg text-sm transition-colors duration-200" data-target="teachers-page">Edit Teachers</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle dark:shadow-subtle-dark">
+                        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark mb-4">Students Oversight</h2>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            <div class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Total Students</p>
+                                <p id="stats-stud-total" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-green-100 dark:bg-green-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Active Students</p>
+                                <p id="stats-stud-active" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Solo Projects</p>
+                                <p id="stats-stud-solo" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                            <div class="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-lg shadow-sm">
+                                <p class="text-subtext-light dark:text-subtext-dark">Team Projects</p>
+                                <p id="stats-stud-team" class="text-2xl font-bold text-text-light dark:text-text-dark">0</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-4">
+                            <button class="nav-link bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-text-light dark:text-text-dark font-bold py-2 px-4 rounded-lg text-sm" data-target="add-student-page">Add Students</button>
+                            <button class="nav-link bg-primary text-white hover:bg-primary/90 font-bold py-2 px-4 rounded-lg text-sm transition-colors duration-200" data-target="students-page">Edit Students</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Page -->
+            <div id="projects-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage All Projects</h1>
+                    <div id="admin-projects-message" class="text-sm"></div>
+                </div>
+
+                <div class="relative w-full max-w-md flex items-center gap-2">
+                    <div class="relative flex-grow">
+                        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
+                        <input id="project-search-input" class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search projects (name, owner, guide, status...)" type="text" />
+                    </div>
+                    <button id="project-search-reset" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm">Reset</button>
+                </div>
+
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
+                        <tr>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'name')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Project Name</span>
+                                    <span id="sort-icon-projects-name" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'ownerName')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Owner</span>
+                                    <span id="sort-icon-projects-ownerName" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'guideName')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Guide</span>
+                                    <span id="sort-icon-projects-guideName" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'status')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Status</span>
+                                    <span id="sort-icon-projects-status" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('projects', 'deadline')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Due Date</span>
+                                    <span id="sort-icon-projects-deadline" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="project-table-body">
+                            <!-- Rows will be injected by JS -->
+                            <tr><td colspan="6" class="p-4 text-center text-subtext-light dark:text-subtext-dark">Loading projects...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Students Page -->
+            <div id="students-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage Students</h1>
+                     <div class="flex gap-3">
+                        <button class="nav-link bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary/90 transition-colors" data-target="add-student-page">
+                            <span class="material-icons" style="font-size: 20px;">add</span>
+                            Add Student
+                        </button>
+                    </div>
+                </div>
+                <div id="admin-students-message" class="text-sm mb-4"></div>
+
+                <div class="relative w-full max-w-md flex items-center gap-2">
+                    <div class="relative flex-grow">
+                        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
+                        <input id="student-search-input" class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search students (name, email, ID, dept...)" type="text" />
+                    </div>
+                    <button id="student-search-reset" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm">Reset</button>
+                </div>
+
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
+                        <tr>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'fullName')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Student Name</span>
+                                    <span id="sort-icon-students-fullName" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'email')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Email</span>
+                                    <span id="sort-icon-students-email" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'registrationNumber')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Reg. Number</span>
+                                    <span id="sort-icon-students-registrationNumber" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'department')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Department</span>
+                                    <span id="sort-icon-students-department" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('students', 'createdAt')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Join Date</span>
+                                    <span id="sort-icon-students-createdAt" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="student-table-body">
+                            <!-- Rows will be injected by JS -->
+                             <tr><td colspan="6" class="p-4 text-center text-subtext-light dark:text-subtext-dark">Loading students...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Teachers Page -->
+            <div id="teachers-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-3xl font-bold text-text-light dark:text-text-dark">Manage Teachers</h1>
+                    <div class="flex gap-3">
+                        <button class="nav-link bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary/90 transition-colors" data-target="add-teacher-page">
+                            <span class="material-icons" style="font-size: 20px;">add</span>
+                            Add Teacher
+                        </button>
+                    </div>
+                </div>
+                <div id="admin-teachers-message" class="text-sm mb-4"></div>
+
+                <div class="relative w-full max-w-md flex items-center gap-2">
+                    <div class="relative flex-grow">
+                        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-subtext-light dark:text-subtext-dark">search</span>
+                        <input id="teacher-search-input" class="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark focus:outline-none focus:ring-2 focus:ring-primary text-text-light dark:text-text-dark" placeholder="Search teachers (name, email, ID, dept...)" type="text" />
+                    </div>
+                    <button id="teacher-search-reset" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm">Reset</button>
+                </div>
+                
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-sm overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-border-light dark:border-border-dark">
+                        <tr>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'fullName')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Teacher Name</span>
+                                    <span id="sort-icon-teachers-fullName" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'email')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Email</span>
+                                    <span id="sort-icon-teachers-email" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'registrationNumber')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Reg. Number</span>
+                                    <span id="sort-icon-teachers-registrationNumber" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'department')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Department</span>
+                                    <span id="sort-icon-teachers-department" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">
+                                <button onclick="sortAdminTable('teachers', 'createdAt')" class="flex items-center gap-1 hover:text-primary">
+                                    <span>Join Date</span>
+                                    <span id="sort-icon-teachers-createdAt" class="sort-icon material-icons text-base">unfold_more</span>
+                                </button>
+                            </th>
+                            <th class="p-4 font-semibold text-subtext-light dark:text-subtext-dark">Actions</th>
+                        </tr>
+                    </thead>
+                        <tbody id="teacher-table-body">
+                            <!-- Rows will be injected by JS -->
+                             <tr><td colspan="6" class="p-4 text-center text-subtext-light dark:text-subtext-dark">Loading teachers...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Settings Page -->
+            <div id="settings-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <h1 class="text-3xl font-bold text-text-light dark:text-text-dark mb-8">Settings</h1>
+                
+                <div class="max-w-4xl mx-auto space-y-8 pb-24">
+                    <!-- Other settings cards remain unchanged -->
+                    <div class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200/80 p-8">
+                        <h2 class="text-xl font-semibold mb-6 text-gray-700 dark:text-gray-300">General Settings</h2>
+                        <p class="text-subtext-light dark:text-subtext-dark">General settings are managed elsewhere.</p>
+                    </div>
+                    
+                    <div class="bg-card-light dark:bg-card-dark rounded-2xl shadow-sm border border-gray-200/80 p-8">
+                        <h2 class="text-xl font-semibold mb-6 text-gray-700 dark:text-gray-300">Chatbot, AI & RAG Management</h2>
+                        <p class="text-subtext-light dark:text-subtext-dark">AI settings are managed from the <a href="ai_chat.html" class="text-primary underline" target="_blank">AI Chat Page</a>.</p>
+                    </div>
+                </div>
+            </div> 
+
+            <!-- Add Student Page -->
+            <div id="add-student-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <main class="flex-1 flex items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                    <div class="w-full max-w-2xl mx-auto">
+                        <div class="flex flex-col items-center mb-8">
+                            <h1 class="text-4xl font-black tracking-[-0.033em] text-center text-text-light dark:text-text-dark">
+                                Add New Student
+                            </h1>
+                        </div>
+                        <!-- Added ID to the form -->
+                        <form id="add-student-form" class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-lg space-y-6">
+                            <div id="add-student-message" class="text-sm"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="full-name-add-student">
+                                        Full Name
+                                    </label>
+                                    <input
+                                        class="form-input"
+                                        id="full-name-add-student" placeholder="Enter full name" type="text" required />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-number-add-student">
+                                        Registration Number
+                                    </label>
+                                    <input
+                                        class="form-input"
+                                        id="reg-number-add-student" placeholder="e.g., 2023-CS-123" type="text" required />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-email-add-student">
+                                        Email
+                                    </label>
+                                    <input
+                                    class="form-input"
+                                    id="reg-email-add-student" placeholder="Enter email" type="email" required />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label ...>Password</label>
+                                    <input
+                                        class="form-input"
+                                        id="reg-password-add-student" placeholder="Min 8 characters" type="password" required minlength="8" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="department-add-student">
+                                        Department
+                                    </label>
+                                    <select class="form-select" id="department-add-student" required>
+                                        <option value="" selected disabled>Select department</option>
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Electrical Engineering">Electrical Engineering</option>
+                                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                        <option value="Business Administration">Business Administration</option>
+                                    </select>
+                                </div>
+                                <!-- This is hidden but set for the form submission -->
+                                <input type="hidden" id="user-type-add-student" value="Student" />
+                                
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-question-add-student">
+                                        Security Question
+                                    </label>
+                                    <select class="form-select" id="security-question-add-student" required>
+                                        <option value="" disabled selected>Select a question...</option>
+                                        <option value="pet">What was your first pet's name?</option>
+                                        <option value="street">What street did you grow up on?</option>
+                                        <option value="mother_maiden">What is your mother's maiden name?</option>
+                                        <option value="first_car">What was the model of your first car?</option>
+                                        <option value="elementary">What was the name of your elementary school?</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex flex-col md:col-span-2">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-answer-add-student">
+                                        Security Answer
+                                    </label>
+                                    <input
+                                        class="form-input"
+                                        id="security-answer-add-student" placeholder="Your answer (will be saved in caps)" type="text" required
+                                        oninput="this.value = this.value.toUpperCase()" />
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button
+                                    type="submit"
+                                    id="add-student-submit-btn"
+                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:bg-primary/90 transition-opacity disabled:opacity-50">
+                                    <span class="truncate">
+                                        Add Student
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Add Teacher Page -->
+            <div id="add-teacher-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <main class="flex-1 flex items-center justify-center py-12 px-4 min-h-[calc(100vh-68px)]">
+                    <div class="w-full max-w-2xl mx-auto">
+                        <div class="flex flex-col items-center mb-8">
+                            <h1 class="text-4xl font-black tracking-[-0.033em] text-center text-text-light dark:text-text-dark">
+                                Add New Teacher
+                            </h1>
+                        </div>
+                         <!-- Added ID to the form -->
+                        <form id="add-teacher-form" class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-lg space-y-6">
+                            <div id="add-teacher-message" class="text-sm"></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="full-name-add-teacher">
+                                        Full Name
+                                    </label>
+                                    <input
+                                        class="form-input"
+                                        id="full-name-add-teacher" placeholder="Enter full name" type="text" required />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-number-add-teacher">
+                                        Registration Number
+                                    </label>
+                                    <input
+                                        class="form-input"
+                                        id="reg-number-add-teacher" placeholder="e.g., T-F990" type="text" required/>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-email-add-teacher">
+                                        Email
+                                    </label>
+                                    <input
+                                        class="form-input"
+                                        id="reg-email-add-teacher" placeholder="Enter email" type="email" required/>
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="reg-password-add-teacher">
+                                        Password
+                                    </label>
+                                    <input
+                                        class="form-input"
+                                        id="reg-password-add-teacher" placeholder="Min 8 characters" type="password" required minlength="8" />
+                                </div>
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="department-add-teacher">
+                                        Department
+                                    </label>
+                                    <select
+                                        class="form-select"
+                                        id="department-add-teacher" required>
+                                        <option value="" selected disabled>Select department</option>
+                                        <option value="Computer Science">Computer Science</option>
+                                        <option value="Electrical Engineering">Electrical Engineering</option>
+                                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                        <option value="Business Administration">Business Administration</option>
+                                    </select>
+                                </div>
+                                <!-- This is hidden but set for the form submission -->
+                                <input type="hidden" id="user-type-add-teacher" value="Teacher" />
+                                
+                                <div class="flex flex-col">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-question-add-teacher">
+                                        Security Question
+                                    </label>
+                                    <select
+                                        class="form-select"
+                                        id="security-question-add-teacher" required>
+                                        <option value="" disabled selected>Select a question...</option>
+                                        <option value="pet">What was your first pet's name?</option>
+                                        <option value="street">What street did you grow up on?</option>
+                                        <option value="mother_maiden">What is your mother's maiden name?</option>
+                                        <option value="first_car">What was the model of your first car?</option>
+                                        <option value="elementary">What was the name of your elementary school?</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex flex-col md:col-span-2">
+                                    <label class="text-base font-medium pb-2 text-text-light dark:text-text-dark" for="security-answer-add-teacher">
+                                        Security Answer
+                                    </label>
+                                    <input
+                                        class="form-input"
+                                        id="security-answer-add-teacher" placeholder="Your answer (will be saved in caps)" type="text" required
+                                        oninput="this.value = this.value.toUpperCase()" />
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button
+                                    type="submit"
+                                    id="add-teacher-submit-btn"
+                                    class="w-full flex min-w-[84px] max-w-[480px] mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:bg-primary/90 transition-opacity disabled:opacity-50">
+                                    <span class="truncate">
+                                        Add Teacher
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </main>
+            </div>
+        </div>    
+
+    <div id="admin-edit-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
+                <div id="modal-overlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+                
+                <div class="relative z-10 bg-card-light dark:bg-card-dark rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+                    <div class="flex items-center justify-between p-4 border-b border-border-light dark:border-border-dark">
+                        <h3 id="modal-title" class="text-xl font-bold text-text-light dark:text-text-dark">Edit Details</h3>
+                        <button id="modal-close-btn" class_="p-2 rounded-full text-subtext-light dark:text-subtext-dark hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    
+                    <div id="modal-message" class="text-sm p-4" style="display: none;"></div>
+                    
+                    <form id="modal-form-body" class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                        <p class="text-subtext-light dark:text-subtext-dark">Loading...</p>
+                    </form>
+                    
+                    <div class="flex items-center justify-end gap-4 p-4 bg-gray-50 dark:bg-card-dark/50 border-t border-border-light dark:border-border-dark">
+                        <button id="modal-cancel-btn" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium">
+                            Cancel
+                        </button>
+                        <button id="modal-save-btn" class="px-6 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 shadow-sm">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </div>    
+
+    </main>    
+    
+    </main> 
+    
+    <!-- Shared & Specific JavaScript -->
+    <script src="js/dashboard_common.js"></script>
+    <script src="js/admin_specific.js"></script>
+    
+</body>
+</html>

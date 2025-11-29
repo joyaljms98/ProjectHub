@@ -1,0 +1,1 @@
+python -m pip install -U fastapi uvicorn python-multipart google-genai langchain langchain-core langchain-chroma langchain-ollama langchain-community langchain-text-splitters langchain-google-genai unstructured python-magic ollama pypdf marked

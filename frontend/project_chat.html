@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ProjectHub - Project Chat</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#111827",
+                        "accent-light": "#E0E7FF",
+                        "accent-dark": "#312E81",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "subtext-light": "#6B7280",
+                        "subtext-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                    },
+                    fontFamily: { sans: ["Inter", "sans-serif"] },
+                },
+            },
+        };
+    </script>
+    <link rel="stylesheet" href="css/dashboard_common.css">
+    <style>
+        #chat-messages { scroll-behavior: smooth; }
+        .chat-bubble-me { background-color: #4F46E5; color: white; }
+        .chat-bubble-other { background-color: #FFFFFF; color: #1F2937; border: 1px solid #E5E7EB; }
+        .dark .chat-bubble-other { background-color: #1F2937; color: #F9FAFB; border-color: #374151; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans h-screen flex flex-col">
+
+    <header class="bg-card-light dark:bg-card-dark border-b border-border-light dark:border-border-dark p-4 flex items-center justify-between shadow-sm flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="javascript:history.back()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-text-light dark:text-text-dark">
+                <span class="material-icons-outlined">arrow_back</span>
+            </a>
+            <div>
+                <h1 id="chat-title" class="text-xl font-bold text-text-light dark:text-text-dark">Project Chat</h1>
+                <p id="chat-subtitle" class="text-sm text-subtext-light dark:text-subtext-dark">Loading...</p>
+            </div>
+        </div>
+        <div id="user-info-header" class="flex items-center gap-2">
+            <span id="user-name" class="text-sm font-medium text-text-light dark:text-text-dark">Loading...</span>
+            <div id="user-avatar" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">?</div>
+        </div>
+    </header>
+
+    <main id="chat-messages" class="flex-1 p-6 space-y-6 overflow-y-auto">
+        <p id="chat-loading" class="text-center text-subtext-light dark:text-subtext-dark">Loading messages...</p>
+    </main>
+
+    <footer class="p-4 border-t border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark flex-shrink-0">
+        <form id="chat-form" class="bg-background-light dark:bg-background-dark rounded-lg p-3 border border-border-light dark:border-border-dark flex items-center gap-3">
+            <textarea id="chat-input" class="w-full bg-transparent focus:outline-none resize-none text-base px-2 py-2 text-text-light dark:text-text-dark placeholder:text-subtext-light dark:placeholder:text-subtext-dark" placeholder="Type your message..." rows="1"></textarea>
+            <button id="send-btn" type="submit" class="bg-primary text-white p-2.5 rounded-lg shadow-md hover:bg-primary/80 transition-colors self-end" title="Send Message">
+                <span class="material-icons-outlined">send</span>
+            </button>
+        </form>
+    </footer>
+
+    <script src="js/project_chat.js"></script>
+</body>
+</html>

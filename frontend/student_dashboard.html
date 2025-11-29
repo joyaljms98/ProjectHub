@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ProjectHub - Student Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/5.0.0/imagesloaded.pkgd.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#4F46E5",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#111827",
+                        "accent-light": "#E0E7FF",
+                        "accent-dark": "#312E81",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "subtext-light": "#6B7280",
+                        "subtext-dark": "#9CA3AF",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem",
+                        lg: "1rem",
+                        xl: "1.5rem"
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)',
+                        'subtle-dark': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <link rel="stylesheet" href="css/dashboard_common.css">
+
+    <script src="js/projects.js"></script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-sans">
+
+    <aside class="w-64 bg-card-light dark:bg-card-dark p-6 flex flex-col justify-between border-r border-border-light dark:border-border-dark fixed top-0 left-0 h-screen z-20">
+        <div>
+            <div class="flex items-center gap-2 mb-10">
+                <div class="size-8">
+                    <svg class="h-full w-full" fill="url(#student-gradient)" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="student-gradient" x1="0%" x2="100%" y1="0%" y2="0%">
+                                <stop offset="0%" stop-color="#3b82f6"></stop>
+                                <stop offset="50%" stop-color="#8b5cf6"></stop>
+                                <stop offset="100%" stop-color="#f97316"></stop>
+                            </linearGradient>
+                        </defs>
+                        <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold text-text-light dark:text-text-dark">ProjectHub</h1>
+            </div>
+            
+            <nav class="space-y-2">
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="dashboard-page">
+                    <span class="material-icons">dashboard</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="projects-page">
+                    <span class="material-icons">folder_open</span>
+                    <span>Projects</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="teams-page">
+                    <span class="material-icons">groups</span>
+                    <span>My Team</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="resources-page">
+                    <span class="material-icons">auto_stories</span>
+                    <span>Resources</span>
+                </a>
+                <a class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg" href="#" data-target="settings-page">
+                    <span class="material-icons">settings</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+        <div class="mt-auto">
+            <div class="flex items-center gap-3">
+                <img alt="Alex Turner" class="w-10 h-10 rounded-full" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%D%D" />
+                <div>
+                    <p id="user-full-name" class="font-semibold text-text-light dark:text-text-dark">Alex Turner</p>
+                    <p id="user-role" class="text-sm text-subtext-light dark:text-subtext-dark">Student</p>
+                    <a class="text-sm text-subtext-light dark:text-subtext-dark hover:underline" href="#">Logout</a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main data-scroll class="overflow-hidden bg-background-light dark:bg-background-dark z-10">
+        
+        <button id="hamburger-btn" class="absolute top-8 left-8 z-50 p-2 rounded-lg bg-card-light dark:bg-card-dark shadow-md text-text-light dark:text-text-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300 ease-in-out">
+            <span id="menu-icon" class="material-icons">menu</span>
+            <span id="close-icon" class="material-icons hidden">menu_open</span>
+        </button>
+
+
+
+        <div data-scroll-content>
+
+            <div id="dashboard-page" class="page p-8 pt-24">
+                
+                <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+                    <div class="flex min-w-72 flex-col gap-1">
+                        <p class="text-4xl font-black leading-tight tracking-[-0.033em] bg-gradient-to-r from-blue-500 via-purple-500 to-orange-400 text-transparent bg-clip-text">Welcome, <span id="user-welcome-name">Alex</span>!</p>
+                        <p class="text-subtext-light dark:text-subtext-dark text-base font-normal leading-normal">Here's an overview of your campus activity.</p>
+                    </div>
+                    <button onclick="showAddProjectWizard()" class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90">
+                        <span class="material-icons-outlined">add</span>
+                        <span class="truncate">Add New Project</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Current Projects</h2>
+                            <div id="dashboard-projects-container" class="space-y-3 mb-4">
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">Loading projects...</p>
+                            </div>
+                            <button class="nav-link flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-11 px-5 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90" data-target="projects-page">
+                                <span class="truncate">Manage All Projects</span>
+                            </button>
+                        </div>
+
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Upcoming Deadlines</h2>
+                            <div id="dashboard-deadlines-container" class="space-y-3">
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">No upcoming deadlines.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                             <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                                <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Team Invitations</h2>
+                                <div id="dashboard-invitations-container" class="space-y-3">
+                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">No new invitations.</p>
+                                </div>
+                                <button class="nav-link text-sm font-medium text-primary hover:underline mt-3" data-target="teams-page">View All</button>
+                             </div>
+                             
+                             <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                                <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Guide Requests</h2>
+                                <div id="dashboard-guide-requests-container" class="space-y-3">
+                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">No new guide requests.</p>
+                                </div>
+                                <button class="nav-link text-sm font-medium text-primary hover:underline mt-3" data-target="teams-page">View All</button>
+                             </div>
+                             
+                             <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                                <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Recent Comments</h2>
+                                <div id="dashboard-comments-container" class="space-y-3">
+                                    <p class="text-sm text-subtext-light dark:text-subtext-dark">No new comments.</p>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lg:col-span-1 space-y-6">
+                        
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Calendar</h2>
+                            <div id="student-calendar-widget" class="bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark p-4">
+                                </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div id="projects-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+                        <div class="flex flex-col gap-1">
+                            <h1 class="text-4xl font-black text-text-light dark:text-text-dark tracking-[-0.033em]">My Projects</h1>
+                            <p class="text-base text-subtext-light dark:text-subtext-dark">View and manage all your projects in one place.</p>
+                        </div>
+                         <button onclick="showAddProjectWizard()" class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90">
+                            <span class="material-icons-outlined">add</span>
+                            <span class="truncate">Add New Project</span>
+                        </button>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4 mb-8">
+                        <div class="flex-1">
+                            <label class="flex flex-col min-w-40 h-12 w-full">
+                                <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+                                    <div class="text-subtext-light dark:text-subtext-dark flex border-none bg-card-light dark:bg-card-dark items-center justify-center pl-4 rounded-l-xl border border-border-light dark:border-border-dark border-r-0">
+                                        <span class="material-icons-outlined">search</span>
+                                    </div>
+                                    <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-0 border-none bg-card-light dark:bg-card-dark h-full placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 text-base font-normal border border-border-light dark:border-border-dark border-l-0" placeholder="Search projects..." value=""/>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex h-12 items-center justify-center rounded-xl bg-card-light dark:bg-card-dark p-1 md:w-auto w-full border border-border-light dark:border-border-dark">
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">All</span>
+                                <input checked="" class="invisible w-0" name="project-filter" type="radio" value="All"/>
+                            </label>
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">Active</span>
+                                <input class="invisible w-0" name="project-filter" type="radio" value="Active"/>
+                            </label>
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">Past</span>
+                                <input class="invisible w-0" name="project-filter" type="radio" value="Past"/>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="projects-error" style="display: none;"></div>
+                    <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="text-center py-8 col-span-3 text-subtext-light dark:text-subtext-dark">
+                            <p>Loading projects...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="project-detail-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                
+                <div class="mb-6 max-w-4xl mx-auto">
+                    <button class="nav-link flex items-center gap-2 text-subtext-light dark:text-subtext-dark hover:text-text-light dark:hover:text-text-dark transition-colors" data-target="projects-page">
+                        <span class="material-icons-outlined">arrow_back</span>
+                        <span>Back to Projects</span>
+                    </button>
+                </div>
+                
+                <div id="project-detail-container" class="layout-content-container flex flex-col max-w-full flex-1">
+                    <div class="p-4 @container">
+                        <div class="flex flex-col items-stretch justify-start rounded-xl bg-card-light dark:bg-card-dark shadow-subtle p-6 max-w-4xl mx-auto border border-border-light dark:border-border-dark">
+                            <div id="project-detail-message"></div>
+                            <div class="flex w-full min-w-72 grow flex-col items-stretch justify-center gap-2 mb-6">
+                                <p id="project-detail-name" class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em]">Loading Project...</p>
+                                <p id="project-detail-description" class="text-subtext-light dark:text-subtext-dark text-base font-normal leading-normal">Loading description...</p>
+                            </div>
+                            <div id="project-milestones-container" class="flex flex-col gap-4">
+                                <p class="text-subtext-light dark:text-subtext-dark">Loading milestones...</p>
+                            </div>
+                            <h4 class="text-lg font-semibold text-text-light dark:text-text-dark mt-6 mb-4">Team</h4>
+                            <div id="project-detail-team-list" class="space-y-4">
+                                <p class="text-subtext-light dark:text-subtext-dark">Loading team...</p>
+                            </div>
+
+                            <div id="project-detail-actions" class="mt-6 pt-6 border-t border-border-light dark:border-border-dark">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="add-project-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <form id="add-project-form-step1" class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle w-full max-w-4xl mx-auto border border-border-light dark:border-border-dark">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-text-light dark:text-text-dark">Create New Project</h2>
+                        <p class="text-subtext-light dark:text-subtext-dark">Follow the steps to setup your new project.</p>
+                        <div id="project-form-message" class="mt-4"></div>
+                    </div>
+                    <div class="flex items-center mb-8">
+                        <div class="flex items-center text-primary relative">
+                            <div class="rounded-full transition duration-500 ease-in-out h-10 w-10 border-2 border-primary bg-primary flex items-center justify-center">
+                                <span class="text-white font-bold">1</span>
+                            </div>
+                            <div class="absolute top-0 -ml-10 text-center mt-12 w-32 text-xs font-medium uppercase text-primary">Details</div>
+                        </div>
+                        <div class="flex-auto border-t-2 transition duration-500 ease-in-out border-border-light dark:border-border-dark"></div>
+                        <div class="flex items-center text-gray-500 relative">
+                            <div class="rounded-full transition duration-500 ease-in-out h-10 w-10 border-2 border-border-light dark:border-border-dark flex items-center justify-center">
+                                <span class="font-bold">2</span>
+                            </div>
+                            <div class="absolute top-0 -ml-10 text-center mt-12 w-32 text-xs font-medium uppercase text-subtext-light dark:text-subtext-dark">Team</div>
+                        </div>
+                        <div class="flex-auto border-t-2 transition duration-500 ease-in-out border-border-light dark:border-border-dark"></div>
+                        <div class="flex items-center text-gray-500 relative">
+                            <div class="rounded-full transition duration-500 ease-in-out h-10 w-10 border-2 border-border-light dark:border-border-dark flex items-center justify-center">
+                                <span class="font-bold">3</span>
+                            </div>
+                            <div class="absolute top-0 -ml-10 text-center mt-12 w-32 text-xs font-medium uppercase text-subtext-light dark:text-subtext-dark">Guide</div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-sm font-medium text-text-light dark:text-text-dark" for="project-name">Project Name</label>
+                            <input required minlength="3" maxlength="200" class="mt-1 form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary border border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 h-12 placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 text-base font-normal" id="project-name" placeholder="e.g., Quantum Computing Simulation" type="text"/>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-text-light dark:text-text-dark" for="project-description">Project Description</label>
+                            <textarea required minlength="10" maxlength="2000" class="mt-1 form-textarea flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary border border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 placeholder:text-subtext-light dark:placeholder:text-subtext-dark p-4 text-base font-normal" id="project-description" placeholder="Briefly describe your project..." rows="4"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-text-light dark:text-text-dark" for="course-code">Course Code (Optional)</label>
+                            <input class="mt-1 form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary border border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 h-12 placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 text-base font-normal" id="course-code" placeholder="e.g., COMP 401" type="text"/>
+                        </div>
+                    </div>
+                    <div class="mt-8 flex justify-end gap-4">
+                        <button type="button" class="nav-link flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600" data-target="projects-page">
+                            <span class="truncate">Cancel</span>
+                        </button>
+                        <button type="submit" class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90">
+                            <span class="truncate">Next</span>
+                            <span class="material-icons-outlined">arrow_forward</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="add-project-step2-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <p class="text-center text-subtext-light dark:text-subtext-dark">Loading team setup...</p>
+            </div>
+            
+            <div id="add-project-step3-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <p class="text-center text-subtext-light dark:text-subtext-dark">Loading guide setup...</p>
+            </div>
+
+
+            <div id="teams-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+                        <div>
+                            <p class="text-text-light dark:text-text-dark text-4xl font-black tracking-[-0.033em]">My Team & Invitations</p>
+                            <p class="text-base text-subtext-light dark:text-subtext-dark mt-1">View and manage all your team and guides in one place.</p>
+                            <div id="teams-page-message" class="mt-4"></div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button class="nav-link flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200" data-target="chat-page">
+                                <span class="material-icons-outlined" style="font-size: 20px;">chat</span>
+                                <span class="truncate ml-2">Chats</span>
+                            </button>
+                            <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors duration-200">
+                                <span class="truncate">Create New Team</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-text-light dark:text-text-dark text-[22px] font-bold tracking-[-0.015em] px-4 pb-3 pt-5">Active Teams</h2>
+                    
+                    <div class="flex flex-col md:flex-row gap-4 mb-8 px-4">
+                        <div class="flex-1">
+                            <label class="flex flex-col min-w-40 h-12 w-full">
+                                <div class="flex w-full flex-1 items-stretch rounded-xl h-full">
+                                    <div class="text-subtext-light dark:text-subtext-dark flex border-none bg-card-light dark:bg-card-dark items-center justify-center pl-4 rounded-l-xl border border-border-light dark:border-border-dark border-r-0">
+                                        <span class="material-icons-outlined">search</span>
+                                    </div>
+                                    <input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-xl text-text-light dark:text-text-dark focus:outline-0 focus:ring-0 border-none bg-card-light dark:bg-card-dark h-full placeholder:text-subtext-light dark:placeholder:text-subtext-dark px-4 text-base font-normal border border-border-light dark:border-border-dark border-l-0" placeholder="Search teams..." value=""/>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex h-12 items-center justify-center rounded-xl bg-card-light dark:bg-card-dark p-1 md:w-auto w-full border border-border-light dark:border-border-dark">
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">All</span>
+                                <input checked="" class="invisible w-0" name="team-filter" type="radio" value="All"/>
+                            </label>
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">Active</span>
+                                <input class="invisible w-0" name="team-filter" type="radio" value="Active"/>
+                            </label>
+                            <label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-4 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-primary text-subtext-light dark:text-subtext-dark text-sm font-medium">
+                                <span class="truncate">Past</span>
+                                <input class="invisible w-0" name="team-filter" type="radio" value="Past"/>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="active-teams-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+                        <p class="text-subtext-light dark:text-subtext-dark col-span-3">Loading active teams...</p>
+                    </div>
+                    
+                    <h2 class="text-text-light dark:text-text-dark text-[22px] font-bold tracking-[-0.015em] px-4 pb-3 pt-10">Pending Invitations</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4">
+
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark lg:col-span-1">
+                            <h3 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Project Invitations</h3>
+                            <div id="team-invitations-container" class="space-y-3">
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">Loading invitations...</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark lg:col-span-1">
+                            <h3 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Guide Requests</h3>
+                            <div id="guide-invitations-container" class="space-y-3">
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">Loading guide requests...</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark lg:col-span-2">
+                            <h3 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Sent Invitations</h3>
+                            <div id="sent-invitations-container" class="space-y-3">
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark">Loading sent invitations...</p>
+                            </div>
+                        </div>
+
+                    </div> </div>
+            </div>
+
+            <div id="resources-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+                        <div class="flex flex-col gap-1">
+                            <h1 class="text-4xl font-black text-text-light dark:text-text-dark tracking-[-0.033em]">Project Guides</h1>
+                            <p class="text-base text-subtext-light dark:text-subtext-dark">Official guides and templates for your project phases.</p>
+                        </div>
+                    </div>
+
+                    <div id="resources-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <p class="text-subtext-light dark:text-subtext-dark col-span-3">Loading resources...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                 <div class="max-w-4xl mx-auto">
+                    <div class="mb-12">
+                        <h1 class="text-4xl font-black tracking-tight text-text-light dark:text-text-dark">Student Settings</h1>
+                        <p class="text-subtext-light dark:text-subtext-dark mt-2">Manage your account settings and preferences.</p>
+                    </div>
+                    <div id="settings-message" class="mb-6"></div>
+                    
+                    <div class="space-y-12">
+                        <form id="settings-personal-form">
+                            <section class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                                <h2 class="text-2xl font-bold text-text-light dark:text-text-dark tracking-tight">Personal Information</h2>
+                                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                                    
+                                    <div class="flex flex-col gap-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-16 w-16" data-alt="Alex Turner's profile picture" style='background-image: url("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1887&auto=format&fit-crop&ixlib-rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");'></div>
+                                            <div>
+                                                <label class="cursor-not-allowed rounded-lg bg-gray-100 dark:bg-gray-700/50 px-4 py-2 text-sm font-medium text-text-light dark:text-text-dark opacity-50" for="file-upload-student">Upload (Soon)</label>
+                                                <input class="sr-only" id="file-upload-student" name="file-upload-student" type="file" disabled/>
+                                                <p class="text-xs text-subtext-light dark:text-subtext-dark mt-2">At least 300x300px, PNG or JPG.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex flex-col">
+                                            <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="setting-full-name">Full Name</label>
+                                            <input class="form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" id="setting-full-name" type="text" value="Loading..."/>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-6">
+                                        <div class="flex flex-col">
+                                            <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="setting-reg-id">Registration ID</label>
+                                            <input class="form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" id="setting-reg-id" type="text" value="Loading..."/>
+                                        </div>
+                                        
+                                        <div class="flex flex-col">
+                                            <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="setting-department">Department</label>
+                                            <select class="form-select w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" id="setting-department">
+                                                <option value="" disabled>Select department</option>
+                                                <option value="Computer Science">Computer Science</option>
+                                                <option value="Electrical Engineering">Electrical Engineering</option>
+                                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                                <option value="Business Administration">Business Administration</option>
+                                            </select>
+                                        </div>
+                                        </div>
+                                </div>
+                            </section>
+                        </form> <section class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-2xl font-bold text-text-light dark:text-text-dark tracking-tight">Account & Security</h2>
+                            <div class="mt-6 space-y-6">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-text-light dark:text-text-dark">Email Address</p>
+                                        <p id="setting-email" class="text-sm text-subtext-light dark:text-subtext-dark">Loading...</p>
+                                    </div>
+                                    <button id="setting-change-email-btn" class="px-4 py-2 bg-gray-100 dark:bg-gray-700/50 text-text-light dark:text-text-dark text-sm font-medium rounded-lg opacity-50 cursor-not-allowed" disabled title="Feature coming soon">Change Email</button>
+                                </div>
+                                <div class="border-t border-border-light dark:border-border-dark/50"></div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-medium text-text-light dark:text-text-dark">Password</p>
+                                        <p class="text-sm text-subtext-light dark:text-subtext-dark">Last changed on Mar 10, 2024</p> </div>
+                                    <button id="setting-change-password-btn" class="px-4 py-2 bg-gray-100 dark:bg-gray-700/50 text-text-light dark:text-text-dark text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">Change Password</button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm font-medium text-text-light dark:text-text-dark">Ready to save your changes?</p>
+                                <div class="flex gap-3">
+                                    <button id="settings-discard-btn" type="button" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-text-light dark:text-text-dark">
+                                        Discard
+                                    </button>
+                                    <button id="settings-save-btn" type="submit" form="settings-personal-form" class="px-6 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary/90">
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </section>
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div id="chat-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+            </div>
+
+            <div id="phase-detail-page" class="page p-8 pt-24 hidden" style="opacity: 0;">
+                <div class="max-w-4xl mx-auto">
+                    <div class="mb-6">
+                        <button onclick="goBackToProjectDetail()" class="flex items-center gap-2 text-subtext-light dark:text-subtext-dark hover:text-text-light dark:hover:text-text-dark transition-colors">
+                            <span class="material-icons-outlined">arrow_back</span>
+                            <span>Back to Project Details</span>
+                        </button>
+                    </div>
+
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h1 id="phase-detail-title" class="text-4xl font-black text-text-light dark:text-text-dark tracking-[-0.033em]">Loading Phase...</h1>
+                            <p class="text-base text-subtext-light dark:text-subtext-dark">Official guide and file submissions for this phase.</p>
+                        </div>
+                        <button id="phase-chat-button" class="flex items-center justify-center gap-2 min-w-[84px] cursor-pointer rounded-xl h-12 px-6 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90">
+                            <span class="material-icons-outlined">chat</span>
+                            <span class="truncate">Open Chat</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                            <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Phase Checklist</h2>
+                            <div id="phase-checklist-content" class="space-y-3">
+                                <p class="text-subtext-light dark:text-subtext-dark">Loading checklist...</p>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-1 space-y-6">
+                            <div id="phase-link-form-container" class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                                <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Submit a Link</h2>
+                                <form id="phase-link-form">
+                                    <div id="phase-link-message"></div>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="text-sm font-medium text-text-light dark:text-text-dark" for="phase-link-url">File Link (Google Drive, etc.)</label>
+                                            <input required class="mt-1 form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50" id="phase-link-url" placeholder="https://..." type="url"/>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium text-text-light dark:text-text-dark" for="phase-link-desc">Description</label>
+                                            <textarea required class="mt-1 form-textarea w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50" id="phase-link-desc" placeholder="e.g., 'Final Report PDF'" rows="2"></textarea>
+                                        </div>
+                                        <button type="submit" class="w-full flex items-center justify-center gap-2 cursor-pointer rounded-xl h-11 px-5 bg-primary text-white text-sm font-medium shadow-sm hover:bg-primary/90">
+                                            <span class="material-icons-outlined text-base">add_link</span>
+                                            <span>Submit Link</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-subtle border border-border-light dark:border-border-dark">
+                                <h2 class="text-xl font-bold text-text-light dark:text-text-dark mb-4">Submitted Files</h2>
+                                <div id="phase-links-list" class="space-y-3">
+                                    <p class="text-subtext-light dark:text-subtext-dark text-sm">Loading links...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        
+        <a href="http://127.0.0.1:8000/ai_chat.html" target="_blank" id="floating-chat-btn" class="fixed bottom-8 right-8 z-30 flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-primary shadow-lg transition-transform duration-300 ease-in-out hover:scale-110">
+            <span class="material-icons-outlined text-white text-3xl">smart_toy</span>
+        </a>
+
+        <button id="floating-sticky-note-btn">
+            <span class="material-icons-outlined text-white text-3xl">note_alt</span>
+        </button>
+        </main> 
+
+    <div id="sticky-note-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
+        <div id="sticky-note-overlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div class="relative z-10 bg-yellow-50 dark:bg-yellow-900/50 rounded-lg shadow-xl w-full max-w-md border border-yellow-300 dark:border-yellow-700">
+            <div class="p-4 flex flex-col">
+                <h3 class="text-lg font-bold text-yellow-900 dark:text-yellow-200 mb-2 flex items-center gap-2">
+                    <span class="material-icons-outlined">note_alt</span>
+                    My Sticky Note
+                </h3>
+                <textarea id="sticky-note-textarea" class="w-full h-64 p-3 rounded-lg border border-yellow-300 dark:border-yellow-700 bg-white dark:bg-card-dark text-text-light dark:text-text-dark focus:ring-primary focus:border-primary" placeholder="Jot down a quick note..."></textarea>
+                <div id="sticky-note-message" class="text-sm font-medium text-green-700 h-4 mt-2"></div>
+                <div class="flex justify-end gap-3 mt-3">
+                    <button id="sticky-note-clear" class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-text-light dark:text-text-dark">
+                        Clear
+                    </button>
+                    <button id="sticky-note-save" class="px-5 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary/90">
+                        Save
+                    </button>
+                    <button id="sticky-note-close" class="p-2 rounded-full absolute top-2 right-2 text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="password-change-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
+            <div id="password-modal-overlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+            
+            <form id="password-change-form" class="relative z-10 bg-card-light dark:bg-card-dark rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+                <div class="flex items-center justify-between p-4 border-b border-border-light dark:border-border-dark">
+                    <h3 class="text-xl font-bold text-text-light dark:text-text-dark">Change Password</h3>
+                    <button id="password-modal-close-btn" type="button" class="p-2 rounded-full text-subtext-light dark:text-subtext-dark hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                
+                <div id="password-modal-message" class="text-sm p-4 m-6 hidden"></div>
+                
+                <div class="p-6 space-y-4">
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="setting-security-question">Security Question</label>
+                        <select class="form-select w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50" id="setting-security-question" required>
+                            <option value="" disabled selected>Select your question...</option>
+                            <option value="pet">What was your first pet's name?</option>
+                            <option value="street">What street did you grow up on?</option>
+                            <option value="mother_maiden">What is your mother's maiden name?</option>
+                            <option value="first_car">What was the model of your first car?</option>
+                            <option value="elementary">What was the name of your elementary school?</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="setting-security-answer">Security Answer</label>
+                        <input class="form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50" id="setting-security-answer" type="text" placeholder="Your answer (case-insensitive)" required oninput="this.value = this.value.toUpperCase()" />
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-text-light dark:text-text-dark mb-2" for="setting-new-password">New Password</label>
+                        <input class="form-input w-full rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50" id="setting-new-password" type="password" placeholder="Min. 8 characters" required minlength="8" />
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-end gap-4 p-4 bg-gray-50 dark:bg-card-dark/50 border-t border-border-light dark:border-border-dark">
+                    <button id="password-modal-cancel-btn" type="button" class="px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-card-light dark:bg-card-dark text-subtext-light dark:text-subtext-dark hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium">
+                        Cancel
+                    </button>
+                    <button id="password-modal-save-btn" type="submit" class="px-6 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 shadow-sm">
+                        Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main> 
+
+    <div id="resource-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
+                <div id="resource-modal-overlay" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+                
+                <div class="relative z-10 bg-card-light dark:bg-card-dark rounded-xl shadow-xl w-full max-w-4xl overflow-hidden flex flex-col" style="max-height: 90vh;">
+                    <div class="flex items-center justify-between p-4 border-b border-border-light dark:border-border-dark flex-shrink-0">
+                        <h3 id="resource-modal-title" class="text-xl font-bold text-text-light dark:text-text-dark">Loading...</h3>
+                        <button id="resource-modal-close-btn" class="p-2 rounded-full text-subtext-light dark:text-subtext-dark hover:bg-gray-100 dark:hover:bg-gray-700">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    
+                    <div id="resource-modal-body" class="p-6 overflow-y-auto">
+                        </div>
+                </div>
+            </div>
+    
+    <script src="js/dashboard_common.js"></script>
+    
+    <script>
+        // --- ALL THE NEW RESOURCE CODE GOES HERE ---
+        const resourceModal = document.getElementById('resource-modal');
+        const resourceModalTitle = document.getElementById('resource-modal-title');
+        const resourceModalBody = document.getElementById('resource-modal-body');
+        const resourceModalCloseBtn = document.getElementById('resource-modal-close-btn');
+        const resourceModalOverlay = document.getElementById('resource-modal-overlay');
+
+        /**
+         * Fetches the list of resource files and renders them as cards.
+         */
+        async function loadResources() {
+            const grid = document.getElementById('resources-grid');
+            if (!grid) return;
+
+            try {
+                // This calls the new API endpoint in RAG18.py
+                const response = await fetch('/api/resources');
+                if (!response.ok) throw new Error('Failed to fetch resources list.');
+                
+                const data = await response.json();
+                const files = data.files;
+
+                if (files.length === 0) {
+                    grid.innerHTML = `<p class="text-subtext-light dark:text-subtext-dark col-span-3">No resource guides found.</p>`;
+                    return;
+                }
+
+                grid.innerHTML = files.map(fileName => {
+                    // Clean up the name for display
+                    const displayName = fileName.replace('.txt', '').replace(/-/g, ' ');
+                    
+                    // Simple icons based on name
+                    let icon = 'description';
+                    if (displayName.includes('1')) icon = 'filter_1';
+                    if (displayName.includes('2')) icon = 'filter_2';
+                    if (displayName.includes('3')) icon = 'filter_3';
+                    if (displayName.includes('4')) icon = 'filter_4';
+
+                    return `
+                        <div onclick="viewResource('${fileName}')" class="flex flex-col justify-between p-6 bg-card-light dark:bg-card-dark rounded-xl shadow-subtle hover:shadow-lg transition-shadow duration-300 border border-border-light dark:border-border-dark cursor-pointer">
+                            <div>
+                                <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                                    <span class="material-icons-outlined text-primary text-3xl">${icon}</span>
+                                </div>
+                                <h3 class="text-lg font-bold text-text-light dark:text-text-dark">${displayName}</h3>
+                                <p class="text-sm text-subtext-light dark:text-subtext-dark mt-1">Official guide and template for this project phase.</p>
+                            </div>
+                            <span class="text-primary font-medium text-sm mt-4">View Guide →</span>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading resources:', error);
+                grid.innerHTML = `<p class="text-red-500 col-span-3">Could not load resources. ${error.message}</p>`;
+            }
+        }
+
+
+
+        /**
+         * Fetches a specific resource file, renders it as Markdown, and shows the modal.
+         * @param {string} fileName - The name of the file to fetch (e.g., "Phase 1.txt")
+         */
+        async function viewResource(fileName) {
+            if (!resourceModal) return;
+
+            resourceModalTitle.textContent = 'Loading...';
+            resourceModalBody.innerHTML = '<p>Loading content...</p>';
+            resourceModal.classList.remove('hidden');
+
+            try {
+                // Fetch from the static path (served by RAG18.py's frontend mount)
+                const response = await fetch(`README Guide/${fileName}`);
+                if (!response.ok) throw new Error('File not found.');
+                
+                const text = await response.text();
+
+                // Use marked.js (added in Step 1) to parse Markdown
+                // Add Tailwind's 'prose' classes for nice formatting
+                resourceModalBody.innerHTML = `
+                    <div class="prose prose-lg dark:prose-invert max-w-none">
+                        ${marked.parse(text)}
+                    </div>
+                `;
+                resourceModalTitle.textContent = fileName.replace('.txt', '').replace(/-/g, ' ');
+
+            } catch (error) {
+                console.error('Error viewing resource:', error);
+                resourceModalBody.innerHTML = `<p class="text-red-500">Could not load file content.</p>`;
+            }
+        }
+
+        // --- Modal Close Listeners ---
+        if (resourceModalCloseBtn) {
+            resourceModalCloseBtn.onclick = () => resourceModal.classList.add('hidden');
+        }
+        if (resourceModalOverlay) {
+            resourceModalOverlay.onclick = () => resourceModal.classList.add('hidden');
+        }
+        // --- END OF NEW RESOURCE CODE ---
+
+
+        // Initialize project management system on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check if user is authenticated
+            const token = localStorage.getItem('accessToken');
+            if (!token) {
+                window.location.href = 'home.html'; // Redirect to home/login
+                return;
+            }
+
+            await populateUserInfo(); 
+
+            // Setup button listeners (like "Add Project")
+            setupProjectEventListeners();
+
+            // --- Define a function for dashboard-specific data ---
+        async function refreshStudentDashboard() {
+            // Load projects first, as other widgets depend on it
+            await loadUserProjects(); 
+
+            // Now load other widgets
+            loadTeamInvitations(); // This renders its own dashboard widget
+
+            // Fetch guide requests AND render the dashboard widget
+            const guideRequests = await loadGuideRequests('received');
+            renderDashboardGuideRequests(guideRequests || []); // <--- THIS IS THE FIX
+
+            // Call the other new widget renderers
+            renderDashboardUpcomingDeadlines(userProjects);
+            loadDashboardTeacherComments(); // This function is async and fetches chat data
+        }
+
+        // --- Load all data on initial load ---
+        await refreshStudentDashboard(); 
+        loadSentInvitations();
+        loadResources();
+
+        // --- HOOK UP ALL MODALS AND SETTINGS ---
+        setupStudentSettings();
+
+        // --- Setup 10-second refresh for the dashboard ---
+        setInterval(async () => {
+            await refreshStudentDashboard();
+            // No need to call refreshGuideRequests separately anymore
+        }, 10000); // Refresh every 10 seconds
+
+            // Logout handler
+            const logoutLinks = document.querySelectorAll('a[href="#"]');
+            logoutLinks.forEach(link => {
+                if (link.textContent.trim() === 'Logout') {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        localStorage.removeItem('accessToken');
+                        window.location.href = 'home.html';
+                    });
+                }
+            });
+        });
+
+        // --- ADD ALL OF THESE NEW FUNCTIONS ---
+
+        function setupStudentSettings() {
+            // --- Populate Fields ---
+            if (projectHubUser) {
+                document.getElementById('setting-full-name').value = projectHubUser.fullName || '';
+                document.getElementById('setting-reg-id').value = projectHubUser.registrationNumber || '';
+                document.getElementById('setting-department').value = projectHubUser.department || '';
+                document.getElementById('setting-email').textContent = projectHubUser.email || '';
+                // Pre-fill security question
+                const secQ = document.getElementById('setting-security-question');
+                if (secQ && projectHubUser.securityQuestion) {
+                    secQ.value = projectHubUser.securityQuestion;
+                }
+            }
+            
+            // --- General Save/Discard ---
+            const saveBtn = document.getElementById('settings-save-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', savePersonalSettings);
+            }
+            const discardBtn = document.getElementById('settings-discard-btn');
+            if (discardBtn) {
+                discardBtn.addEventListener('click', () => {
+                    // Just re-populate with the original data
+                    if (projectHubUser) {
+                         document.getElementById('setting-full-name').value = projectHubUser.fullName || '';
+                         document.getElementById('setting-reg-id').value = projectHubUser.registrationNumber || '';
+                         document.getElementById('setting-department').value = projectHubUser.department || '';
+                    }
+                    showSettingsMessage('Changes discarded.', false);
+                });
+            }
+
+            // --- Password Change Modal ---
+            const passModal = document.getElementById('password-change-modal');
+            if(passModal) {
+                document.getElementById('setting-change-password-btn').addEventListener('click', () => passModal.classList.remove('hidden'));
+                document.getElementById('password-modal-close-btn').addEventListener('click', () => passModal.classList.add('hidden'));
+                document.getElementById('password-modal-cancel-btn').addEventListener('click', () => passModal.classList.add('hidden'));
+                document.getElementById('password-modal-overlay').addEventListener('click', () => passModal.classList.add('hidden'));
+                document.getElementById('password-change-form').addEventListener('submit', handleChangePassword);
+            }
+        }
+        
+        function showSettingsMessage(message, isError = false) {
+            const el = document.getElementById('settings-message');
+            if (!el) return;
+            el.innerHTML = `<div class="p-3 rounded-lg ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">${message}</div>`;
+        }
+        
+        async function savePersonalSettings(event) {
+            event.preventDefault();
+            showSettingsMessage('Saving personal info...', false);
+            
+            const data = {
+                fullName: document.getElementById('setting-full-name').value,
+                registrationNumber: document.getElementById('setting-reg-id').value,
+                department: document.getElementById('setting-department').value,
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/me`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw await response.json();
+                
+                const updatedUser = await response.json();
+                projectHubUser = updatedUser; // Update global user object
+                showSettingsMessage('Personal information saved successfully!', false);
+                
+                // Repopulate user info in sidebar
+                if (document.getElementById('user-full-name')) {
+                    document.getElementById('user-full-name').textContent = updatedUser.fullName;
+                }
+
+            } catch (error) {
+                showSettingsMessage(error.detail || 'Failed to save.', true);
+            }
+        }
+        
+        async function handleChangePassword(event) {
+            event.preventDefault();
+            const msgEl = document.getElementById('password-modal-message');
+            const saveBtn = document.getElementById('password-modal-save-btn');
+            
+            const data = {
+                securityQuestion: document.getElementById('setting-security-question').value,
+                securityAnswer: document.getElementById('setting-security-answer').value,
+                newPassword: document.getElementById('setting-new-password').value,
+            };
+            
+            if (!data.securityQuestion || !data.securityAnswer || !data.newPassword) {
+                msgEl.textContent = "All fields are required.";
+                msgEl.className = "text-sm p-4 m-6 bg-red-100 text-red-700";
+                msgEl.classList.remove('hidden');
+                return;
+            }
+            
+            saveBtn.disabled = true;
+            msgEl.textContent = 'Changing password...';
+            msgEl.className = "text-sm p-4 m-6 bg-blue-100 text-blue-700";
+            msgEl.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/me/change-password`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw await response.json();
+                
+                msgEl.textContent = 'Password changed successfully!';
+                msgEl.className = "text-sm p-4 m-6 bg-green-100 text-green-700";
+                
+                setTimeout(() => {
+                    document.getElementById('password-change-modal').classList.add('hidden');
+                    msgEl.classList.add('hidden');
+                    document.getElementById('password-change-form').reset();
+                    // Re-fill security question
+                    if (projectHubUser && projectHubUser.securityQuestion) {
+                        document.getElementById('setting-security-question').value = projectHubUser.securityQuestion;
+                    }
+                }, 2000);
+
+            } catch (error) {
+                msgEl.textContent = error.detail || 'Failed to change password.';
+                msgEl.className = "text-sm p-4 m-6 bg-red-100 text-red-700";
+            } finally {
+                saveBtn.disabled = false;
+            }
+        }
+
+    </script>
+
+</body>
+</html>

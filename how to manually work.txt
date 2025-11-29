@@ -1,0 +1,53 @@
+# Start ollama,
+# will be on http://127.0.0.1:11434/
+
+
+# start mongodb server by opening community server and connecting to the default url
+# MONGO_URI=mongodb://127.0.0.1:27017/
+
+
+
+# start cmd in python folder and type - 
+
+python "Rag 18.py"
+
+
+
+
+# open another cmd in backend folder
+
+# Run this once:
+python -m venv venv
+
+# Run this every time you test: 
+.\venv\Scripts\activate
+
+pip install -r requirements.txt
+
+
+
+# to connect use this in the cmd at backend folder
+uvicorn main:app --host 127.0.0.1 --port 8001 --reload
+
+
+
+# from ProjectHub4 - Copy (parent of frontend)
+python -m http.server 5500
+
+http://127.0.0.1:5500/frontend/home.html
+
+
+
+
+
+For AI chat, take the url : http://127.0.0.1:8000/ai_chat.html
+
+optional on format or new developer laptop setup.
+
+pip install -r requirements.txt
+
+pip uninstall bcrypt passlib -y
+install py-bcrypt
+pip uninstall py-bcrypt
+pip install bcrypt
+
