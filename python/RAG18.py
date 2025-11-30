@@ -174,23 +174,17 @@ class GeminiProvider(LLMProvider):
 
     def initialize(self):
         print("🔄 Initializing Gemini...")
-        try:
-            # Client and Embeddings initialized within GeminiEmbeddings now
-            self.embeddings = GeminiEmbeddings(api_key=self.api_key)
-            self.client = self.embeddings.client # Reuse the client
+        # Client and Embeddings initialized within GeminiEmbeddings now
+        self.embeddings = GeminiEmbeddings(api_key=self.api_key)
+        self.client = self.embeddings.client # Reuse the client
 
-            # Warm up test using the reused client
-            response = self.client.models.generate_content(
-                model=self.model_name,
-                contents="Hi"
-            )
-            print(f"✅ Gemini ready! (Using model: {self.model_name})")
-            return True
-        except Exception as e:
-            print(f"❌ Gemini initialization failed: {e}")
-            import traceback
-            traceback.print_exc() # Print detailed error
-            return False
+        # Warm up test using the reused client
+        response = self.client.models.generate_content(
+            model=self.model_name,
+            contents="Hi"
+        )
+        print(f"✅ Gemini ready! (Using model: {self.model_name})")
+        return True
 
     async def chat_stream(self, prompt):
         """
@@ -239,29 +233,23 @@ class OllamaProvider(LLMProvider):
         print("🔄 Initializing Ollama...")
         # Ensure Ollama libs are loaded
         if 'ChatOllama' not in globals() or 'OllamaEmbeddings' not in globals():
-             print("❌ Ollama libraries not loaded.")
-             return False
-        try:
-            print(f"   LLM Model: {self.model_name}")
-            print(f"   Embedding Model: {self.embedding_model}")
-            print(f"   Base URL: {self.base_url}")
+             raise ImportError("Ollama libraries not loaded.")
+        
+        print(f"   LLM Model: {self.model_name}")
+        print(f"   Embedding Model: {self.embedding_model}")
+        print(f"   Base URL: {self.base_url}")
 
-            self.llm = ChatOllama(model=self.model_name, base_url=self.base_url)
-            self.embeddings = OllamaEmbeddings(
-                model=self.embedding_model,
-                base_url=self.base_url
-            )
+        self.llm = ChatOllama(model=self.model_name, base_url=self.base_url)
+        self.embeddings = OllamaEmbeddings(
+            model=self.embedding_model,
+            base_url=self.base_url
+        )
 
-            # Warm up LLM
-            print("   Warming up LLM...")
-            _ = self.llm.invoke("Hi")
-            print("✅ Ollama LLM and Embeddings ready!")
-            return True
-        except Exception as e:
-            print(f"❌ Ollama initialization failed: {e}")
-            import traceback
-            traceback.print_exc()
-            return False
+        # Warm up LLM
+        print("   Warming up LLM...")
+        _ = self.llm.invoke("Hi")
+        print("✅ Ollama LLM and Embeddings ready!")
+        return True
 
     def get_vectorstore_dir(self, base_path):
         """Returns the specific vectorstore path for this embedding model"""
@@ -369,8 +357,7 @@ class RAGSystem:
                     raise ValueError("Gemini API key is missing in config.")
 
                 temp_provider = GeminiProvider(api_key, model_name=model)
-                if not temp_provider.initialize():
-                    raise Exception("Gemini provider failed to initialize.")
+                temp_provider.initialize()
 
                 # Gemini has a fixed embedding model name (determine it)
                 embedding_model_name = temp_provider.embeddings.model if temp_provider.embeddings else "text-embedding-004"
@@ -388,12 +375,7 @@ class RAGSystem:
                      raise ValueError("Ollama LLM Model is not selected in config.")
 
                 temp_provider = OllamaProvider(model, base_url, embedding_model)
-                if not temp_provider.initialize():
-                    # Specific check for connection errors
-                    if "connection refused" in str(e).lower() or "failed to connect" in str(e).lower():
-                         raise ConnectionRefusedError(f"Failed to connect to Ollama at {base_url}. Is it running?")
-                    else:
-                        raise Exception("Ollama provider failed to initialize.")
+                temp_provider.initialize()
 
                 new_vectorstore_dir = temp_provider.get_vectorstore_dir(base_vector_path)
                 self.provider = temp_provider # Assign only on success

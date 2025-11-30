@@ -1,5 +1,5 @@
 {
-  "gemini_api_key": "AIzaSyDJv3kw8eA-nxE_EVfD5LwYibxDefeEYao",
+  "gemini_api_key": "",
   "ollama_endpoint": "http://127.0.0.1:11434",
   "rag_docs_path": "C:\\Users\\joyal\\Desktop\\ProjectHub\\V4\\Docs",
   "vector_db_path": "./chroma_db",
@@ -7,6 +7,6 @@
   "last_file_hash": "b9940b91c1ae3cae5628282a8a1f2853",
   "provider": "gemini",
   "gemini_model": "gemini-2.5-flash",
-  "ollama_model": "",
+  "ollama_model": "qwen3:1.7b",
   "embedding_model": "all-minilm"
 }
