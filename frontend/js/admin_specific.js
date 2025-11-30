@@ -20,15 +20,15 @@ function getAuthToken() {
 }
 
 function getAuthHeaders() {
-  const token = getAuthToken();
-  if (!token) {
-      console.error("No auth token found, redirecting to login.");
-      window.location.href = 'home.html';
-  }
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  };
+    const token = getAuthToken();
+    if (!token) {
+        console.error("No auth token found, redirecting to login.");
+        window.location.href = 'home.html';
+    }
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+    };
 }
 
 function formatDate(dateString) {
@@ -68,16 +68,15 @@ function showAdminMessage(message, isError = false, page = 'dashboard') {
         default:
             elementId = 'admin-dashboard-message';
     }
-    
+
     const element = document.getElementById(elementId);
     if (element) {
         element.textContent = message;
-        element.className = `text-sm font-medium p-3 rounded-lg ${
-            isError 
-                ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-        }`;
-        
+        element.className = `text-sm font-medium p-3 rounded-lg ${isError
+            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+            : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+            }`;
+
         // Auto-clear success messages
         if (!isError) {
             setTimeout(() => {
@@ -129,7 +128,7 @@ async function loadAdminStats() {
         // Note: Solo/Team project stats were not in the model, keeping at 0
         document.getElementById('stats-stud-solo').textContent = '0'; // Placeholder
         document.getElementById('stats-stud-team').textContent = '0'; // Placeholder
-        
+
     } catch (error) {
         console.error("Error loading admin stats:", error.message);
         showAdminMessage(error.message, true, 'dashboard');
@@ -144,7 +143,7 @@ async function loadAdminProjects() {
             headers: getAuthHeaders()
         });
         if (!response.ok) throw new Error("Failed to fetch projects");
-        
+
         allProjects = await response.json();
         originalAllProjects = [...allProjects]; // Save a copy of the original order
         renderProjectTable(allProjects);
@@ -162,9 +161,9 @@ async function loadAdminUsers(role, tableBodyId) {
             headers: getAuthHeaders()
         });
         if (!response.ok) throw new Error(`Failed to fetch ${role}s`);
-        
+
         const users = await response.json();
-        
+
         if (role === 'Student') {
             allStudents = users;
             originalAllStudents = [...users]; // Save a copy
@@ -246,7 +245,7 @@ async function handleAddUserForm(event, role) {
     const pageKey = role === 'Student' ? 'student' : 'teacher';
     const form = event.target;
     const button = form.querySelector('button[type="submit"]');
-    
+
     showAdminMessage('Creating user...', false, pageKey);
     button.disabled = true;
 
@@ -275,17 +274,17 @@ async function handleAddUserForm(event, role) {
 
         showAdminMessage(`${role} created successfully!`, false, pageKey);
         form.reset();
-        
+
         // Refresh the corresponding user list
         if (role === 'Student') {
             loadAdminUsers('Student', 'student-table-body');
         } else {
             loadAdminUsers('Teacher', 'teacher-table-body');
         }
-        
+
         // Go back to the user list page after success
         setTimeout(() => {
-            if(window.showPage) window.showPage(role === 'Student' ? 'students-page' : 'teachers-page');
+            if (window.showPage) window.showPage(role === 'Student' ? 'students-page' : 'teachers-page');
         }, 1500);
 
     } catch (error) {
@@ -316,7 +315,7 @@ async function deleteAdminUser(userId, role) {
         }
 
         showAdminMessage(`${role} deleted successfully.`, false, pageKey);
-        
+
         // Refresh the list
         if (role === 'Student') {
             loadAdminUsers('Student', 'student-table-body');
@@ -334,7 +333,7 @@ async function deleteAdminProject(projectId) {
     if (!confirm('Are you sure you want to delete this project? This will also remove all related invitations and cannot be undone.')) {
         return;
     }
-    
+
     showAdminMessage('Deleting project...', false, 'projects');
 
     try {
@@ -450,7 +449,7 @@ function setupSearchListeners() {
     const projectSearch = document.getElementById('project-search-input');
     projectSearch.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        const filtered = allProjects.filter(p => 
+        const filtered = allProjects.filter(p =>
             p.name.toLowerCase().includes(query) ||
             (p.ownerName && p.ownerName.toLowerCase().includes(query)) ||
             (p.guideName && p.guideName.toLowerCase().includes(query)) ||
@@ -471,7 +470,7 @@ function setupSearchListeners() {
     const studentSearch = document.getElementById('student-search-input');
     studentSearch.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        const filtered = allStudents.filter(u => 
+        const filtered = allStudents.filter(u =>
             u.fullName.toLowerCase().includes(query) ||
             u.email.toLowerCase().includes(query) ||
             (u.registrationNumber && u.registrationNumber.toLowerCase().includes(query)) ||
@@ -487,7 +486,7 @@ function setupSearchListeners() {
         updateSortIcons('students'); // Reset icons
         renderUserTable(allStudents, 'student-table-body', 'Student');
     });
-    
+
     document.getElementById('teacher-search-reset').addEventListener('click', () => {
         teacherSearch.value = ''; // Clear search
         allTeachers = [...originalAllTeachers]; // Reset data
@@ -498,7 +497,7 @@ function setupSearchListeners() {
 }
 
 // --- Modal Edit Functions ---
-    
+
 const modal = document.getElementById('admin-edit-modal');
 const modalTitle = document.getElementById('modal-title');
 const modalFormBody = document.getElementById('modal-form-body');
@@ -516,11 +515,10 @@ function closeAdminModal() {
 
 function showModalMessage(message, isError = false) {
     modalMessage.textContent = message;
-    modalMessage.className = `text-sm p-4 rounded-lg mx-6 ${
-        isError 
-            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-            : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-    }`;
+    modalMessage.className = `text-sm p-4 rounded-lg mx-6 ${isError
+        ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+        }`;
     modalMessage.style.display = 'block';
 }
 
@@ -528,9 +526,9 @@ function openEditUserModal(userId, role) {
     const dataArray = (role === 'Student') ? allStudents : allTeachers;
     const user = dataArray.find(u => u._id === userId);
     if (!user) return;
-    
+
     modalTitle.textContent = `Edit ${role}: ${user.fullName}`;
-    
+
     // Build the form
     modalFormBody.innerHTML = `
         <input type="hidden" id="edit-user-id" value="${user._id}">
@@ -556,7 +554,7 @@ function openEditUserModal(userId, role) {
             </select>
         </div>
     `;
-    
+
     // Set the save button's action
     modalSaveBtn.onclick = () => handleSaveUser(userId, role);
     modal.classList.remove('hidden');
@@ -565,9 +563,9 @@ function openEditUserModal(userId, role) {
 function openEditProjectModal(projectId) {
     const project = allProjects.find(p => p._id === projectId);
     if (!project) return;
-    
+
     modalTitle.textContent = `Edit Project: ${project.name}`;
-    
+
     // Build the form
     modalFormBody.innerHTML = `
         <input type="hidden" id="edit-project-id" value="${project._id}">
@@ -593,7 +591,7 @@ function openEditProjectModal(projectId) {
             </select>
         </div>
     `;
-    
+
     // Set the save button's action
     modalSaveBtn.onclick = () => handleSaveProject(projectId);
     modal.classList.remove('hidden');
@@ -601,7 +599,7 @@ function openEditProjectModal(projectId) {
 
 async function handleSaveUser(userId, role) {
     const pageKey = (role === 'Student') ? 'students' : 'teachers';
-    
+
     // 1. Get data from form
     const updateData = {
         fullName: document.getElementById('edit-fullName').value,
@@ -609,7 +607,7 @@ async function handleSaveUser(userId, role) {
         registrationNumber: document.getElementById('edit-regNumber').value,
         department: document.getElementById('edit-department').value,
     };
-    
+
     showModalMessage('Saving...', false);
     modalSaveBtn.disabled = true;
 
@@ -619,20 +617,20 @@ async function handleSaveUser(userId, role) {
             headers: getAuthHeaders(),
             body: JSON.stringify(updateData)
         });
-        
+
         const data = await response.json();
         if (!response.ok) throw new Error(data.detail || `Failed to update ${role}`);
-        
+
         showAdminMessage(`${role} updated successfully.`, false, pageKey);
         closeAdminModal();
-        
+
         // Reload the list
         if (role === 'Student') {
             loadAdminUsers('Student', 'student-table-body');
         } else {
             loadAdminUsers('Teacher', 'teacher-table-body');
         }
-        
+
     } catch (error) {
         console.error(`Error updating ${role}:`, error);
         showModalMessage(error.message, true);
@@ -649,7 +647,7 @@ async function handleSaveProject(projectId) {
         guideName: document.getElementById('edit-guideName').value,
         status: document.getElementById('edit-status').value,
     };
-    
+
     showModalMessage('Saving...', false);
     modalSaveBtn.disabled = true;
 
@@ -659,14 +657,14 @@ async function handleSaveProject(projectId) {
             headers: getAuthHeaders(),
             body: JSON.stringify(updateData)
         });
-        
+
         const data = await response.json();
         if (!response.ok) throw new Error(data.detail || "Failed to update project");
-        
+
         showAdminMessage('Project updated successfully.', false, 'projects');
         closeAdminModal();
         loadAdminProjects(); // Reload the project list
-        
+
     } catch (error) {
         console.error('Error updating project:', error);
         showModalMessage(error.message, true);
@@ -697,14 +695,14 @@ document.addEventListener('DOMContentLoaded', () => {
         loadAdminProjects();
         loadAdminUsers('Student', 'student-table-body');
         loadAdminUsers('Teacher', 'teacher-table-body');
-        
+
         // --- Setup periodic refresh for stats (Level 2 Real-time) ---
         adminStatsInterval = setInterval(loadAdminStats, 10000); // Refresh stats every 10 seconds
 
         // --- Hook up forms ---
         document.getElementById('add-student-form').addEventListener('submit', (e) => handleAddUserForm(e, 'Student'));
         document.getElementById('add-teacher-form').addEventListener('submit', (e) => handleAddUserForm(e, 'Teacher'));
-        
+
         // --- Hook up search bars ---
         setupSearchListeners();
 
@@ -712,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalCancelBtn.addEventListener('click', closeAdminModal);
         modalCloseBtn.addEventListener('click', closeAdminModal);
         modalOverlay.addEventListener('click', closeAdminModal);
-        
+
         // --- Hook up logout ---
         const logoutLink = document.getElementById('logout-link');
         if (logoutLink) {
@@ -722,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'home.html';
             });
         }
-        
+
     }).catch(error => {
         console.error("Failed to initialize admin dashboard:", error);
         // This likely means the token was invalid, so populateUserInfo redirected

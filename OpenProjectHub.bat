@@ -17,11 +17,13 @@ echo.
 ::  (NEW) STEP: SELECT DATABASE MODE  (Merged from Code 1)
 :: =====================================================================
 
-set "CONFIG_FILE=%BASE_DIR%\db_config.txt"
+set "CONFIG_FILE=%BASE_DIR%\backend\.env"
 
 if not exist "%CONFIG_FILE%" (
-    echo LOCAL_URI=mongodb://127.0.0.1:27017/>"%CONFIG_FILE%"
-    echo ATLAS_URI=>>"%CONFIG_FILE%"
+    echo [WARN] .env file not found in backend folder.
+    echo Creating default .env...
+    echo DEFAULT=LOCAL>"%CONFIG_FILE%"
+    echo LOCAL_URI=mongodb://127.0.0.1:27017/>>"%CONFIG_FILE%"
 )
 
 for /f "usebackq eol=# tokens=1,* delims== " %%K in ("%CONFIG_FILE%") do (

@@ -18,59 +18,30 @@ client: MongoClient = None
 db: Database = None
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-DB_CONFIG_PATH = os.path.join(PROJECT_ROOT, "db_config.txt")
-
-
-def _parse_kv_file(path: str) -> dict:
-    cfg = {}
-    if not os.path.exists(path):
-        return cfg
-    with open(path, "r", encoding="utf-8") as f:
-        for raw in f:
-            line = raw.strip()
-            if not line or line.startswith("#"):
-                continue
-            if "=" in line:
-                k, v = line.split("=", 1)
-                cfg[k.strip()] = v.strip()
-    return cfg
-
-
 def _resolve_mongo_uri() -> str:
     """
     Priority:
       1) Environment variable MONGO_URI (set by BAT or shell)
-      2) db_config.txt (supports MONGO_URI= ... OR LOCAL_URI/ATLAS_URI with DEFAULT=LOCAL/ATLAS)
+      2) .env variables (DEFAULT, LOCAL_URI, ATLAS_URI)
       3) Fallback: local mongodb
     """
-    # 1) Env
+    # 1) Env (explicitly set, e.g. by .bat)
     env_uri = os.getenv("MONGO_URI")
     if env_uri:
         print("MONGO_URI resolved from ENV.")
         return env_uri
 
-    # 2) Config file
-    cfg = _parse_kv_file(DB_CONFIG_PATH)
-    if not cfg:
-        print("db_config.txt not found or empty; using local fallback.")
-        return "mongodb://127.0.0.1:27017/"
-
-    # Legacy single key
-    if "MONGO_URI" in cfg and cfg["MONGO_URI"]:
-        print("MONGO_URI resolved from db_config.txt (legacy MONGO_URI).")
-        return cfg["MONGO_URI"]
-
-    # New pair keys
-    local_uri = cfg.get("LOCAL_URI") or "mongodb://127.0.0.1:27017/"
-    atlas_uri = cfg.get("ATLAS_URI")
-    default_mode = (cfg.get("DEFAULT") or "LOCAL").upper()
+    # 2) Check .env for DEFAULT mode
+    local_uri = os.getenv("LOCAL_URI", "mongodb://127.0.0.1:27017/")
+    atlas_uri = os.getenv("ATLAS_URI")
+    default_mode = os.getenv("DEFAULT", "LOCAL").upper()
 
     if default_mode == "ATLAS" and atlas_uri:
-        print("MONGO_URI resolved from db_config.txt (DEFAULT=ATLAS).")
+        print("MONGO_URI resolved from .env (DEFAULT=ATLAS).")
         return atlas_uri
 
     # default LOCAL
-    print("MONGO_URI resolved from db_config.txt (DEFAULT=LOCAL).")
+    print("MONGO_URI resolved from .env (DEFAULT=LOCAL).")
     return local_uri
 
 
