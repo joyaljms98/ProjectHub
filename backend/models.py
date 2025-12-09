@@ -90,6 +90,7 @@ class Milestone(BaseModel):
 class TeamMember(BaseModel):
     """Team member details within a project"""
     userId: str
+    fullName: Optional[str] = None # <-- ADD THIS LINE
     role: Optional[str] = None  # e.g., "Frontend Developer", "Designer"
     isLeader: bool = False
     joinedAt: datetime
@@ -172,6 +173,7 @@ class GuideRequest(BaseModel):
     ownerName: str
     status: str = "pending"  # enum: "pending", "accepted", "declined"
     declineReason: Optional[str] = None
+    deadline: Optional[datetime] = None  # <-- ADD THIS LINE
     createdAt: datetime
     respondedAt: Optional[datetime] = None
 
@@ -217,7 +219,7 @@ class RespondToInviteRequest(BaseModel):
 class SendGuideRequestRequest(BaseModel):
     """Request to send guide request (teacher to student)"""
     # projectId comes from path parameter, no need here
-    pass
+    deadline: datetime
 
 
 class RespondToGuideRequest(BaseModel):
@@ -264,3 +266,44 @@ class ProjectLinkPublic(ProjectLinkBase):
             ObjectId: str,
             datetime: lambda dt: dt.isoformat()
         }
+
+
+# ============================================
+# PROJECT CHAT MODELS (NEW)
+# ============================================
+
+class ChatMessageCreate(BaseModel):
+    messageText: str = Field(..., min_length=1, max_length=2000)
+
+class ProjectChatMessage(BaseModel):
+    id: str = Field(..., alias="_id")
+    projectId: str
+    phaseOrder: int
+    senderId: str
+    senderName: str
+    senderRole: str
+    messageText: str
+    sentAt: datetime
+
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+        arbitrary_types_allowed = True
+        json_encoders = {
+            ObjectId: str,
+            datetime: lambda dt: dt.isoformat()
+        }
+
+class UpdateNoteRequest(BaseModel):
+    stickyNote: str = Field("", max_length=1000)
+
+
+class UpdateUserPersonalRequest(BaseModel):
+    fullName: str = Field(..., min_length=1)
+    registrationNumber: str
+    department: str
+    
+class ChangePasswordSecurityRequest(BaseModel):
+    securityQuestion: str
+    securityAnswer: str
+    newPassword: str = Field(..., min_length=8)

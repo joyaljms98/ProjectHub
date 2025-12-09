@@ -22,20 +22,37 @@
             }
             
             const user = await response.json();
-            projectHubUser = user;
+            projectHubUser = user; // Store user globally
 
-            // Find and update all elements
-            const welcomeName = document.getElementById('user-welcome-name');
-            const fullName = document.getElementById('user-full-name');
-            const userRole = document.getElementById('user-role');
+            // --- THIS IS THE MISSING CODE ---
+            // Populate sidebar profile
+            const userNameEl = document.getElementById('user-full-name');
+            if (userNameEl) {
+                userNameEl.textContent = user.fullName || 'User';
+            }
+            
+            const userRoleEl = document.getElementById('user-role');
+            if (userRoleEl) {
+                userRoleEl.textContent = user.role || 'Role';
+            }
 
-            if (welcomeName) welcomeName.textContent = (user.fullName ? user.fullName.split(' ')[0] : 'User');
-            if (fullName) fullName.textContent = user.fullName || 'User';
-            if (userRole) userRole.textContent = user.role || '';
+            // Populate dashboard welcome message
+            const welcomeNameEl = document.getElementById('user-welcome-name');
+            if (welcomeNameEl) {
+                // Get the first name
+                welcomeNameEl.textContent = user.fullName ? user.fullName.split(' ')[0] : 'User';
+            }
+            // --- END OF MISSING CODE ---
+
+            // Populate sticky note
+            const stickyNoteTextarea = document.getElementById('sticky-note-textarea');
+            if (stickyNoteTextarea && user.stickyNote) {
+                stickyNoteTextarea.value = user.stickyNote;
+            }
 
         } catch (error) {
             console.error("Failed to populate user info:", error);
-            // Leave the hardcoded names as a fallback
+            // On failure, it will just show the hardcoded placeholder names
         }
     }
     // call to populate user details on dashboard load
@@ -68,7 +85,7 @@
 
         setStyles() {
             const isCollapsed = document.body.classList.contains('sidebar-collapsed');
-            
+
             Object.assign(this.dom.el.style, {
                 position: 'fixed',
                 top: 0,
@@ -77,7 +94,8 @@
                 height: '100%',
                 overflow: 'hidden',
                 transition: 'left 0.3s ease-in-out' // Added transition
-            })
+            });
+
         }
 
         setHeight() {
@@ -230,10 +248,6 @@
             currentPage.style.opacity = '0';
         }
 
-        if (currentPageId === 'settings-page' && settingsBar) {
-            settingsBar.classList.add('hidden');
-        }
-
         setTimeout(() => {
             if (currentPage) {
                 currentPage.classList.add('hidden');
@@ -244,9 +258,6 @@
                 targetPage.style.opacity = '1';
             });
             
-            if (targetId === 'settings-page' && settingsBar) {
-                settingsBar.classList.remove('hidden');
-            }
             
             allNavLinks.forEach(link => {
                 if(link.closest('aside')) { // Only affect sidebar links
@@ -382,4 +393,63 @@
     renderCalendar('teacher-calendar-widget');
     // Note: admin-calendar-widget does not exist in the provided admin HTML, but we leave the hook.
 
+    // --- STICKY NOTE LOGIC ---
+    const stickyNoteBtn = document.getElementById('floating-sticky-note-btn');
+    const stickyNoteModal = document.getElementById('sticky-note-modal');
+    const stickyNoteOverlay = document.getElementById('sticky-note-overlay');
+    const stickyNoteClose = document.getElementById('sticky-note-close');
+    const stickyNoteSave = document.getElementById('sticky-note-save');
+    const stickyNoteClear = document.getElementById('sticky-note-clear');
+    const stickyNoteText = document.getElementById('sticky-note-textarea');
+    const stickyNoteMsg = document.getElementById('sticky-note-message');
+
+    function openStickyNote() {
+        if (stickyNoteModal) stickyNoteModal.classList.remove('hidden');
+        if (stickyNoteText) stickyNoteText.focus();
+    }
+    
+    function closeStickyNote() {
+        if (stickyNoteModal) stickyNoteModal.classList.add('hidden');
+        if (stickyNoteMsg) stickyNoteMsg.textContent = '';
+    }
+
+    async function saveStickyNote() {
+        if (!stickyNoteText || !stickyNoteMsg) return;
+        
+        const note = stickyNoteText.value;
+        stickyNoteMsg.textContent = 'Saving...';
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/me/note`, {
+                method: 'PUT',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ stickyNote: note })
+            });
+            
+            if (!response.ok) throw new Error('Failed to save');
+            
+            stickyNoteMsg.textContent = 'Saved!';
+            setTimeout(closeStickyNote, 1000);
+
+        } catch (error) {
+            console.error('Error saving note:', error);
+            stickyNoteMsg.textContent = 'Error saving.';
+        }
+    }
+    
+    function clearStickyNote() {
+        if (stickyNoteText) stickyNoteText.value = '';
+        saveStickyNote(); // Save the empty note
+    }
+
+    // Attach listeners
+    if (stickyNoteBtn) stickyNoteBtn.addEventListener('click', openStickyNote);
+    if (stickyNoteOverlay) stickyNoteOverlay.addEventListener('click', closeStickyNote);
+    if (stickyNoteClose) stickyNoteClose.addEventListener('click', closeStickyNote);
+    if (stickyNoteSave) stickyNoteSave.addEventListener('click', saveStickyNote);
+    if (stickyNoteClear) stickyNoteClear.addEventListener('click', clearStickyNote);
+    // --- END OF LOGIC ---
+
 // });
+
+

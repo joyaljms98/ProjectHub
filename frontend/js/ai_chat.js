@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const sendBtn = document.getElementById('send-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    let abortController = null;
 
     // Sidebar Toggles & Elements
     const leftSidebarToggle = document.getElementById('left-sidebar-toggle');
@@ -55,9 +57,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (targetElement !== ollamaConnectionStatus || !isError) {
             setTimeout(() => {
                 // Check if the message is still the same before clearing
-                 if (targetElement.textContent === message) {
+                if (targetElement.textContent === message) {
                     targetElement.textContent = '';
-                 }
+                }
             }, 5000); // Increased timeout
         }
     }
@@ -74,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-     // Auto-resize textarea
+    // Auto-resize textarea
     function autoResizeTextarea() {
         chatInput.style.height = 'auto'; // Reset height
         let newHeight = chatInput.scrollHeight;
@@ -105,12 +107,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         let messageHtml = '';
-        const timestamp = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit'}); // Add timestamp
+        const timestamp = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); // Add timestamp
 
         if (sender === 'user') {
             // User messages - apply basic escaping for safety, no markdown
             const safeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-             messageHtml = `
+            messageHtml = `
                 <div class="flex items-start gap-3 justify-end group">
                     <div class="flex flex-col gap-1 items-end">
                         <div class="bg-primary text-white p-3 rounded-l-lg rounded-br-lg max-w-lg shadow-sm">
@@ -141,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
         chatMessages.insertAdjacentHTML('beforeend', messageHtml);
         // Scroll smoothly only if the user isn't scrolled up significantly
         if (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 200) {
-             chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
         }
     }
 
@@ -160,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     element.value = config[key];
                 }
             }
-             // Set provider (default to gemini if not set in loaded config)
+            // Set provider (default to gemini if not set in loaded config)
             providerSelect.value = config.provider || 'gemini';
 
             // Ensure correct view is shown after loading
@@ -170,8 +172,8 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
             console.error("Error loading config:", error);
             showStatus(error.message, true);
-             // Keep default view (Gemini) on error
-             toggleSettingsView();
+            // Keep default view (Gemini) on error
+            toggleSettingsView();
         }
     }
 
@@ -228,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
                 // Attempt to select the previously saved model, if any
                 const savedModel = configFields.ollama_model.value;
-                if(savedModel && result.models.includes(savedModel)){
+                if (savedModel && result.models.includes(savedModel)) {
                     ollamaModelSelect.value = savedModel;
                 }
                 showStatus('Ollama models loaded!', false, ollamaConnectionStatus);
@@ -241,8 +243,8 @@ document.addEventListener('DOMContentLoaded', function () {
             ollamaModelSelect.innerHTML = '<option value="">Connection failed</option>';
             showStatus(`Error: ${error.message}. Is Ollama running?`, true, ollamaConnectionStatus);
         } finally {
-             ollamaModelSelect.disabled = false;
-             checkOllamaBtn.disabled = false;
+            ollamaModelSelect.disabled = false;
+            checkOllamaBtn.disabled = false;
         }
     }
 
@@ -258,12 +260,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             docListContainerRight.innerHTML = ''; // Clear list in the right sidebar
 
-             // Check for specific error message from backend
-             if (data.error) {
-                  docListContainerRight.innerHTML = `<p class="text-red-500 text-sm">${data.message || 'Error loading documents.'}</p>`;
-                  showStatus(data.message || 'Error loading documents.', true, settingsStatus);
-                  return; // Stop processing
-             }
+            // Check for specific error message from backend
+            if (data.error) {
+                docListContainerRight.innerHTML = `<p class="text-red-500 text-sm">${data.message || 'Error loading documents.'}</p>`;
+                showStatus(data.message || 'Error loading documents.', true, settingsStatus);
+                return; // Stop processing
+            }
 
 
             if (data.files && data.files.length > 0) {
@@ -286,10 +288,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         } catch (error) {
             console.error("Error loading documents:", error);
-             docListContainerRight.innerHTML = `<p class="text-red-500 text-sm">Error: ${error.message}</p>`;
+            docListContainerRight.innerHTML = `<p class="text-red-500 text-sm">Error: ${error.message}</p>`;
             showStatus(`Error loading documents: ${error.message}`, true, settingsStatus);
         } finally {
-             scanDocsBtnRight.disabled = false;
+            scanDocsBtnRight.disabled = false;
         }
     }
 
@@ -307,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             // Get selected files from the RIGHT sidebar
             const selectedFiles = Array.from(docListContainerRight.querySelectorAll('.document-checkbox:checked'))
-                                      .map(cb => cb.dataset.path);
+                .map(cb => cb.dataset.path);
 
             // Validate essential config fields
             const configData = {
@@ -322,19 +324,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 system_prompt: configFields.system_prompt.value
             };
 
-             // Basic validation
-             if (configData.provider === 'gemini' && !configData.gemini_api_key) {
-                 throw new Error("Gemini API Key is required.");
-             }
-             if (configData.provider === 'ollama' && !configData.ollama_model) {
-                 throw new Error("Ollama LLM Model must be selected. Click 'Check' first.");
-             }
-             if (!configData.rag_docs_path) {
-                 throw new Error("RAG Documents Path is required.");
-             }
-              if (!configData.vector_db_path) {
-                 throw new Error("Vector Database Path (Base) is required.");
-             }
+            // Basic validation
+            if (configData.provider === 'gemini' && !configData.gemini_api_key) {
+                throw new Error("Gemini API Key is required.");
+            }
+            if (configData.provider === 'ollama' && !configData.ollama_model) {
+                throw new Error("Ollama LLM Model must be selected. Click 'Check' first.");
+            }
+            if (!configData.rag_docs_path) {
+                throw new Error("RAG Documents Path is required.");
+            }
+            if (!configData.vector_db_path) {
+                throw new Error("Vector Database Path (Base) is required.");
+            }
 
 
             const requestBody = {
@@ -343,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 force_rebuild: forceRebuildCheckboxRight.checked // Use checkbox from right sidebar
             };
 
-             console.log("Initializing with request:", requestBody); // Log request
+            console.log("Initializing with request:", requestBody); // Log request
 
             const response = await fetch('/api/initialize', {
                 method: 'POST',
@@ -355,13 +357,13 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log("Initialize response:", result); // Log response
 
             if (!response.ok) {
-                 // Check if it's an Ollama connection error - more specific check
-                 if (providerSelect.value === 'ollama' && result.detail && (result.detail.toLowerCase().includes('connect to ollama') || result.detail.toLowerCase().includes('connection refused'))) {
+                // Check if it's an Ollama connection error - more specific check
+                if (providerSelect.value === 'ollama' && result.detail && (result.detail.toLowerCase().includes('connect to ollama') || result.detail.toLowerCase().includes('connection refused'))) {
                     showStatus(`${result.detail}. Is Ollama running?`, true, ollamaConnectionStatus);
                     throw new Error(result.detail); // Prevent success message
-                 } else {
+                } else {
                     throw new Error(result.detail || `Initialization failed (${response.status})`);
-                 }
+                }
             }
 
             showStatus(result.message || 'System initialized successfully!', false);
@@ -369,13 +371,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } catch (error) {
             console.error("Initialization error:", error);
-             // Only show general error if it wasn't the specific Ollama connection issue
-             if (!ollamaConnectionStatus.textContent || !ollamaConnectionStatus.textContent.includes("Ollama running")) {
+            // Only show general error if it wasn't the specific Ollama connection issue
+            if (!ollamaConnectionStatus.textContent || !ollamaConnectionStatus.textContent.includes("Ollama running")) {
                 showStatus(`Init Error: ${error.message}`, true);
                 addMessage('ai', `**Initialization Error:** ${error.message}`);
-             } else {
-                 addMessage('ai', `**Initialization Error:** Could not connect to Ollama. Please ensure it's running and click **Initialize** again.`);
-             }
+            } else {
+                addMessage('ai', `**Initialization Error:** Could not connect to Ollama. Please ensure it's running and click **Initialize** again.`);
+            }
         } finally {
             initializeBtn.disabled = false;
             initializeBtn.innerHTML = '<span class="material-icons-outlined text-base">rocket_launch</span> <span>Initialize</span>';
@@ -408,10 +410,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         try {
+            // Initialize AbortController
+            if (abortController) abortController.abort(); // Cancel any previous
+            abortController = new AbortController();
+
+            // Toggle buttons
+            sendBtn.classList.add('hidden');
+            stopBtn.classList.remove('hidden');
+
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query: query, mode: currentMode })
+                body: JSON.stringify({ query: query, mode: currentMode }),
+                signal: abortController.signal
             });
 
 
@@ -423,12 +434,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     errorDetail = err.detail || errorDetail;
                 } catch (e) { /* Ignore parsing error if body isn't JSON */ }
 
-                 // Check for specific initialization errors from the stream endpoint
-                 if (errorDetail.toLowerCase().includes("provider not initialized")) {
+                // Check for specific initialization errors from the stream endpoint
+                if (errorDetail.toLowerCase().includes("provider not initialized")) {
                     throw new Error("Provider not initialized. Configure settings and click 'Initialize'.");
-                 } else if (errorDetail.toLowerCase().includes("no vectorstore is loaded")) {
-                     throw new Error("RAG mode requires initialized documents. Select files and click 'Initialize'.");
-                 }
+                } else if (errorDetail.toLowerCase().includes("no vectorstore is loaded")) {
+                    throw new Error("RAG mode requires initialized documents. Select files and click 'Initialize'.");
+                }
                 throw new Error(errorDetail);
             }
 
@@ -445,12 +456,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const chunk = decoder.decode(value, { stream: true });
                 fullResponse += chunk;
-                 // Add blinking cursor effect only if content exists
+                // Add blinking cursor effect only if content exists
                 const cursor = fullResponse ? '▋' : '';
                 streamingBubbleContent.innerHTML = marked.parse(fullResponse + cursor);
-                 // Scroll smoothly only if the user isn't scrolled up significantly
+                // Scroll smoothly only if the user isn't scrolled up significantly
                 if (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight < 200) {
-                     chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+                    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
                 }
             }
 
@@ -461,17 +472,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         } catch (error) {
-            console.error("Chat error:", error);
-            if (streamingBubbleContent) {
-                 // Display error within the bubble
-                 addMessage('ai', `**Error:** ${error.message}`); // Add a *new* error message bubble
-                 streamingBubbleContainer?.remove(); // Remove the placeholder bubble
+            if (error.name === 'AbortError') {
+                console.log("Fetch aborted by user");
+                if (streamingBubbleContent) {
+                    // Just append a small note or do nothing if we want to keep partial text
+                    // streamingBubbleContent.innerHTML += " <span class='text-xs text-red-500'>(Stopped)</span>";
+                    // Or just leave it as is.
+                }
             } else {
-                 addMessage('ai', `**Error:** ${error.message}`); // Add error message if placeholder failed
+                console.error("Chat error:", error);
+                if (streamingBubbleContent) {
+                    // Display error within the bubble
+                    addMessage('ai', `**Error:** ${error.message}`); // Add a *new* error message bubble
+                    streamingBubbleContainer?.remove(); // Remove the placeholder bubble
+                } else {
+                    addMessage('ai', `**Error:** ${error.message}`); // Add error message if placeholder failed
+                }
             }
         } finally {
             sendBtn.disabled = false;
             sendBtn.classList.remove('animate-pulse'); // Remove pulse animation
+            sendBtn.classList.remove('hidden');
+            stopBtn.classList.add('hidden');
+            abortController = null;
             chatInput.focus(); // Refocus input field
             autoResizeTextarea(); // Ensure height is correct after potential error
         }
@@ -516,6 +539,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Chat Input & Form
     chatInput.addEventListener('input', autoResizeTextarea);
     chatForm.addEventListener('submit', sendMessage);
+
+    stopBtn.addEventListener('click', () => {
+        if (abortController) {
+            abortController.abort();
+            abortController = null;
+        }
+    });
+
     chatInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -526,10 +557,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Initial Load ---
     loadConfig(); // Load config which sets default provider and calls toggleSettingsView
 
-    // Sidebars open by default - remove collapsed classes
-    document.body.classList.remove('sidebar-left-collapsed');
-    document.body.classList.remove('sidebar-right-collapsed');
-
-     // Initial resize for textarea if it has default content (unlikely but safe)
-     autoResizeTextarea();
+    // Initial resize for textarea if it has default content (unlikely but safe)
+    autoResizeTextarea();
 });

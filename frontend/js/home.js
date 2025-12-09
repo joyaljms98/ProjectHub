@@ -435,4 +435,79 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // --- Reset Password Handler ---
+    const resetForm = document.getElementById('reset-form');
+    const resetEmailInput = document.getElementById('reset-email');
+    const resetSecQuestion = document.getElementById('reset-security-question');
+    const resetSecAnswer = document.getElementById('reset-security-answer');
+    const resetNewPassword = document.getElementById('new-password');
+    const resetConfirmPassword = document.getElementById('confirm-new-password');
+    const resetMessage = document.getElementById('reset-message');
+
+    if (resetForm) {
+        resetForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            clearMessage(resetMessage);
+
+            const email = resetEmailInput ? resetEmailInput.value.trim() : '';
+            const securityQuestion = resetSecQuestion ? resetSecQuestion.value : '';
+            const securityAnswer = resetSecAnswer ? resetSecAnswer.value.trim() : '';
+            const newPassword = resetNewPassword ? resetNewPassword.value : '';
+            const confirmPassword = resetConfirmPassword ? resetConfirmPassword.value : '';
+
+            if (!email) {
+                showMessage(resetMessage, 'Please enter your email or username.', true);
+                return;
+            }
+            if (!securityQuestion) {
+                showMessage(resetMessage, 'Please select your security question.', true);
+                return;
+            }
+            if (!securityAnswer) {
+                showMessage(resetMessage, 'Please provide your security answer.', true);
+                return;
+            }
+            if (!newPassword || newPassword.length < 8) {
+                showMessage(resetMessage, 'New password must be at least 8 characters.', true);
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showMessage(resetMessage, 'Passwords do not match.', true);
+                return;
+            }
+
+            try {
+                const body = {
+                    email: email,
+                    securityQuestion: securityQuestion,
+                    securityAnswer: securityAnswer,
+                    newPassword: newPassword
+                };
+
+                const resp = await fetch(`${API_BASE_URL}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await resp.json().catch(() => ({}));
+
+                if (!resp.ok) {
+                    throw new Error(data.detail || `Reset failed (${resp.status})`);
+                }
+
+                showMessage(resetMessage, 'Password reset successful. Redirecting to login...', false);
+                resetForm.reset();
+                setTimeout(() => {
+                    showPage('login-page');
+                    clearMessage(resetMessage);
+                }, 1500);
+
+            } catch (err) {
+                console.error('Reset password error:', err);
+                showMessage(resetMessage, err.message || 'Error resetting password.', true);
+            }
+        });
+    }
+
 });

@@ -4,3 +4,4 @@ pydantic[email]
 pymongo
 python-dotenv
 python-jose[cryptography]
+certifi

@@ -1,207 +1,149 @@
-# MongoDB Connection Index Fix
+# backend/database.py
 
 import os
-# Use the synchronous MongoClient
 from pymongo import MongoClient, ASCENDING
-from pymongo.database import Database # Import Database type hint
-from pymongo.errors import ConnectionFailure, OperationFailure, DuplicateKeyError
+from pymongo.database import Database
+from pymongo.errors import ConnectionFailure, OperationFailure
 from dotenv import load_dotenv
-import datetime # Need datetime for admin user creation
-from auth import get_password_hash # Import here to avoid circular dependency
+import datetime
+import json
+import certifi
+from auth import get_password_hash
 
-
-load_dotenv() # Load environment variables from .env file
+load_dotenv()  # keep support for .env
 
 # --- Configuration ---
-# Default MongoDB connection URI (replace if yours is different)
-# Assumes MongoDB is running locally on the default port with no auth
-DEFAULT_MONGO_URI = "mongodb://localhost:27017/"
-DATABASE_NAME = "projecthub_db"
+DATABASE_NAME = "projecthub_db"  # same for local & Atlas
 
-# Get MONGO_URI from environment, or use the default if not found
-MONGO_URI = os.getenv("MONGO_URI", DEFAULT_MONGO_URI)
+client: MongoClient = None
+db: Database = None
 
-# --- MongoDB Client ---
-client: MongoClient = None # Type hint for synchronous client
-db: Database = None # Type hint for synchronous database
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+def _resolve_mongo_uri() -> str:
+    """
+    Priority:
+      1) Environment variable MONGO_URI (set by BAT or shell)
+      2) .env variables (DEFAULT, LOCAL_URI, ATLAS_URI)
+      3) Fallback: local mongodb
+    """
+    # 1) Env (explicitly set, e.g. by .bat)
+    env_uri = os.getenv("MONGO_URI")
+    if env_uri:
+        print("MONGO_URI resolved from ENV.")
+        return env_uri
 
-# --- Make functions synchronous ---
+    # 2) Check .env for DEFAULT mode
+    local_uri = os.getenv("LOCAL_URI", "mongodb://127.0.0.1:27017/")
+    atlas_uri = os.getenv("ATLAS_URI")
+    default_mode = os.getenv("DEFAULT", "LOCAL").upper()
+
+    if default_mode == "ATLAS" and atlas_uri:
+        print("MONGO_URI resolved from .env (DEFAULT=ATLAS).")
+        return atlas_uri
+
+    # default LOCAL
+    print("MONGO_URI resolved from .env (DEFAULT=LOCAL).")
+    return local_uri
+
+
 def connect_to_mongo():
     """Establishes connection to MongoDB."""
     global client, db
-    # No await needed for synchronous client
-    print(f"Attempting to connect to MongoDB using URI: {MONGO_URI}...")
+
+    mongo_uri = _resolve_mongo_uri()
+    print(f"Attempting to connect to MongoDB using URI: {mongo_uri} ...")
+
     try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-        # The ismaster command is cheap and does not require auth.
-        client.admin.command('ismaster')
+        # Only use certifi for remote connections (Atlas), skip for local to avoid SSL errors
+        if "localhost" in mongo_uri or "127.0.0.1" in mongo_uri:
+            client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        else:
+            client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000, tlsCAFile=certifi.where())
+
+        client.admin.command("ismaster")
         db = client[DATABASE_NAME]
-        print(f"✅ Successfully connected to MongoDB database '{DATABASE_NAME}'.")
+        print(f"Connected to MongoDB database '{DATABASE_NAME}'.")
 
-        # ============================================
-        # USER COLLECTION INDEXES
-        # ============================================
-        
-        # Ensure unique email index remains
+        # --- Indexes (unchanged from your version) ---
         db.users.create_index("email", unique=True)
-        print("   - Ensured 'email' unique index.")
-
-        # Drop the old registrationNumber index if it exists
         try:
             db.users.drop_index("registrationNumber_1")
-            print("   - Dropped old 'registrationNumber_1' index.")
         except OperationFailure:
-            print("   - Old 'registrationNumber_1' index not found, skipping drop.")
-
-        # Create a partial unique index for registrationNumber (only when not null)
+            pass
         db.users.create_index(
             [("registrationNumber", ASCENDING)],
             unique=True,
             partialFilterExpression={"registrationNumber": {"$type": "string"}}
         )
-        print("   - Ensured partial unique index for 'registrationNumber' (non-null).")
 
-        # ============================================
-        # PROJECT-RELATED COLLECTIONS AND INDEXES
-        # ============================================
-
-        # Projects collection indexes
         db.projects.create_index("ownerId")
-        print("   - Ensured 'ownerId' index on projects collection.")
-
         db.projects.create_index("teamMembers.userId")
-        print("   - Ensured 'teamMembers.userId' index on projects collection.")
-
         db.projects.create_index("guideId")
-        print("   - Ensured 'guideId' index on projects collection.")
-
         db.projects.create_index("department")
-        print("   - Ensured 'department' index on projects collection.")
-
         db.projects.create_index("status")
-        print("   - Ensured 'status' index on projects collection.")
 
-        # Team invitations collection indexes
         db.team_invitations.create_index([("inviteeId", ASCENDING), ("status", ASCENDING)])
-        print("   - Ensured 'inviteeId + status' compound index on team_invitations collection.")
-
         db.team_invitations.create_index("projectId")
-        print("   - Ensured 'projectId' index on team_invitations collection.")
 
-        # Guide requests collection indexes
         db.guide_requests.create_index([("ownerId", ASCENDING), ("status", ASCENDING)])
-        print("   - Ensured 'ownerId + status' compound index on guide_requests collection.")
-
         db.guide_requests.create_index("teacherId")
-        print("   - Ensured 'teacherId' index on guide_requests collection.")
-
         db.guide_requests.create_index("projectId")
-        print("   - Ensured 'projectId' index on guide_requests collection.")
 
         db.project_links.create_index([("projectId", ASCENDING), ("phaseOrder", ASCENDING)])
-        print("   - Ensured 'projectId + phaseOrder' compound index on project_links collection.")
-
         db.project_links.create_index("submittedByUserId")
-        print("   - Ensured 'submittedByUserId' index on project_links collection.")
-        
-        return db # Return db instance directly
-    except ConnectionFailure as e:
-        print(f"❌ Failed to connect to MongoDB at {MONGO_URI}: {e}")
-        client = None
-        db = None
-        # Re-raise the specific exception
-        raise ConnectionFailure(f"Could not connect to MongoDB server at {MONGO_URI}.")
-    except Exception as e:
-        print(f"❌ An unexpected error occurred during MongoDB connection: {e}")
-        client = None
-        db = None
-        raise e
 
-# Make synchronous
+        db.project_chat_messages.create_index([("projectId", ASCENDING), ("phaseOrder", ASCENDING), ("sentAt", ASCENDING)])
+        db.project_chat_messages.create_index("senderId")
+
+        return db
+    except ConnectionFailure as e:
+        client = None
+        db = None
+        print(f"Failed to connect to MongoDB: {e}")
+        raise ConnectionFailure(f"Could not connect to MongoDB at {mongo_uri}.")
+    except Exception as e:
+        client = None
+        db = None
+        print(f"Unexpected MongoDB error: {e}")
+        raise
+
+
 def get_database() -> Database:
-    """Returns the database instance."""
-    # Removed reconnect logic for simplicity with sync driver
     if db is None:
-        # If db is None after initial attempt, raise error
         raise ConnectionFailure("Database is not connected. Check startup logs.")
     return db
 
-# Make synchronous
+
 def close_mongo_connection():
-    """Closes the MongoDB connection."""
     global client, db
     if client:
         client.close()
         print("MongoDB connection closed.")
-        client = None
-        db = None
+    client = None
+    db = None
 
-# Make synchronous
+
 def create_admin_users():
-    """Creates the predefined admin users if they don't exist."""
     if db is None:
         print("Cannot create admin users: Database not connected.")
-        return # Return None or raise an error
+        return
 
-    admin_users = [
-        {"fullName": "Joyal Admin", "email": "joyal@hub.com", "password": "12345678", "role": "Admin"},
-        {"fullName": "Albert Admin", "email": "albert@hub.com", "password": "12345678", "role": "Admin"},
-        {"fullName": "Yadu Admin", "email": "yadu@hub.com", "password": "12345678", "role": "Admin"},
-        {"fullName": "Noel Admin", "email": "noel@hub.com", "password": "12345678", "role": "Admin"},
-    ]
+    admin_users_str = os.getenv("ADMIN_USERS", "[]")
+    try:
+        admin_users = json.loads(admin_users_str)
+    except json.JSONDecodeError:
+        print("Error decoding ADMIN_USERS from .env")
+        admin_users = []
 
     users_collection = db.users
-    print("\nChecking/Creating admin users...")
-    created_count = 0
     for admin_data in admin_users:
-        try:
-            # No await needed for synchronous find_one
-            existing_user = users_collection.find_one({"email": admin_data["email"]})
-            if not existing_user:
-                hashed_password = get_password_hash(admin_data["password"])
-                user_doc = {
-                    "fullName": admin_data["fullName"],
-                    "email": admin_data["email"],
-                    "hashedPassword": hashed_password,
-                    "role": admin_data["role"],
-                    "registrationNumber": None,
-                    "department": None,
-                    "securityQuestion": None,
-                    "securityAnswerHash": None,
-                    # Use timezone.utc for consistency
-                    "createdAt": datetime.datetime.now(datetime.timezone.utc)
-                }
-                # No await needed for synchronous insert_one
-                users_collection.insert_one(user_doc)
-                print(f"   - Created admin user: {admin_data['email']}")
-                created_count += 1
-        except Exception as e:
-            # Print specific duplicate key errors if they occur for email
-            if isinstance(e, DuplicateKeyError) and 'email' in e.details['keyPattern']:
-                 print(f"   - Admin user already exists (email duplicate): {admin_data['email']}")
-            else:
-                print(f"   - Error creating admin {admin_data['email']}: {e}")
-
-
-    if created_count > 0:
-        print(f"   - {created_count} admin user(s) created.")
-    else:
-         # Check if they exist before saying "all exist"
-         all_exist = True
-         for admin_data in admin_users:
-             if not users_collection.find_one({"email": admin_data["email"]}):
-                 all_exist = False
-                 break
-         if all_exist:
-            print("   - All specified admin users already exist.")
-         # else: # Some failed, error already printed
-
-# Example of how to use:
-if __name__ == "__main__":
-    try:
-        connect_to_mongo()
-        create_admin_users()
-    except Exception as e:
-        print(f"Error in main block: {e}")
-    finally:
-        close_mongo_connection()
+        existing = users_collection.find_one({"email": admin_data["email"]})
+        if not existing:
+            hashed_password = get_password_hash(admin_data["password"])
+            users_collection.insert_one({
+                "fullName": admin_data["fullName"],
+                "email": admin_data["email"],
+                "hashedPassword": hashed_password,
+                "role": admin_data["role"],
+                "createdAt": datetime.datetime.utcnow()
+            })

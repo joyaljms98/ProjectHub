@@ -5,8 +5,11 @@ const API_BASE_URL = "http://127.0.0.1:8001";
 // Global variables
 let currentProjectId = null;
 let userProjects = [];
+let allUnassignedProjects = [];
+let allDepartmentStudents = [];
 let guidedStudentIds = new Set();
 let currentProjectForPhaseView = null;
+let projectChatMessages = {};
 // let currentUser = null;
 
 // ============================================
@@ -18,11 +21,11 @@ function getAuthToken() {
 }
 
 function getAuthHeaders() {
-  const token = localStorage.getItem("accessToken");
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  };
+    const token = localStorage.getItem("accessToken");
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+    };
 }
 
 /**
@@ -60,6 +63,27 @@ function showSuccess(message, elementId) {
     }
 }
 
+// --- ADD THIS NEW FUNCTION ---
+function approveMilestone(projectId, milestoneOrder) {
+    // This is a simple helper to call the existing update function
+    updateMilestone(projectId, milestoneOrder, 'completed');
+}
+
+function approveMilestone(projectId, milestoneOrder) {
+    // This is a simple helper to call the existing update function
+    updateMilestone(projectId, milestoneOrder, 'completed');
+}
+
+// --- ADD THIS NEW FUNCTION ---
+function confirmApproveMilestone(projectId, milestoneOrder) {
+    // Show a native browser confirmation dialog
+    if (confirm("Are you sure you want to approve this phase? This action cannot be undone.")) {
+        // If the user clicks "OK", call the original function
+        approveMilestone(projectId, milestoneOrder);
+    }
+    // If they click "Cancel", nothing happens.
+}
+
 function formatDate(dateString) {
     if (!dateString) return "Not set";
     const date = new Date(dateString);
@@ -88,11 +112,11 @@ function formatDate(dateString) {
 //         }
 //     }
 
-    // Load projects
-    // loadUserProjects();
+// Load projects
+// loadUserProjects();
 
-    // // Set up event listeners
-    // setupProjectEventListeners();
+// // Set up event listeners
+// setupProjectEventListeners();
 // }
 
 /**
@@ -109,6 +133,35 @@ function setupProjectEventListeners() {
     const projectForm = document.getElementById('add-project-form-step1');
     if (projectForm) {
         projectForm.addEventListener('submit', handleStep1Submit);
+    }
+
+    // --- Search Handlers ---
+    
+    // Student Project Search
+    const projectSearchInput = document.getElementById('student-project-search');
+    if (projectSearchInput) {
+        projectSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = userProjects.filter(p =>
+                p.name.toLowerCase().includes(query) ||
+                p.description.toLowerCase().includes(query) ||
+                (p.courseCode && p.courseCode.toLowerCase().includes(query))
+            );
+            renderProjectCards(filtered);
+        });
+    }
+
+    // Student Team Search
+    const teamSearchInput = document.getElementById('student-team-search');
+    if (teamSearchInput) {
+        teamSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = userProjects.filter(p =>
+                p.name.toLowerCase().includes(query) ||
+                p.ownerName.toLowerCase().includes(query)
+            );
+            renderActiveTeams(filtered);
+        });
     }
 }
 
@@ -128,9 +181,9 @@ async function loadUserProjects(statusFilter = null) {
             params.append('status', statusFilter);
         }
         if (projectHubUser && projectHubUser.role === 'Teacher') {
-             params.append('role', 'guide');
+            params.append('role', 'guide');
         }
-        
+
         if (params.toString()) {
             url += `?${params.toString()}`;
         }
@@ -156,23 +209,33 @@ async function loadUserProjects(statusFilter = null) {
         }
 
         userProjects = projects;
-        renderProjectCards(projects);
-        renderDashboardProjects(projects); 
+
+        // Filter dashboard based on the search bar, IF it exists
+        const searchInput = document.getElementById('teacher-dashboard-search');
+        const filterText = searchInput ? searchInput.value : '';
+        filterTeacherDashboard(filterText); // Re-render with filter
+
+        renderProjectCards(projects); // This one is for student page, it's fine
         renderActiveTeams(projects);
-        renderDashboardActiveProjects(projects); 
-        renderGuidedProjectsTable(projects);
+        
+        // --- ADDED THIS LINE ---
+        renderDashboardProjects(projects); 
+        // -----------------------
+
+        renderDashboardActiveProjects(projects); // This will be filtered now
+        renderGuidedProjectsTable(projects); // This will be filtered by another function
         renderGuidedTeams(projects);
     } catch (error) {
         // Display the error on ALL relevant dashboards (student and teacher)
         handleApiError(error, 'projects-container'); // Student "Projects" page
         handleApiError(error, 'dashboard-projects-container'); // Student "Dashboard"
         handleApiError(error, 'dashboard-active-projects'); // Teacher "Dashboard"
-        
+
         // Special handling for the teacher's table
         const teacherTableBody = document.getElementById('guided-projects-table-body');
         if (teacherTableBody) {
-             const errorMessage = error.detail || error.message || "Could not load projects.";
-             teacherTableBody.innerHTML = `<tr><td colspan="5" class="py-4 px-4 text-center text-red-500">${errorMessage}</td></tr>`;
+            const errorMessage = error.detail || error.message || "Could not load projects.";
+            teacherTableBody.innerHTML = `<tr><td colspan="5" class="py-4 px-4 text-center text-red-500">${errorMessage}</td></tr>`;
         }
     }
 }
@@ -243,10 +306,10 @@ function renderActiveTeams(projects) {
     container.innerHTML = projects.map(project => {
         // Create avatar list
         const ownerAvatar = `<div title="${project.ownerName} (Owner)" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark bg-primary text-white text-xs flex items-center justify-center font-semibold">${project.ownerName.charAt(0).toUpperCase()}</div>`;
-        const memberAvatars = project.teamMembers.map(member => 
+        const memberAvatars = project.teamMembers.map(member =>
             `<div title="Team Member" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark bg-accent-dark text-white text-xs flex items-center justify-center">${member.userId.charAt(0).toUpperCase()}</div>`
         ).join('');
-        
+
         return `
         <div class="rounded-xl shadow-subtle bg-card-light dark:bg-card-dark p-6 flex flex-col justify-between border border-border-light dark:border-border-dark">
             <div>
@@ -279,8 +342,8 @@ function renderDashboardProjects(projects) {
     const container = document.getElementById('dashboard-projects-container');
     if (!container) return; // Exit if element isn't on the page
 
-    // Let's show just the first 3 active projects
-    const activeProjects = projects.filter(p => p.status === 'Active' || p.status === 'Planning').slice(0, 3);
+    // Show projects that are Active, Inactive, or Planning (basically anything not Completed or Archived)
+    const activeProjects = projects.filter(p => p.status !== 'Completed' && p.status !== 'Archived').slice(0, 3);
 
     if (activeProjects.length === 0) {
         container.innerHTML = `<p class="text-sm text-subtext-light dark:text-subtext-dark">You have no active projects. Click 'Add New Project' to start!</p>`;
@@ -309,14 +372,33 @@ function renderDashboardActiveProjects(projects) {
     if (!container) return; // Exit if not on the right page
 
     // Filter for projects this teacher is guiding
-    const guidedProjects = projects.filter(p => p.guideId === projectHubUser._id).slice(0, 3);
+    // We use userProjects (the full list) not the passed 'projects' list
+    let guidedProjects = userProjects.filter(p => p.guideId === projectHubUser._id);
 
-    if (guidedProjects.length === 0) {
-        container.innerHTML = `<p class="text-sm text-subtext-light dark:text-subtext-dark p-4">You are not guiding any projects yet.</p>`;
+    // --- FILTER LOGIC ---
+    const searchInput = document.getElementById('teacher-dashboard-search');
+    const filterText = searchInput ? searchInput.value.toLowerCase() : '';
+
+    if (filterText) {
+        guidedProjects = guidedProjects.filter(p =>
+            p.name.toLowerCase().includes(filterText) ||
+            p.ownerName.toLowerCase().includes(filterText)
+        );
+    }
+    // --- END OF FILTER LOGIC ---
+
+    const projectsToShow = guidedProjects.slice(0, 3);
+
+    if (projectsToShow.length === 0) {
+        if (filterText) {
+            container.innerHTML = `<p class="text-sm text-subtext-light dark:text-subtext-dark p-4">No guided projects match your search.</p>`;
+        } else {
+            container.innerHTML = `<p class="text-sm text-subtext-light dark:text-subtext-dark p-4">You are not guiding any projects yet.</p>`;
+        }
         return;
     }
 
-    container.innerHTML = guidedProjects.map(project => `
+    container.innerHTML = projectsToShow.map(project => `
         <div class="flex justify-between items-center p-4 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
             <div>
                 <p class="font-semibold text-text-light dark:text-text-dark mt-1">${project.name}</p>
@@ -348,7 +430,7 @@ function renderDashboardUnassigned(projects) {
                 <p class="font-semibold text-text-light dark:text-text-dark">${project.name}</p>
                 <p class="text-sm text-subtext-light dark:text-subtext-dark">Owner: ${project.ownerName}</p>
             </div>
-            <button onclick="viewProjectDetails('${project._id}')" class="px-3 py-1 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20">
+            <button onclick="showPage('projects-page')" class="px-3 py-1 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20">
                 View
             </button>
         </div>
@@ -365,7 +447,6 @@ function renderDashboardUnassigned(projects) {
 
     container.innerHTML = html;
 }
-
 function renderDashboardSentRequests(requests) {
     const container = document.getElementById('dashboard-sent-requests-tab');
     if (!container) return;
@@ -431,7 +512,8 @@ function getStatusBadgeClass(status) {
         'Planning': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
         'Active': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
         'Completed': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-        'Inactive': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+        'Inactive': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', // Yellow for Inactive
+        'in_progress': 'bg-green-100 text-green-800' // Fallback for old data
     };
     return classes[status] || 'bg-gray-100 text-gray-800';
 }
@@ -439,8 +521,8 @@ function getStatusBadgeClass(status) {
 function renderTeamAvatars(project) {
     // Placeholder logic: creates avatars for owner + team members
     const ownerAvatar = `<div title="${project.ownerName} (Owner)" class="w-8 h-8 rounded-full bg-primary text-white text-xs flex items-center justify-center border-2 border-white dark:border-card-dark font-semibold">${project.ownerName.charAt(0).toUpperCase()}</div>`;
-    
-    const memberAvatars = project.teamMembers.map(member => 
+
+    const memberAvatars = project.teamMembers.map(member =>
         `<div title="${member.userId}" class="w-8 h-8 rounded-full bg-accent-dark text-white text-xs flex items-center justify-center border-2 border-white dark:border-card-dark">${member.userId.charAt(0).toUpperCase()}</div>`
     ).join('');
 
@@ -452,9 +534,9 @@ function viewProjectDetails(projectId) {
     // Navigate to project detail page
     const detailPage = document.getElementById('project-detail-page');
     if (detailPage) {
-        loadProjectDetails(projectId);
         // Assumes a global `showPage` function exists from `dashboard_common.js`
-        showPage('project-detail-page');
+        showPage('project-detail-page'); // <--- Show the page first (it will display "Loading...")
+        loadProjectDetails(projectId); // <--- THEN load the data
     }
 }
 
@@ -479,12 +561,41 @@ async function loadProjectDetails(projectId) {
 function renderProjectDetails(project) {
     const milestonesContainer = document.getElementById('project-milestones-container');
     if (milestonesContainer) {
-        milestonesContainer.innerHTML = renderMilestones(project.milestones, project._id, project.status);
+        milestonesContainer.innerHTML = renderMilestones(project);
     }
     // Update other fields
     document.getElementById('project-detail-name').textContent = project.name;
     document.getElementById('project-detail-description').textContent = project.description;
-    document.getElementById('project-detail-team-list').innerHTML = renderProjectDetailTeam(project);
+
+    // Render the Owner and Team
+    const teamListEl = document.getElementById('project-detail-team-list');
+    teamListEl.innerHTML = renderProjectDetailTeam(project);
+
+    // Now, create and append the Guide info
+    let guideHTML = '';
+    if (project.guideName) {
+        guideHTML = `
+            <div class="flex items-center gap-3 mt-4 pt-4 border-t border-border-light dark:border-border-dark">
+                <div title="${project.guideName}" class="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center font-semibold text-sm">${project.guideName.charAt(0).toUpperCase()}</div>
+                <div>
+                    <p class="font-semibold text-text-light dark:text-text-dark">${project.guideName}</p>
+                    <p class="text-sm text-subtext-light dark:text-subtext-dark">Project Guide</p>
+                </div>
+            </div>
+        `;
+    } else {
+        guideHTML = `
+            <div class="flex items-center gap-3 mt-4 pt-4 border-t border-border-light dark:border-border-dark">
+                <div title="No Guide" class="w-10 h-10 rounded-full bg-gray-400 text-white flex items-center justify-center font-semibold text-sm">?</div>
+                <div>
+                    <p class="font-semibold text-text-light dark:text-text-dark">No Guide Assigned</p>
+                    <p class="text-sm text-subtext-light dark:text-subtext-dark">This project is awaiting a guide.</p>
+                </div>
+            </div>
+        `;
+    }
+    // Add the new HTML after the existing team members
+    teamListEl.insertAdjacentHTML('beforeend', guideHTML);
 
     // --- ADD THIS NEW SECTION FOR TEACHER ACTIONS ---
     const actionsContainer = document.getElementById('project-detail-actions');
@@ -516,7 +627,7 @@ function renderProjectDetails(project) {
                 document.getElementById('project-deadline-input').value = new Date(project.deadline).toISOString().split('T')[0];
             }
         } else {
-            actionsContainer.innerHTML = ''; 
+            actionsContainer.innerHTML = '';
         }
     }
 
@@ -531,7 +642,7 @@ function renderProjectDetails(project) {
 function renderProjectDetailTeam(project) {
     const ownerHTML = `
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-semibold text-sm">${project.ownerName.charAt(0).toUpperCase()}</div>
+            <div title="${project.ownerName}" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-semibold text-sm">${project.ownerName.charAt(0).toUpperCase()}</div>
             <div>
                 <p class="font-semibold text-text-light dark:text-text-dark">${project.ownerName}</p>
                 <p class="text-sm text-subtext-light dark:text-subtext-dark">Project Owner</p>
@@ -539,35 +650,79 @@ function renderProjectDetailTeam(project) {
         </div>
     `;
 
+    // Use member.fullName, fallback to 'Unknown'
     const membersHTML = project.teamMembers.map(member => `
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-accent-dark text-white flex items-center justify-center font-semibold text-sm">${member.userId.charAt(0).toUpperCase()}</div>
+            <div title="${member.fullName || 'Unknown'}" class="w-10 h-10 rounded-full bg-accent-dark text-white flex items-center justify-center font-semibold text-sm">${(member.fullName || '?').charAt(0).toUpperCase()}</div>
             <div>
-                <p class="font-semibold text-text-light dark:text-text-dark">(Name N/A)</p>
+                <p class="font-semibold text-text-light dark:text-text-dark">${member.fullName || '(Unknown Member)'}</p>
                 <p class="text-sm text-subtext-light dark:text-subtext-dark">Team Member</p>
             </div>
         </div>
-    `).join(''); // Note: We'd need to fetch member names for a richer view, but this works for now.
+    `).join('');
 
     return ownerHTML + membersHTML;
 }
 
-function renderMilestones(milestones, projectId, projectStatus) {
+function renderMilestones(project) {
+    const milestones = project.milestones;
+    const projectId = project._id;
+    const projectStatus = project.status;
     const statusMap = {
         "not_started": { icon: "radio_button_unchecked", color: "text-subtext-light dark:text-subtext-dark", bgColor: "bg-gray-100 dark:bg-gray-800" },
         "in_progress": { icon: "edit", color: "text-primary dark:text-accent-light", bgColor: "bg-primary/10 dark:bg-primary/20", pulse: "animate-pulse" },
         "completed": { icon: "check_circle", color: "text-green-500", bgColor: "bg-green-100 dark:bg-green-900/50" }
     };
+
+    // --- NEW LOGIC CHECKS ---
+    const isGuide = projectHubUser && projectHubUser.role === 'Teacher' && projectHubUser._id === project.guideId;
+    const isStudent = projectHubUser && projectHubUser.role === 'Student';
     
-    // Student can edit, Teacher can only view
-    const isEditable = (projectHubUser && projectHubUser.role === 'Student') && (projectStatus ==='Planning' || projectStatus === 'Active');
+    // Students can edit if a guide is assigned (guideId exists), regardless of status label
+    // This unlocks the buttons for "Inactive" or "Active" projects
+    const canStudentEdit = isStudent && project.guideId && projectStatus !== 'Completed';
 
     return milestones.sort((a, b) => a.order - b.order).map(milestone => {
         const config = statusMap[milestone.status] || statusMap["not_started"];
+        const isCompleted = milestone.status === 'completed';
+
+        // --- DETERMINE WHICH BUTTON/CONTROL TO SHOW ---
+        let actionControlHTML = '';
+        if (isCompleted) {
+            actionControlHTML = `
+                <div class="flex items-center gap-2 px-3 py-2 rounded-lg ${config.bgColor}">
+                    <span class="material-icons-outlined text-base ${config.color}">check_circle</span>
+                    <span class="text-sm font-medium ${config.color}">Completed</span>
+                </div>
+            `;
+        } else if (isGuide) {
+            actionControlHTML = `
+                <button onclick="event.stopPropagation(); confirmApproveMilestone('${projectId}', ${milestone.order})" 
+                        class="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600">
+                    <span class="material-icons-outlined text-base" style="font-size: 18px; vertical-align: middle; margin-right: 4px;">check</span>
+                    Approve
+                </button>
+            `;
+        } else if (canStudentEdit) {
+            actionControlHTML = `
+                <select class="form-select rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" 
+                        onchange="event.stopPropagation(); updateMilestone('${projectId}', ${milestone.order}, this.value)">
+                    <option value="not_started" ${milestone.status === 'not_started' ? 'selected' : ''}>Not Started</option>
+                    <option value="in_progress" ${milestone.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                    <!-- "Completed" option is intentionally removed for students -->
+                </select>
+            `;
+        } else {
+            // Fallback for students before guide is assigned, or other teachers
+            actionControlHTML = `
+                <span class="text-sm font-medium text-subtext-light dark:text-subtext-dark">Locked</span>
+            `;
+        }
+
         return `
             <div class="flex items-center gap-4 bg-card-light dark:bg-card-dark px-4 py-3 rounded-lg border border-border-light dark:border-border-dark justify-between ${config.pulse || ''} hover:bg-background-light dark:hover:bg-background-dark transition-colors"
                  onclick="viewPhaseDetails(event, '${projectId}', ${milestone.order}, '${milestone.name}')" style="cursor: pointer;">
-                
+
                 <div class="flex items-center gap-4">
                     <div class="${config.color} flex items-center justify-center rounded-full ${config.bgColor} shrink-0 size-12">
                         <span class="material-icons-outlined">${config.icon}</span>
@@ -577,18 +732,10 @@ function renderMilestones(milestones, projectId, projectStatus) {
                         <p class="text-subtext-light dark:text-subtext-dark text-sm font-normal leading-normal line-clamp-2">${milestone.status.replace('_', ' ')}</p>
                     </div>
                 </div>
-                
-                ${isEditable ? `
-                <div class="shrink-0" onclick="event.stopPropagation();"> <select class="form-select rounded-lg border-border-light dark:border-border-dark bg-background-light dark:bg-card-dark/50 focus:border-primary focus:ring-primary text-text-light dark:text-text-dark" 
-                            onchange="event.stopPropagation(); updateMilestone('${projectId}', ${milestone.order}, this.value)"> <option value="not_started" ${milestone.status === 'not_started' ? 'selected' : ''}>Not Started</option>
-                        <option value="in_progress" ${milestone.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
-                        <option value="completed" ${milestone.status === 'completed' ? 'selected' : ''}>Completed</option>
-                    </select>
+
+                <div class="shrink-0" onclick="event.stopPropagation();">
+                    ${actionControlHTML}
                 </div>
-                ` : `
-                <div class="shrink-0" onclick="event.stopPropagation();"> <span class="text-sm font-medium text-subtext-light dark:text-subtext-dark">Locked</span>
-                </div>
-                `}
             </div>
         `;
     }).join('');
@@ -609,14 +756,14 @@ async function createProject(formData) {
 
         const project = await response.json();
         showSuccess('Project created! Now add your team.', 'project-form-message');
-        
+
         currentProjectId = project._id; // This is already fixed
 
         // Reload projects in the background
         loadUserProjects();
-        
+
         // Move to Step 2 (Team Page)
-        showPage('add-project-step2-page'); 
+        showPage('add-project-step2-page');
         renderTeamManagementPage(project);
 
 
@@ -685,12 +832,12 @@ async function updateMilestone(projectId, milestoneOrder, status) {
         }
 
         const project = await response.json();
-        
+
         // Reload project details to show updated progress and milestone
         renderProjectDetails(project);
     } catch (error) {
         // Find a place to show milestone errors
-        handleApiError(error, 'project-detail-message'); 
+        handleApiError(error, 'project-detail-message');
     }
 }
 
@@ -703,7 +850,7 @@ async function searchStudents(query) {
         document.getElementById('team-search-results').innerHTML = '';
         return;
     }
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/students/search?q=${encodeURIComponent(query)}`, {
             method: 'GET',
@@ -713,7 +860,7 @@ async function searchStudents(query) {
         if (!response.ok) {
             throw await response.json();
         }
-        
+
         const students = await response.json();
         renderStudentSearchResults(students);
     } catch (error) {
@@ -728,7 +875,7 @@ function renderStudentSearchResults(students) {
         resultsContainer.innerHTML = '<p class="text-subtext-light dark:text-subtext-dark p-2">No students found.</p>';
         return;
     }
-    
+
     resultsContainer.innerHTML = students.map(student => `
         <div class="flex items-center justify-between p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-lg">
             <div>
@@ -755,10 +902,10 @@ async function sendTeamInvite(projectId, inviteeEmail) {
         if (!response.ok) {
             throw await response.json();
         }
-        
+
         showSuccess('Invitation sent successfully!', 'team-invite-message');
         loadSentInvitations();
-        
+
     } catch (error) {
         handleApiError(error, 'team-invite-message');
     }
@@ -814,17 +961,17 @@ function renderDashboardInvitations(invitations) {
     if (!container) return;
 
     if (invitations.length === 0) {
-        container.innerHTML = `<p class="text-sm text-subtext-light dark:text-subtext-dark">You have no new invitations.</p>`; // <-- EDITED
+        container.innerHTML = `<p class="text-sm text-subtext-light dark:text-subtext-dark">You have no new invitations.</p>`;
         return;
     }
 
-    // Show a summary of invitations
+    // Changed: Removed standard border colors, added 'highlight-blue'
     container.innerHTML = invitations.map(invitation => `
-        <div class="p-3 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
+        <div class="p-3 bg-background-light dark:bg-background-dark rounded-lg border highlight-blue">
             <p class="text-sm font-medium text-text-light dark:text-text-dark">Invite to join "${invitation.projectName}"</p>
             <p class="text-xs text-subtext-light dark:text-subtext-dark">From: ${invitation.inviterName}</p>
         </div>
-    `).join('<div class="h-2"></div>'); // Add a small space between invites
+    `).join('<div class="h-2"></div>');
 }
 
 async function respondToTeamInvite(invitationId, accept) {
@@ -870,7 +1017,7 @@ async function loadSentInvitations() {
     } catch (error) {
         console.error('Error loading sent invitations:', error);
         const container = document.getElementById('sent-invitations-container');
-        if(container) container.innerHTML = `<p class="text-red-500 px-4">${error.message || 'Could not load sent invites'}</p>`
+        if (container) container.innerHTML = `<p class="text-red-500 px-4">${error.message || 'Could not load sent invites'}</p>`
     }
 }
 
@@ -955,7 +1102,14 @@ async function loadUnassignedProjects() {
         }
 
         const projects = await response.json();
-        renderUnassignedProjects(projects);
+        allUnassignedProjects = projects; // <-- STORE THE FULL LIST
+
+        // --- ADD THIS LOGIC ---
+        const searchInput = document.getElementById('teacher-projects-search');
+        const filterText = searchInput ? searchInput.value : '';
+        renderUnassignedProjects(filterText); // Re-render with filter
+        // --- END OF NEW LOGIC ---
+
         renderDashboardUnassigned(projects);
     } catch (error) {
         console.error('Error loading unassigned projects:', error);
@@ -966,23 +1120,37 @@ async function loadUnassignedProjects() {
     }
 }
 
-function renderUnassignedProjects(projects) {
+function renderUnassignedProjects(filterText = '') {
     const container = document.getElementById('unassigned-projects-container');
     if (!container) return;
 
-    if (projects.length === 0) {
-        container.innerHTML = '<p class="text-subtext-light dark:text-subtext-dark p-4">No unassigned projects found in your department.</p>';
+    let projectsToRender = allUnassignedProjects;
+    const query = filterText.toLowerCase();
+
+    if (query) {
+        projectsToRender = allUnassignedProjects.filter(project =>
+            project.name.toLowerCase().includes(query) ||
+            project.ownerName.toLowerCase().includes(query)
+        );
+    }
+
+    if (projectsToRender.length === 0) {
+        if (query) {
+            container.innerHTML = '<p class="text-subtext-light dark:text-subtext-dark p-4">No unassigned projects match your search.</p>';
+        } else {
+            container.innerHTML = '<p class="text-subtext-light dark:text-subtext-dark p-4">No unassigned projects found in your department.</p>';
+        }
         return;
     }
 
-    container.innerHTML = projects.map(project => `
+    container.innerHTML = projectsToRender.map(project => `
         <div class="p-4 rounded-lg bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark flex items-center justify-between">
             <div>
                 <p class="font-semibold text-text-light dark:text-text-dark">${project.name}</p>
                 <p class="text-sm text-subtext-light dark:text-subtext-dark">Owner: ${project.ownerName}</p>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="sendGuideRequest('${project._id}')"
+                <button onclick="openGuideRequestModal('${project._id}', '${project.name}')"
                         class="px-4 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20">
                     Request to Guide
                 </button>
@@ -991,22 +1159,31 @@ function renderUnassignedProjects(projects) {
     `).join('');
 }
 
-async function sendGuideRequest(projectId) {
+async function sendGuideRequest(projectId, deadline) {
+    // This function is now called by handleSendGuideRequest
     try {
         const response = await fetch(`${API_BASE_URL}/projects/${projectId}/guide/request`, {
             method: 'POST',
-            headers: getAuthHeaders()
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ deadline: deadline }) // <-- Pass deadline in body
         });
 
         if (!response.ok) {
             throw await response.json();
         }
 
-        showSuccess('Guide request sent!', 'teacher-dashboard-message');
+        showSuccess('Guide request sent!', 'guide-modal-message');
         loadUnassignedProjects(); // Refresh the list
         loadGuideRequests('sent'); // Refresh sent requests
+
+        // Close the modal after success
+        setTimeout(() => {
+            const modal = document.getElementById('guide-request-modal');
+            if (modal) modal.classList.add('hidden');
+        }, 1500);
+
     } catch (error) {
-        handleApiError(error, 'teacher-dashboard-message');
+        handleApiError(error, 'guide-modal-message');
     }
 }
 
@@ -1028,6 +1205,7 @@ async function loadGuideRequests(type = 'received') {
             renderGuideRequests_Teacher(requests);
             renderDashboardSentRequests(requests);
         }
+        return requests;
     } catch (error) {
         console.error('Error loading guide requests:', error);
     }
@@ -1048,6 +1226,7 @@ function renderGuideRequests_Student(requests) {
                 <div>
                     <p class="text-text-light dark:text-text-dark font-semibold">${request.teacherName} wants to guide your project "${request.projectName}"</p>
                     <p class="text-sm text-subtext-light dark:text-subtext-dark">Sent: ${formatDate(request.createdAt)}</p>
+                    <p class="text-sm text-primary dark:text-accent-light font-medium mt-1">Proposed Deadline: ${formatDate(request.deadline)}</p>
                 </div>
                 <div class="flex gap-2 shrink-0">
                     <button onclick="respondToGuideRequest('${request._id}', true)" class="rounded-lg px-4 py-2 text-sm font-medium bg-green-500 text-white hover:bg-green-600 transition-colors">Accept</button>
@@ -1098,7 +1277,7 @@ async function respondToGuideRequest(requestId, accept, declineReason = null) {
         handleApiError({ message: 'Decline reason is required.' }, 'teams-page-message');
         return;
     }
-    
+
     try {
         const body = { accept };
         if (!accept) {
@@ -1128,10 +1307,10 @@ async function respondToGuideRequest(requestId, accept, declineReason = null) {
 
 async function updateDeadline(projectId, deadline) {
     if (!deadline) {
-        handleApiError({message: "Please select a valid date."}, 'project-detail-message');
+        handleApiError({ message: "Please select a valid date." }, 'project-detail-message');
         return;
     }
-    
+
     try {
         const response = await fetch(`${API_BASE_URL}/projects/${projectId}/deadline`, {
             method: 'PUT',
@@ -1146,7 +1325,7 @@ async function updateDeadline(projectId, deadline) {
         showSuccess('Deadline updated!', 'project-detail-message');
         const project = await response.json();
         renderProjectDetails(project); // Refresh details
-        
+
     } catch (error) {
         handleApiError(error, 'project-detail-message');
         throw error;
@@ -1178,7 +1357,7 @@ async function handleStep1Submit(event) {
         name,
         description,
         courseCode: courseCode || null,
-        deadline: null 
+        deadline: null
     };
 
     // --- ADD THIS TRY...CATCH BLOCK ---
@@ -1199,7 +1378,7 @@ async function handleStep1Submit(event) {
 function renderTeamManagementPage(project) {
     const container = document.getElementById('add-project-step2-page');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle w-full max-w-4xl mx-auto border border-border-light dark:border-border-dark">
             <div class="flex items-center mb-8">
@@ -1271,13 +1450,13 @@ function renderTeamManagementPage(project) {
  * @param {string} projectId - The ID of the current project.
  */
 async function renderGuideManagementPage(projectId) {
-     const container = document.getElementById('add-project-step3-page');
+    const container = document.getElementById('add-project-step3-page');
     if (!container) return;
-    
+
     // We need to fetch the project again in case team members were added,
     // or just pass the project object if we update it locally.
     // For simplicity, we'll just show the guide request part.
-    
+
     container.innerHTML = `
         <div class="bg-card-light dark:bg-card-dark p-8 rounded-xl shadow-subtle w-full max-w-4xl mx-auto border border-border-light dark:border-border-dark">
             <div class="flex items-center mb-8">
@@ -1327,7 +1506,7 @@ async function renderGuideManagementPage(projectId) {
             </div>
         </div>
     `;
-    
+
     // We can also load pending requests for *this specific project*
     // but the current GET /requests/guide loads all for the user.
     // For now, we'll rely on the main dashboard load.
@@ -1343,31 +1522,52 @@ async function loadDepartmentStudents() {
             throw await response.json();
         }
         const students = await response.json();
-        renderStudentDirectory(students);
+        allDepartmentStudents = students;
+
+        // --- LOGIC ---
+        const searchInput = document.getElementById('teacher-students-search');
+        const filterText = searchInput ? searchInput.value : '';
+        renderStudentDirectory(filterText); // Re-render with filter
+        // --- END OF LOGIC ---
+
     } catch (error) {
         console.error("Error loading department students:", error);
         handleApiError(error, 'student-directory-container');
     }
 }
 
-function renderStudentDirectory(students) {
+function renderStudentDirectory(filterText = '') {
     const container = document.getElementById('student-directory-container');
     if (!container) return;
 
-    if (students.length === 0) {
-        container.innerHTML = `<p class="text-subtext-light dark:text-subtext-dark col-span-full text-center">No students found in your department.</p>`;
+    let studentsToRender = allDepartmentStudents;
+    const query = filterText.toLowerCase();
+
+    if (query) {
+        studentsToRender = allDepartmentStudents.filter(student =>
+            student.fullName.toLowerCase().includes(query) ||
+            student.email.toLowerCase().includes(query)
+        );
+    }
+
+    if (studentsToRender.length === 0) {
+        if (query) {
+            container.innerHTML = `<p class="text-subtext-light dark:text-subtext-dark col-span-full text-center">No students match your search.</p>`;
+        } else {
+            container.innerHTML = `<p class="text-subtext-light dark:text-subtext-dark col-span-full text-center">No students found in your department.</p>`;
+        }
         return;
     }
 
     // Update the dynamic student count
     const countHeader = document.getElementById('student-count-header');
     if (countHeader) {
-        countHeader.textContent = `Students in Your Department (${students.length})`;
+        countHeader.textContent = `Students in Your Department (${studentsToRender.length})`;
     }
 
-    container.innerHTML = students.map(student => {
+    container.innerHTML = studentsToRender.map(student => {
         const isGuided = guidedStudentIds.has(student._id);
-        
+
         return `
         <div class="bg-background-light dark:bg-background-dark p-4 rounded-lg flex flex-col items-center text-center shadow-sm border border-border-light dark:border-border-dark relative">
             
@@ -1381,17 +1581,7 @@ function renderStudentDirectory(students) {
             <h4 class="font-semibold text-lg text-text-light dark:text-text-dark">${student.fullName}</h4>
             <p class="text-sm text-subtext-light dark:text-subtext-dark mb-6">${student.email}</p>
             
-            <div class="flex w-full justify-around mt-auto">
-                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary" title="Send Message">
-                    <span class="material-icons">chat_bubble_outline</span>
-                </button>
-                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary" title="View Profile">
-                    <span class="material-icons">visibility</span>
-                </button>
-                <button class="p-2 rounded-full hover:bg-primary/10 text-subtext-light dark:text-subtext-dark hover:text-primary" title="More Options">
-                    <span class="material-icons">more_horiz</span>
-                </button>
-            </div>
+            
         </div>
         `;
     }).join('');
@@ -1412,11 +1602,11 @@ function renderGuidedTeams(projects) {
     container.innerHTML = guidedProjects.map(project => {
         // Create avatar list
         const ownerAvatar = `<div title="${project.ownerName} (Owner)" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark bg-primary text-white text-xs flex items-center justify-center font-semibold">${project.ownerName.charAt(0).toUpperCase()}</div>`;
-        const memberAvatars = project.teamMembers.map(member => 
+        const memberAvatars = project.teamMembers.map(member =>
             // We don't have member names here, just IDs. We'll use the ID's first char.
             `<div title="Team Member" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-card-dark bg-accent-dark text-white text-xs flex items-center justify-center">${member.userId.charAt(0).toUpperCase()}</div>`
         ).join('');
-        
+
         return `
         <div class="rounded-xl shadow-subtle bg-background-light dark:bg-background-dark p-6 flex flex-col justify-between border border-border-light dark:border-border-dark">
             <div>
@@ -1511,7 +1701,7 @@ async function viewPhaseDetails(event, projectId, phaseOrder, phaseName) {
 
     // --- Role-Specific Rendering (WITH NEW GUIDE CHECK) ---
     if (projectHubUser && projectHubUser.role === 'Student') {
-        
+
         // Show the form container and form for students
         if (formContainerEl) formContainerEl.style.display = 'block';
         if (formEl) formEl.style.display = 'block';
@@ -1519,24 +1709,24 @@ async function viewPhaseDetails(event, projectId, phaseOrder, phaseName) {
         // NEW CHECK: See if a guide is assigned
         if (currentProjectForPhaseView && currentProjectForPhaseView.guideId) {
             // YES, a guide is assigned
-            
+
             // Enable button and hook up form submission
             if (formButton) formButton.disabled = false;
             if (formEl) {
-                formEl.onsubmit = null; 
+                formEl.onsubmit = null;
                 formEl.onsubmit = (e) => handleLinkSubmit(e, projectId, phaseOrder);
             }
         } else {
             // NO, a guide is not assigned
-            
+
             // Disable button
             if (formButton) formButton.disabled = true;
-            
+
             // Prevent form submission just in case
             if (formEl) {
-                formEl.onsubmit = (e) => e.preventDefault(); 
+                formEl.onsubmit = (e) => e.preventDefault();
             }
-            
+
             // Show the specific error message
             handleApiError({ message: "Submission is disabled. You are not assigned to any guide." }, 'phase-link-message');
         }
@@ -1545,14 +1735,40 @@ async function viewPhaseDetails(event, projectId, phaseOrder, phaseName) {
         // Hide submission form for teachers
         if (formContainerEl) formContainerEl.style.display = 'none';
     }
-    
+
     // --- Navigate and Load Data ---
-    showPage('phase-detail-page'); // Show the new page
+    showPage('phase-detail-page'); 
+    
+    // --- AUTO-START LOGIC ---
+    if (projectHubUser && projectHubUser.role === 'Student') {
+        const milestone = currentProjectForPhaseView.milestones.find(m => m.order === phaseOrder);
+        
+        // If phase is "not_started" and we have a guide, auto-switch to "in_progress"
+        if (milestone && milestone.status === 'not_started' && currentProjectForPhaseView.guideId) {
+            
+            // 1. Call API to update status
+            updateMilestone(projectId, phaseOrder, 'in_progress');
+            
+            // 2. Visually update the header immediately so user sees it changed
+            // (The API call above will refresh the main list in the background)
+            const titleEl = document.getElementById('phase-detail-title');
+            // Optional: You could add a badge here, but the main project update handles the logic
+        }
+    }
     
     // Load async data
-    loadPhaseGuideContent(phaseOrder); // This now loads the checklist
-    loadPhaseLinks(projectId, phaseOrder); // This loads submitted links
-    
+    loadPhaseGuideContent(phaseOrder); 
+    loadPhaseLinks(projectId, phaseOrder);
+
+    // Hook up the new chat button
+    const chatButton = document.getElementById('phase-chat-button');
+    if (chatButton) {
+        chatButton.onclick = () => {
+            // Open project_chat.html in a new tab with parameters
+            window.open(`project_chat.html?projectId=${projectId}&phaseOrder=${phaseOrder}`, '_blank');
+        };
+    }
+
     // Re-calculate smooth scroll
     if (window.smoothScroller) {
         window.smoothScroller.resize();
@@ -1620,7 +1836,7 @@ function loadPhaseGuideContent(phaseOrder) {
         default:
             checklistHTML = `<p class="text-red-500">Error: Invalid phase selected.</p>`;
     }
-    
+
     checklistContentEl.innerHTML = checklistHTML;
 }
 
@@ -1647,14 +1863,41 @@ async function loadPhaseLinks(projectId, phaseOrder) {
     }
 }
 
+async function deleteProjectLink(linkId, projectId, phaseOrder) {
+    if (!confirm("Are you sure you want to delete this file?")) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/projects/${projectId}/phases/${phaseOrder}/links/${linkId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            // Handle cases where response might not be JSON (e.g. 204 No Content is empty)
+            if (response.status !== 204) {
+                throw await response.json();
+            }
+        }
+
+        showSuccess('File deleted successfully!', 'phase-link-message');
+        
+        // Refresh the list
+        loadPhaseLinks(projectId, phaseOrder);
+
+    } catch (error) {
+        handleApiError(error, 'phase-link-message');
+    }
+}
+
 /**
  * Renders the list of links into the DOM.
  */
 function renderPhaseLinks(links) {
     const linksListEl = document.getElementById('phase-links-list');
     if (!linksListEl) return;
-    
+
     const isTeacher = projectHubUser && projectHubUser.role === 'Teacher';
+    const currentUserId = projectHubUser ? projectHubUser._id : null;
 
     if (links.length === 0) {
         linksListEl.innerHTML = `<p class="text-subtext-light dark:text-subtext-dark text-sm">No files have been submitted for this phase yet.</p>`;
@@ -1663,18 +1906,38 @@ function renderPhaseLinks(links) {
 
     linksListEl.innerHTML = links.map(link => {
         // Teacher gets a clickable link, Student sees their submission
-        const linkHTML = isTeacher 
+        const linkHTML = isTeacher
             ? `<a href="${link.linkUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline break-all">${link.linkUrl}</a>`
             : `<span class="text-subtext-light dark:text-subtext-dark break-all">${link.linkUrl}</span>`;
 
+        // Check if user can delete (Submitter or Project Owner)
+        // We assume 'currentProjectForPhaseView' is available globally from when we opened the phase
+        const isSubmitter = link.submittedByUserId === currentUserId;
+        const isOwner = currentProjectForPhaseView && currentProjectForPhaseView.ownerId === currentUserId;
+        
+        let deleteBtnHTML = '';
+        if (!isTeacher && (isSubmitter || isOwner)) {
+            deleteBtnHTML = `
+                <button onclick="deleteProjectLink('${link._id}', '${link.projectId}', ${link.phaseOrder})" 
+                        class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Delete File">
+                    <span class="material-icons-outlined text-lg">delete</span>
+                </button>
+            `;
+        }
+
         return `
-            <div class="p-3 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
-                <p class="text-sm font-medium text-text-light dark:text-text-dark">${link.linkDescription}</p>
-                <div class="text-xs text-subtext-light dark:text-subtext-dark mt-1">
-                    <p>Submitted by: ${link.submittedByUserName}</p>
-                    <p>${formatDate(link.submittedAt)}</p>
+            <div class="p-3 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark flex justify-between items-start gap-3">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-text-light dark:text-text-dark truncate">${link.linkDescription}</p>
+                    <div class="text-xs text-subtext-light dark:text-subtext-dark mt-1">
+                        <p>Submitted by: ${link.submittedByUserName}</p>
+                        <p>${formatDate(link.submittedAt)}</p>
+                    </div>
+                    <div class="mt-1">
+                        ${linkHTML}
+                    </div>
                 </div>
-                ${linkHTML}
+                ${deleteBtnHTML}
             </div>
         `;
     }).join('');
@@ -1688,7 +1951,7 @@ async function handleLinkSubmit(event, projectId, phaseOrder) {
     const messageEl = document.getElementById('phase-link-message');
     const form = event.target;
     const button = form.querySelector('button[type="submit"]');
-    
+
     const linkUrl = document.getElementById('phase-link-url').value;
     const linkDescription = document.getElementById('phase-link-desc').value;
 
@@ -1696,7 +1959,7 @@ async function handleLinkSubmit(event, projectId, phaseOrder) {
         handleApiError({ message: "Both fields are required." }, 'phase-link-message');
         return;
     }
-    
+
     button.disabled = true;
 
     try {
@@ -1705,14 +1968,14 @@ async function handleLinkSubmit(event, projectId, phaseOrder) {
             headers: getAuthHeaders(),
             body: JSON.stringify({ linkUrl, linkDescription })
         });
-        
+
         if (!response.ok) {
             throw await response.json();
         }
 
         showSuccess('Link submitted successfully!', 'phase-link-message');
         form.reset();
-        
+
         // Refresh the links list
         loadPhaseLinks(projectId, phaseOrder);
 
@@ -1722,6 +1985,185 @@ async function handleLinkSubmit(event, projectId, phaseOrder) {
         button.disabled = false;
     }
 }
+
+
+// ============================================
+// NEW DASHBOARD WIDGET FUNCTIONS
+// ============================================
+
+function renderDashboardUpcomingDeadlines(projects) {
+    const container = document.getElementById('dashboard-deadlines-container');
+    if (!container) return;
+
+    const now = new Date();
+    const upcoming = projects
+        .filter(p => p.deadline && new Date(p.deadline) > now)
+        .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+        .slice(0, 3); // Get top 3 nearest deadlines
+
+    if (upcoming.length === 0) {
+        container.innerHTML = `
+            <div class="flex items-center gap-4">
+                <span class="material-icons-outlined text-gray-400 text-3xl">event</span>
+                <div>
+                    <p class="font-medium text-text-light dark:text-text-dark">No upcoming deadlines.</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = upcoming.map(project => `
+        <div class="p-3 bg-background-light dark:bg-background-dark rounded-lg border border-border-light dark:border-border-dark">
+            <p class="text-sm font-medium text-text-light dark:text-text-dark">${project.name}</p>
+            <p class="text-xs text-primary font-bold">${formatDate(project.deadline)}</p>
+        </div>
+    `).join('');
+}
+
+function renderDashboardGuideRequests(requests) {
+    const container = document.getElementById('dashboard-guide-requests-container');
+    if (!container) return;
+
+    if (requests.length === 0) {
+        container.innerHTML = '<p class="text-sm text-subtext-light dark:text-subtext-dark">No new guide requests.</p>';
+        return;
+    }
+
+    // Changed: Removed standard border colors, added 'highlight-orange'
+    container.innerHTML = requests.slice(0, 3).map(request => `
+        <div class="p-3 bg-background-light dark:bg-background-dark rounded-lg border highlight-orange">
+            <p class="text-sm font-medium text-text-light dark:text-text-dark">Request from ${request.teacherName}</p>
+            <p class="text-xs text-subtext-light dark:text-subtext-dark">For: ${request.projectName}</p>
+        </div>
+    `).join('');
+}
+
+async function loadDashboardTeacherComments() {
+    const container = document.getElementById('dashboard-comments-container');
+    if (!container) return;
+
+    if (userProjects.length === 0) {
+        container.innerHTML = '<p class="text-sm text-subtext-light dark:text-subtext-dark">No new comments.</p>';
+        return;
+    }
+
+    try {
+        let allMessages = [];
+        // Fetch messages for all phases of all projects
+        for (const project of userProjects) {
+            for (let i = 1; i <= 4; i++) {
+                const cacheKey = `${project._id}-${i}`;
+                if (!projectChatMessages[cacheKey]) {
+                    const response = await fetch(`${API_BASE_URL}/projects/${project._id}/phases/${i}/chat`, {
+                        method: 'GET',
+                        headers: getAuthHeaders()
+                    });
+                    if (response.ok) {
+                        projectChatMessages[cacheKey] = await response.json();
+                    }
+                }
+                if (projectChatMessages[cacheKey]) {
+                    allMessages.push(...projectChatMessages[cacheKey]);
+                }
+            }
+        }
+
+        // Filter for messages *from* the Teacher, sort by date, get latest 3
+        const teacherComments = allMessages
+            .filter(msg => msg.senderRole === 'Teacher')
+            .sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt))
+            .slice(0, 3);
+
+        if (teacherComments.length === 0) {
+            container.innerHTML = '<p class="text-sm text-subtext-light dark:text-subtext-dark">No new comments from guides.</p>';
+            return;
+        }
+
+        // Changed: Removed standard border colors, added 'highlight-green'
+        container.innerHTML = teacherComments.map(msg => {
+            return `
+                <div class="p-3 bg-background-light dark:bg-background-dark rounded-lg border highlight-green">
+                    <p class="text-sm font-medium text-text-light dark:text-text-dark">${msg.senderName}</p>
+                    <p class="text-xs text-subtext-light dark:text-subtext-dark truncate">"${msg.messageText}"</p>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error("Error loading comments:", error);
+        container.innerHTML = '<p class="text-sm text-red-500">Could not load comments.</p>';
+    }
+}
+
+// ============================================
+// NEW GUIDE REQUEST MODAL FUNCTIONS (TEACHER)
+// ============================================
+
+let currentModalProjectId = null;
+
+function openGuideRequestModal(projectId, projectName) {
+    const modal = document.getElementById('guide-request-modal');
+    if (!modal) return;
+
+    currentModalProjectId = projectId;
+
+    // Set project name
+    document.getElementById('guide-modal-project-name').textContent = projectName;
+
+    // Clear old errors and date
+    document.getElementById('guide-modal-message').innerHTML = '';
+    document.getElementById('guide-modal-message').classList.add('hidden');
+    document.getElementById('guide-modal-deadline').value = '';
+
+    modal.classList.remove('hidden');
+}
+
+function closeGuideRequestModal() {
+    const modal = document.getElementById('guide-request-modal');
+    if (modal) modal.classList.add('hidden');
+    currentModalProjectId = null;
+}
+
+function handleSendGuideRequest(event) {
+    event.preventDefault();
+    const deadline = document.getElementById('guide-modal-deadline').value;
+
+    if (!deadline) {
+        handleApiError({ message: "Please select a deadline." }, 'guide-modal-message');
+        return;
+    }
+
+    if (currentModalProjectId) {
+        sendGuideRequest(currentModalProjectId, deadline);
+    }
+}
+
+
+// ============================================
+// NEW TEACHER SEARCH FILTER FUNCTIONS
+// ============================================
+
+function filterTeacherDashboard() {
+    // This just re-renders the active projects widget
+    // The filtering logic is now inside renderDashboardActiveProjects
+    renderDashboardActiveProjects();
+}
+
+function filterTeacherProjectsPage() {
+    const searchInput = document.getElementById('teacher-projects-search');
+    const filterText = searchInput ? searchInput.value : '';
+    // This re-renders the unassigned projects list
+    renderUnassignedProjects(filterText);
+}
+
+function filterTeacherStudentsPage() {
+    const searchInput = document.getElementById('teacher-students-search');
+    const filterText = searchInput ? searchInput.value : '';
+    // This re-renders the student directory
+    renderStudentDirectory(filterText);
+}
+
 
 // ============================================
 // WIDGET/FORM HANDLERS
@@ -1754,3 +2196,12 @@ window.renderGuideManagementPage = renderGuideManagementPage;
 window.loadDepartmentStudents = loadDepartmentStudents;
 window.renderStudentDirectory = renderStudentDirectory;
 window.renderGuidedTeams = renderGuidedTeams;
+window.filterTeacherDashboard = filterTeacherDashboard;
+window.filterTeacherProjectsPage = filterTeacherProjectsPage;
+window.filterTeacherStudentsPage = filterTeacherStudentsPage;
+window.openGuideRequestModal = openGuideRequestModal;
+window.closeGuideRequestModal = closeGuideRequestModal;
+window.handleSendGuideRequest = handleSendGuideRequest;
+window.approveMilestone = approveMilestone;
+window.confirmApproveMilestone = confirmApproveMilestone;
+window.deleteProjectLink = deleteProjectLink;

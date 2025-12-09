@@ -1,0 +1,250 @@
+---
+
+# 🧩 Phase 2 – Project Design and Tables
+
+*A structured guide to plan your system design, database, and architecture before you start coding.*
+
+---
+
+## 🎯 Purpose of Phase 2
+
+This phase is where your **project idea takes structural form** — you’ll design:
+
+* How your project is organized (modules & users)
+* What data it handles (tables, entities, relationships)
+* How users will interact with it (UI/UX)
+* How the backend and frontend connect
+
+You’re basically **creating the blueprint** of your system — like an architect’s plan before the building begins.
+
+---
+
+## 🧠 Step-by-Step Structure of Phase 2
+
+---
+
+### **1. System Overview**
+
+Start by giving a short summary of how your system works overall — mention the main modules or user types and their interactions.
+
+> **Example (Project Management System):**
+> The system consists of two main users — **Admin** and **Team Member**.
+>
+> * The **Admin** can create projects, assign tasks, and view progress reports.
+> * The **Team Member** can view assigned tasks, update status, and communicate with others.
+>   Both users interact through a web interface with real-time updates managed through a backend database.
+
+---
+
+### **2. Module Identification**
+
+List all modules or subparts of your project and describe what each one does.
+
+> **Example Modules:**
+>
+> 1. **User Module:** Handles registration, login, and role-based access.
+> 2. **Project Module:** Allows creation, editing, and deletion of projects.
+> 3. **Task Module:** Enables adding, updating, and tracking of individual tasks.
+> 4. **Report Module:** Generates progress and completion summaries.
+> 5. **Notification Module:** Sends alerts about new tasks or deadlines.
+
+💡 *Tip:* Keep modules independent but connected logically — each should handle one main responsibility.
+
+---
+
+### **3. User Roles and Permissions**
+
+Define what each type of user can and cannot do.
+
+| User Type            | Permissions                                  |
+| -------------------- | -------------------------------------------- |
+| **Admin**            | Create & manage users, projects, and reports |
+| **Team Member**      | View assigned tasks, update task status      |
+| **Guest (optional)** | View project overview only                   |
+
+---
+
+### **4. Database Design**
+
+Database design is the *heart* of this phase. Plan what data you need to store and how tables are related.
+
+#### **a) Identify Entities (Tables)**
+
+Start by listing all logical data groups.
+
+> Example for Project Management:
+>
+> * `users`
+> * `projects`
+> * `tasks`
+> * `comments`
+> * `notifications`
+
+---
+
+#### **b) Define Attributes (Columns)**
+
+For each table, define the columns, data types, and constraints.
+
+> **Example Database Schema**
+
+**users**
+
+| Field      | Type                   | Description          |
+| ---------- | ---------------------- | -------------------- |
+| id         | INT (PK)               | Unique user ID       |
+| name       | VARCHAR(100)           | User’s full name     |
+| email      | VARCHAR(100)           | Login email (unique) |
+| password   | VARCHAR(255)           | Encrypted password   |
+| role       | ENUM('admin','member') | User role            |
+| created_at | DATETIME               | Registration time    |
+
+**projects**
+
+| Field       | Type                                  | Description           |
+| ----------- | ------------------------------------- | --------------------- |
+| id          | INT (PK)                              | Project ID            |
+| title       | VARCHAR(150)                          | Project title         |
+| description | TEXT                                  | Brief project summary |
+| created_by  | INT (FK → users.id)                   | Who created it        |
+| start_date  | DATE                                  | Project start date    |
+| end_date    | DATE                                  | Deadline              |
+| status      | ENUM('pending','ongoing','completed') | Project progress      |
+
+**tasks**
+
+| Field       | Type                              | Description      |
+| ----------- | --------------------------------- | ---------------- |
+| id          | INT (PK)                          | Task ID          |
+| project_id  | INT (FK → projects.id)            | Related project  |
+| assigned_to | INT (FK → users.id)               | Assigned member  |
+| title       | VARCHAR(150)                      | Task name        |
+| details     | TEXT                              | Task description |
+| deadline    | DATE                              | Task due date    |
+| progress    | ENUM('todo','in-progress','done') | Task status      |
+
+---
+
+#### **c) Relationships (ER Diagram)**
+
+Design an Entity-Relationship Diagram (ERD) to visually show connections between tables.
+
+> **Example Relationships (in words):**
+>
+> * One **User** can create many **Projects**.
+> * One **Project** can have many **Tasks**.
+> * One **Task** belongs to exactly one **User** and one **Project**.
+> * Comments belong to both a **Task** and a **User**.
+
+*(You can draw this using [draw.io](https://app.diagrams.net), Lucidchart, or Figma.)*
+
+---
+
+### **5. UI/UX Design (Wireframes or Layouts)**
+
+Show how your application will look and feel.
+You can sketch by hand or use tools like Figma / Canva / Balsamiq.
+
+> **Example Screens (Web):**
+
+1. **Login Page** – User authentication
+2. **Dashboard** – List of all projects with progress indicators
+3. **Project Detail** – Tasks, members, and comments
+4. **Task Edit Page** – Update task status
+5. **Report Page** – Charts showing completed vs. pending tasks
+
+💡 *Tip:*
+Keep the interface minimal, responsive, and consistent (use the same color scheme, fonts, and layout spacing).
+
+---
+
+### **6. Process Design (Data Flow Diagrams - DFDs)**
+
+Represent how data moves through your system.
+
+#### **DFD Level 0 (Context Diagram)**
+
+* Shows the entire system as one process.
+* Displays interactions between system and users.
+
+> *Example:*
+> User → [Project Management System] → Database
+
+#### **DFD Level 1 (Detailed Flow)**
+
+* Breaks down system processes into smaller sub-processes.
+
+> *Example:*
+> User → Login → Dashboard → Project CRUD → Task CRUD → Reports
+
+---
+
+### **7. UML Diagrams (Optional but Strongly Recommended)**
+
+Advanced students can add these to make documentation professional:
+
+* **Use Case Diagram** – Interactions between users and the system
+* **Activity Diagram** – Flow of actions
+* **Class Diagram** – Object structure (for OOP-based systems)
+
+---
+
+### **8. Example: Design Summary for “Project Management System”**
+
+Here’s a short design sample that shows how everything ties together:
+
+> **Modules:** User, Project, Task, Report
+> **Users:** Admin, Team Member
+> **Database Tables:** users, projects, tasks, comments
+> **Flow:**
+>
+> 1. User logs in → system authenticates from `users` table.
+> 2. Admin creates a project → entry in `projects`.
+> 3. Tasks are assigned → added to `tasks`.
+> 4. Members update progress → reflected in dashboard.
+> 5. Reports are generated by aggregating task data.
+
+---
+
+## 🧰 Tools Recommended for Phase 2
+
+| Purpose         | Tools                                |
+| --------------- | ------------------------------------ |
+| Database design | draw.io, Lucidchart, MySQL Workbench |
+| UI/UX           | Figma, Canva, Balsamiq               |
+| ERD / UML       | StarUML, Creately                    |
+| Collaboration   | GitHub, Trello, Notion               |
+| Backend Testing | Postman                              |
+
+---
+
+## ⚠️ Common Mistakes to Avoid
+
+* ❌ Designing tables without relationships
+* ❌ Forgetting to include constraints like primary/foreign keys
+* ❌ Mixing UI design with backend logic too early
+* ❌ Overcomplicating database structure
+* ❌ Ignoring scalability (think ahead for future modules)
+
+---
+
+## ✅ Deliverables for Phase 2
+
+* [ ] List of modules and users
+* [ ] Database schema (with fields & relationships)
+* [ ] ER diagram
+* [ ] UI sketches / wireframes
+* [ ] Data flow diagram (DFD)
+* [ ] Optional UML diagrams
+
+---
+
+### 🎓 Summary
+
+By the end of Phase 2, your **blueprint should be ready**.
+You should have a *clear picture* of how your application will look, how data flows, and how modules interact.
+
+Once the design is approved, you’ll move to **Phase 3 – Development**, where you’ll bring everything to life using your chosen tech stack.
+
+---
+

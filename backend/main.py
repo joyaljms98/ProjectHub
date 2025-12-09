@@ -14,7 +14,7 @@ from typing import Optional, List
 
 import database
 import models
-from models import LinkCreate, ProjectLinkPublic
+from models import LinkCreate, ProjectLinkPublic, ChatMessageCreate, ProjectChatMessage, UpdateNoteRequest
 import auth
 
 # --- App Initialization ---
@@ -236,29 +236,48 @@ async def login_for_access_token(form_data: models.LoginRequest, db: Database = 
 # --- Password Reset Endpoint (Example) ---
 @app.post("/reset-password")
 async def reset_password(request: models.PasswordResetRequest, db: Database = Depends(get_db)): # Change type hint
-    # Synchronous DB call
-    user = db.users.find_one({"email": request.email.lower()})
+    # Try to find the user by email (case-insensitive) first. If not found,
+    # attempt to find by registration number (some frontends allow username input).
+    user = None
+    if request.email:
+        try:
+            user = db.users.find_one({"email": request.email.lower()})
+        except Exception:
+            user = None
+
+    if not user:
+        # Allow the frontend to send either an email or a registration number
+        # in the `email` field. Try registrationNumber lookup as a fallback.
+        try:
+            user = db.users.find_one({"registrationNumber": request.email})
+        except Exception:
+            user = None
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
+    # Verify security question matches
     if user.get("securityQuestion") != request.securityQuestion:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect security question")
 
-    # Use the correct verification function for security answers
+    # Verify security answer
     if not user.get("securityAnswerHash") or not auth.verify_security_answer(request.securityAnswer, user["securityAnswerHash"]):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect security answer")
 
     # Hash the new password
     new_hashed_password = auth.get_password_hash(request.newPassword)
 
-    # Synchronous DB call
-    db.users.update_one(
+    # Update the user's password and set updatedAt so it's easy to verify the change
+    update_result = db.users.update_one(
         {"_id": user["_id"]},
-        {"$set": {"hashedPassword": new_hashed_password}}
+        {"$set": {"hashedPassword": new_hashed_password, "updatedAt": datetime.datetime.now(timezone.utc)}}
     )
 
-    return {"message": "Password reset successfully"}
+    if update_result.modified_count == 0:
+        # No modification happened; return a 500 to indicate unexpected failure
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update password")
+
+    return {"message": "Password reset successfully", "updatedAt": datetime.datetime.now(timezone.utc).isoformat()}
 
 @app.get("/users/me", response_model=models.UserPublic)
 async def get_current_user_details(current_user: dict = Depends(get_current_user)):
@@ -268,6 +287,82 @@ async def get_current_user_details(current_user: dict = Depends(get_current_user
     # The get_current_user dependency already fetches the user,
     # so we just need to return it.
     return current_user
+
+@app.put("/users/me/note", response_model=models.UserPublic)
+async def update_user_note(
+    note_data: models.UpdateNoteRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Updates the user's personal sticky note."""
+    user_id = ObjectId(current_user["_id"])
+    
+    db.users.update_one(
+        {"_id": user_id},
+        {"$set": {"stickyNote": note_data.stickyNote}}
+    )
+    
+    updated_user = db.users.find_one({"_id": user_id})
+    updated_user["_id"] = str(updated_user["_id"])
+    return updated_user
+
+@app.put("/users/me", response_model=models.UserPublic)
+async def update_current_user_details(
+    update_data: models.UpdateUserPersonalRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Updates the current user's personal information."""
+    user_id = ObjectId(current_user["_id"])
+    
+    # Check for registration number conflict
+    if update_data.registrationNumber != current_user.get("registrationNumber"):
+        existing_user = db.users.find_one({"registrationNumber": update_data.registrationNumber})
+        if existing_user and existing_user["_id"] != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This registration number is already taken."
+            )
+            
+    update_doc = {
+        "fullName": update_data.fullName,
+        "registrationNumber": update_data.registrationNumber,
+        "department": update_data.department
+    }
+    
+    db.users.update_one({"_id": user_id}, {"$set": update_doc})
+    
+    updated_user = db.users.find_one({"_id": user_id})
+    updated_user["_id"] = str(updated_user["_id"])
+    return updated_user
+
+@app.post("/users/me/change-password")
+async def change_password_with_security(
+    request: models.ChangePasswordSecurityRequest,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Changes the current user's password using their security question."""
+    user = current_user # Already fetched
+    
+    if user.get("securityQuestion") != request.securityQuestion:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect security question")
+
+    if not user.get("securityAnswerHash") or not auth.verify_security_answer(request.securityAnswer, user["securityAnswerHash"]):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect security answer")
+
+    new_hashed_password = auth.get_password_hash(request.newPassword)
+    
+    db.users.update_one(
+        {"_id": ObjectId(user["_id"])},
+        {"$set": {"hashedPassword": new_hashed_password, "updatedAt": datetime.datetime.now(timezone.utc)}}
+    )
+    
+    return {"message": "Password changed successfully"}
+
+# Note: A "Change Email" endpoint would require email verification (e.g., sending a token)
+# which is complex. For now, we will skip implementing it, as requested by the user.
+# We will disable the button in the frontend.
 
 # ============================================
 # PROJECT MANAGEMENT ENDPOINTS
@@ -303,7 +398,7 @@ async def create_project(
         "ownerId": current_user["_id"],
         "ownerName": current_user.get("fullName", "Unknown"),
         "department": current_user.get("department", "Unknown"),
-        "status": "Planning",
+        "status": "not_started",
         "teamMembers": [],
         "guideId": None,
         "guideName": None,
@@ -411,6 +506,20 @@ async def get_project(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Project not found"
         )
+
+    # --- ADD THIS BLOCK TO POPULATE NAMES ---
+    if "teamMembers" in project and project["teamMembers"]:
+        for member in project["teamMembers"]:
+            try:
+                user_obj_id = ObjectId(member["userId"])
+                user = db.users.find_one({"_id": user_obj_id}, {"fullName": 1})
+                if user:
+                    member["fullName"] = user.get("fullName", "Unknown User")
+                else:
+                    member["fullName"] = "Unknown User"
+            except InvalidId:
+                member["fullName"] = "Invalid User ID"
+    # --- END OF BLOCK TO ADD ---
 
     # Check access permission
     user_id = current_user["_id"]
@@ -557,12 +666,20 @@ async def update_milestone(
     user_id = current_user["_id"]
     is_owner = project.get("ownerId") == user_id
     is_member = any(member.get("userId") == user_id for member in project.get("teamMembers", []))
+    is_guide = project.get("guideId") == user_id  # <--- ADD THIS LINE
 
-    if not (is_owner or is_member):
+    if not (is_owner or is_member or is_guide):  # <--- ADD 'or is_guide' HERE
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission to edit this project"
         )
+
+    # Check if a Student is trying to mark as 'completed'
+    if current_user.get("role") == "Student" and milestone_data.status == "completed":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the project guide can mark a phase as completed."
+            )
 
     # Validate milestone status
     if milestone_data.status not in ["not_started", "in_progress", "completed"]:
@@ -590,6 +707,33 @@ async def update_milestone(
     completed_count = sum(1 for m in milestones if m.get("status") == "completed")
     progress = int((completed_count / len(milestones)) * 100)
 
+    # --- NEW STATUS LOGIC ---
+    # Determine Project Status based on phases
+    all_statuses = [m.get("status") for m in milestones]
+    
+    new_project_status = project.get("status") 
+    
+    # Only calculate if not in Planning
+    if project.get("status") != "Planning":
+        if all(s == "completed" for s in all_statuses):
+            new_project_status = "Completed"
+        elif all(s == "not_started" for s in all_statuses):
+            new_project_status = "Inactive" # All phases not started = Inactive Project
+        else:
+            # Any mix involving "in_progress" makes the project Active
+            new_project_status = "Active"
+    
+    # If the project was still in Planning (no guide), don't change it yet
+    # Only apply this logic if the project has moved past Planning (has a guide)
+    if project.get("status") != "Planning":
+        if all(s == "completed" for s in all_statuses):
+            new_project_status = "Completed"
+        elif all(s == "not_started" for s in all_statuses):
+            new_project_status = "Inactive"
+        else:
+            # If any are in_progress, or a mix of completed/not_started/in_progress
+            new_project_status = "Active"
+
     # Update project
     db.projects.update_one(
         {"_id": project_obj_id},
@@ -597,6 +741,7 @@ async def update_milestone(
             "$set": {
                 "milestones": milestones,
                 "progress": progress,
+                "status": new_project_status, # Update status
                 "updatedAt": datetime.datetime.now(timezone.utc)
             }
         }
@@ -1000,6 +1145,7 @@ async def update_team_member(
 @app.post("/projects/{project_id}/guide/request", response_model=models.GuideRequest, status_code=status.HTTP_201_CREATED)
 async def send_guide_request(
     project_id: str,
+    request_data: models.SendGuideRequestRequest, # <-- CHANGE THIS
     current_user: dict = Depends(get_current_user),
     db: Database = Depends(get_db)
 ):
@@ -1064,6 +1210,7 @@ async def send_guide_request(
         "ownerName": project.get("ownerName", "Unknown"),
         "status": "pending",
         "declineReason": None,
+        "deadline": request_data.deadline, # <-- ADD THIS LINE
         "createdAt": datetime.datetime.now(timezone.utc),
         "respondedAt": None
     }
@@ -1205,9 +1352,12 @@ async def respond_to_guide_request(
                 "$set": {
                     "guideId": guide_request.get("teacherId"),
                     "guideName": teacher.get("fullName", "Unknown") if teacher else "Unknown",
+                    "deadline": guide_request.get("deadline"),
+                    "status": "Inactive", # Default to Inactive (Waiting for student to start)
                     "updatedAt": datetime.datetime.now(timezone.utc)
                 }
             }
+            # REMOVED array_filters to ensure phases stay "not_started"
         )
 
         # Update this request as accepted
@@ -1389,6 +1539,186 @@ async def get_project_links(
         
     return links
 
+@app.delete("/projects/{project_id}/phases/{phase_order}/links/{link_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project_link(
+    project_id: str,
+    phase_order: int,
+    link_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Delete a submitted project link."""
+    try:
+        link_obj_id = ObjectId(link_id)
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid ID format")
+
+    # Find the link
+    link = db.project_links.find_one({"_id": link_obj_id})
+    if not link:
+        raise HTTPException(status_code=404, detail="Link not found")
+
+    # Find project to check owner permissions
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Permission check: Only the submitter or the project owner can delete
+    user_id = current_user["_id"]
+    is_submitter = link["submittedByUserId"] == user_id
+    is_owner = project["ownerId"] == user_id
+    
+    if not (is_submitter or is_owner):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to delete this file."
+        )
+
+    result = db.project_links.delete_one({"_id": link_obj_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to delete link")
+    
+    return # 204 returns no content
+
+
+# ============================================
+# PROJECT CHAT ENDPOINTS (NEW)
+# ============================================
+
+@app.get("/projects/{project_id}/phases/{phase_order}/chat", response_model=List[models.ProjectChatMessage])
+async def get_project_chat_messages(
+    project_id: str,
+    phase_order: int,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Gets all chat messages for a specific project phase."""
+    # We can reuse the get_project_links permission logic
+    project = await get_project_links_permission_check(project_id, phase_order, current_user, db)
+
+    messages = list(db.project_chat_messages.find({
+        "projectId": project_id,
+        "phaseOrder": phase_order
+    }).sort("sentAt", 1).limit(200)) # Get last 200 messages
+
+    for msg in messages:
+        msg["_id"] = str(msg["_id"])
+        
+    return messages
+
+@app.post("/projects/{project_id}/phases/{phase_order}/chat", response_model=models.ProjectChatMessage, status_code=status.HTTP_201_CREATED)
+async def post_project_chat_message(
+    project_id: str,
+    phase_order: int,
+    chat_data: models.ChatMessageCreate,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Posts a new chat message to a project phase."""
+    project = await get_project_links_permission_check(project_id, phase_order, current_user, db)
+    
+    message_doc = {
+        "projectId": project_id,
+        "phaseOrder": phase_order,
+        "senderId": current_user["_id"],
+        "senderName": current_user.get("fullName", "Unknown"),
+        "senderRole": current_user.get("role", "User"),
+        "messageText": chat_data.messageText,
+        "sentAt": datetime.datetime.now(timezone.utc)
+    }
+    
+    result = db.project_chat_messages.insert_one(message_doc)
+    created_message = db.project_chat_messages.find_one({"_id": result.inserted_id})
+    created_message["_id"] = str(created_message["_id"])
+
+    return created_message
+
+
+@app.delete("/projects/{project_id}/phases/{phase_order}/chat/{message_id}")
+async def delete_project_chat_message(
+    project_id: str,
+    phase_order: int,
+    message_id: str,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Deletes a chat message if the requester is the sender, project owner, or project guide."""
+    # Validate project access and get project info
+    project = await get_project_links_permission_check(project_id, phase_order, current_user, db)
+
+    # Validate message id
+    try:
+        msg_obj_id = ObjectId(message_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid message ID format")
+
+    message = db.project_chat_messages.find_one({"_id": msg_obj_id})
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+
+    # Permission: allow if sender, project owner, or project guide
+    requester_id = current_user["_id"]
+    if not (
+        message.get("senderId") == requester_id or
+        project.get("ownerId") == requester_id or
+        project.get("guideId") == requester_id
+    ):
+        raise HTTPException(status_code=403, detail="Not authorized to delete this message")
+
+    db.project_chat_messages.delete_one({"_id": msg_obj_id})
+
+    return {"message": "deleted"}
+
+# We need to create a helper function to avoid duplicating code
+async def get_project_links_permission_check(project_id, phase_order, current_user, db):
+    try:
+        project_obj_id = ObjectId(project_id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid project ID format")
+
+    project = db.projects.find_one({"_id": project_obj_id})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    user_id = current_user["_id"]
+    is_owner = project.get("ownerId") == user_id
+    is_member = any(member.get("userId") == user_id for member in project.get("teamMembers", []))
+    is_guide = project.get("guideId") == user_id
+
+    if not (is_owner or is_member or is_guide):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have access to this project's data"
+        )
+    
+    if not (1 <= phase_order <= 4):
+         raise HTTPException(status_code=400, detail="Phase order must be between 1 and 4")
+    
+    return project
+
+# --- THIS FUNCTION NEEDS TO BE MODIFIED ---
+@app.get("/projects/{project_id}/phases/{phase_order}/links", response_model=List[models.ProjectLinkPublic])
+async def get_project_links(
+    project_id: str,
+    phase_order: int,
+    current_user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db)
+):
+    """Gets all submitted links for a project phase."""
+    # All logic is now in the helper function
+    await get_project_links_permission_check(project_id, phase_order, current_user, db)
+
+    links = list(db.project_links.find({
+        "projectId": project_id,
+        "phaseOrder": phase_order
+    }).sort("submittedAt", 1))
+
+    for link in links:
+        link["_id"] = str(link["_id"])
+        
+    return links
+
     
 # ============================================
 # STUDENT SEARCH ENDPOINT
@@ -1480,11 +1810,14 @@ class AdminStats(BaseModel):
     total_students: int
     total_teachers: int
     projects_completed: int
-    projects_in_progress: int
+    projects_active: int # Renamed from projects_in_progress
+    projects_inactive: int # New field
     projects_planning: int
-    active_students: int # A simple count for now
-    active_teachers: int # A simple count for now
+    active_students: int
+    active_teachers: int
     guides_count: int
+    solo_projects_count: int
+    team_projects_count: int 
     
 def get_current_admin_user(current_user: dict = Depends(get_current_user)):
     """Dependency to check if the current user is an Admin."""
@@ -1505,7 +1838,10 @@ async def get_admin_statistics(
     # Project counts
     total_projects = db.projects.count_documents({})
     projects_completed = db.projects.count_documents({"status": "Completed"})
-    projects_in_progress = db.projects.count_documents({"status": "Active"}) # Assuming Active = In-Progress
+    # Count "Active" projects
+    projects_active = db.projects.count_documents({"status": "Active"}) 
+    # Count "Inactive" projects
+    projects_inactive = db.projects.count_documents({"status": "Inactive"})
     projects_planning = db.projects.count_documents({"status": "Planning"})
     
     # User counts
@@ -1518,19 +1854,29 @@ async def get_admin_statistics(
     # Find how many unique teachers are listed as guides
     guides_count = len(db.projects.distinct("guideId", {"guideId": {"$in": teacher_ids}}))
 
+    # --- NEW CALCULATIONS ---
+    # Solo Projects: Projects where teamMembers array is empty (size 0)
+    solo_projects_count = db.projects.count_documents({"teamMembers": {"$size": 0}})
+    
+    # Team Projects: Projects where teamMembers array has at least 1 element
+    team_projects_count = db.projects.count_documents({"teamMembers.0": {"$exists": True}})
+    # ------------------------
+
     # Note: "Active" user logic is not defined, so we'll just return totals for now
-    # You could add a "last_login" field to your user model to calculate this properly
     
     return {
         "total_projects": total_projects,
         "total_students": total_students,
         "total_teachers": total_teachers,
         "projects_completed": projects_completed,
-        "projects_in_progress": projects_in_progress,
+        "projects_active": projects_active,
+        "projects_inactive": projects_inactive,
         "projects_planning": projects_planning,
-        "active_students": total_students, # Placeholder
-        "active_teachers": total_teachers, # Placeholder
-        "guides_count": guides_count
+        "active_students": total_students,
+        "active_teachers": total_teachers,
+        "guides_count": guides_count,
+        "solo_projects_count": solo_projects_count, # <-- Added
+        "team_projects_count": team_projects_count  # <-- Added
     }
 
 @app.get("/api/admin/users", response_model=List[models.UserPublic])
